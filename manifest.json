@@ -1,0 +1,53 @@
+{
+  "manifest_version": 2,
+  "version": "0.1.0",
+  "name": "baTON",
+  "homepage_url": "https://baton.io",
+  "description": "FreeTON browser extension and wallet",
+  "icons": {
+    "16": "icons/16.png",
+    "24": "icons/24.png",
+    "48": "icons/48.png",
+    "64": "icons/128.png",
+    "128": "icons/128.png"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "webRequest",
+    "notifications",
+    "unlimitedStorage"
+  ],
+  "content_security_policy": "script-src 'self' 'wasm-eval' ; object-src 'self'",
+  "background": {
+    "scripts": [
+      "browser-polyfill.js",
+      "background.js"
+    ]
+  },
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "baTON",
+    "default_icon": {}
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "file://*/*",
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "browser-polyfill.js",
+        "injector.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    "ton-client/main.js",
+    "ton-client/tonclient.wasm",
+    "freetonProvider.js"
+  ]
+}
