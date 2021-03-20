@@ -2,6 +2,12 @@ import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
 
 console.log('IM BACKGROUND');
 
+const wait = (timeout = 500) => {
+    return new Promise(resolve => {
+        setTimeout(resolve, timeout)
+    })
+}
+
 const RPC = {
     'test': async (a, b) => {
         return a + b;
@@ -21,10 +27,23 @@ const RPC = {
      */
     main_run: async (publicKey, data) => {
         console.log(publicKey, data);
-        //await openPopup();
-        let result = await messenger.rpcCall('popup_test', [1, 16], 'popup');
-        console.log('POPUP RESULT', result);
-        return confirm(`Sign this message? Pubkey: ${publicKey}`);
+        let popup = await openPopup();
+        console.log(popup);
+
+        //Simple timeout for initialization
+        await wait();
+
+        let allowSign = await messenger.rpcCall('popup_testSign', ['Sign this message?', publicKey], 'popup');
+
+        await messenger.rpcCall('popup_close', [], 'popup');
+
+        if(!allowSign) {
+            throw new Error('Rejected by user');
+        }
+
+
+        console.log('POPUP RESULT', allowSign);
+        return allowSign;
     }
 }
 

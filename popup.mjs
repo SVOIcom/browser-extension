@@ -6,6 +6,15 @@ const RPC = {
     },
     'popup_fall': async () => {
         throw new Error('Some exception');
+    },
+    popup_testSign: async (message, publicKey) => {
+        return confirm(`${message} Pubkey: ${publicKey}`);
+    },
+    popup_close: async () => {
+        setTimeout(() => {
+            window.close();
+        }, 10);
+        return true;
     }
 }
 let messenger = new ExtensionMessenger('popup', RPC);
