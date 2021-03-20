@@ -20,10 +20,7 @@
   ],
   "content_security_policy": "script-src 'self' 'wasm-eval' ; object-src 'self'",
   "background": {
-    "scripts": [
-      "browser-polyfill.js",
-      "background.js"
-    ]
+    "page": "background.html"
   },
   "browser_action": {
     "default_popup": "popup.html",
@@ -45,7 +42,15 @@
       "all_frames": true
     }
   ],
+  "externally_connectable" : {
+    "matches": [
+      "file://*/*",
+      "http://*/*",
+      "https://*/*"
+    ]
+  },
   "web_accessible_resources": [
+    "browser-polyfill.js",
     "ton-client/main.js",
     "ton-client/tonclient.wasm",
     "freetonProvider.js",

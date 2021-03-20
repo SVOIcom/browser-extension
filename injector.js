@@ -1,5 +1,25 @@
 console.log('FreeTON injector')
 
+//Message proxy
+window.addEventListener("message", function (event) {
+    // We only accept messages from ourselves
+    if(event.source != window) {
+        return;
+    }
+
+    //Outcome RPC to page
+    if(event.data.method  /*&& (event.data.type == "FROM_PAGE")*/) {
+        browser.runtime.sendMessage(event.data);
+
+    }
+});
+
+//Income from extension
+browser.runtime.onMessage.addListener(async (msg, sender) => {
+    window.postMessage(msg, "*");
+});
+
+
 /**
  * Inject script by url
  * @param urlExt
@@ -51,6 +71,7 @@ function evalScript(source) {
         console.error('FreeTON: injector failed', error);
     }
 }
+
 
 //Inject TONCLient
 injectScriptUrl(browser.extension.getURL("ton-client/main.js"));
