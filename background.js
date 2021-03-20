@@ -1,6 +1,7 @@
 import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
 import TonClientWrapper from "./modules/TonClientWrapper.mjs";
 import PrivateStorage from "./modules/PrivateStorage.mjs";
+import Keyring from "./modules/Keyring.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -96,6 +97,9 @@ window.messenger = messenger;
 
 let storage = await (new PrivateStorage()).initialize();
 window.privateStorage = storage;
+
+let keyring = await (new Keyring()).init();
+window.keyring = keyring;
 
 /**
  * Get TON client
