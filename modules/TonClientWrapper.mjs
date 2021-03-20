@@ -138,12 +138,13 @@ class TonClientWrapper extends EventEmitter3 {
     /**
      * Call extension method
      * @async
-     * @param method
-     * @param params
+     * @param {string} method
+     * @param {Array} params
+     * @param {string} target
      * @returns {Promise<*>}
      * @private
      */
-    _extensionRPCCall(method, params) {
+    _extensionRPCCall(method, params, target = '*') {
         return new Promise((resolve, reject) => {
             let requestId = Math.random();
             this._externalRequests[requestId] = (data) => {
@@ -152,7 +153,7 @@ class TonClientWrapper extends EventEmitter3 {
                 }
                 return resolve(data.result);
             }
-            window.postMessage({method: method, rpc: true, requestId, params}, "*");
+            window.postMessage({method: method, rpc: true, fromPage: true, requestId, params, target}, "*");
         })
     }
 }
