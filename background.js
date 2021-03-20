@@ -80,6 +80,12 @@ async function openPopup() {
     });
 }
 
+/**
+ * Open accept sign message
+ * @param publicKey
+ * @param acceptMessage
+ * @returns {Promise<{public, secret: *}>}
+ */
 async function getKeysFromDeployAcceptence(publicKey, acceptMessage = 'Sign this message?') {
     let popup = await openPopup();
 
@@ -121,8 +127,7 @@ async function getKeysFromDeployAcceptence(publicKey, acceptMessage = 'Sign this
 
     await messenger.rpcCall('popup_close', [], 'popup');
 
-    return keyPair
-
+    return keyPair;
 }
 
 //Messenger channel
