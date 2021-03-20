@@ -16,7 +16,9 @@ window.addEventListener("message", function (event) {
 
 //Income from extension
 browser.runtime.onMessage.addListener(async (msg, sender) => {
-    window.postMessage(msg, "*");
+    if(msg.target === '*') {
+        window.postMessage(msg, "*");
+    }
 });
 
 

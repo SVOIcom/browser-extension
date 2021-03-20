@@ -1,4 +1,3 @@
-import MESSAGES from "./modules/const/messages.mjs";
 import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
 
 console.log('IM BACKGROUND');
@@ -12,6 +11,20 @@ const RPC = {
     },
     mainOpenPopup: () => {
         return openPopup();
+    },
+
+    /**
+     * Contract run
+     * @param publicKey
+     * @param data
+     * @returns {Promise<boolean>}
+     */
+    main_run: async (publicKey, data) => {
+        console.log(publicKey, data);
+        //await openPopup();
+        let result = await messenger.rpcCall('popup_test', [1, 16], 'popup');
+        console.log('POPUP RESULT', result);
+        return confirm(`Sign this message? Pubkey: ${publicKey}`);
     }
 }
 
@@ -25,4 +38,7 @@ async function openPopup() {
         //  top: position.y,
     });
 }
+
+//Messenger channel
 let messenger = new ExtensionMessenger('background', RPC);
+window.messenger = messenger;

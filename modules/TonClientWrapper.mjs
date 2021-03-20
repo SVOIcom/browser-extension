@@ -2,7 +2,6 @@
  *
  *
  **/
-import MESSAGES from "./const/messages.mjs";
 
 
 class TonClientWrapper extends EventEmitter3 {
@@ -104,7 +103,7 @@ class TonClientWrapper extends EventEmitter3 {
                         let publicKey = callParams[0].keyPair.public ? callParams[0].keyPair.public : null;
                         //Run external sign
                         //return confirm(`Sign this message? Pubkey: ${publicKey}`);
-                        that._extensionRPCCall(MESSAGES.TEST);
+                        return await that._extensionRPCCall('main_run', [publicKey, ...callParams]);
 
                     }
                 }
