@@ -57,63 +57,72 @@ const RPC = {
      */
     main_createRunMessage: async (publicKey, data) => {
         console.log(publicKey, data);
-        let popup = await openPopup();
-
-        //Simple timeout for initialization
-        await wait();
-
-        let allowSign = await messenger.rpcCall('popup_testSign', ['Sign this message?', publicKey], 'popup');
-
-
-        if(!allowSign) {
-            throw new Error('Rejected by user');
-        }
-
-        //Sign allowed, make run
+        data.keyPair = await getKeysFromDeployAcceptence(publicKey)
 
         let ton = await getFreeTON();
-
-
-        //Action requires password
-        let password = await messenger.rpcCall('popup_password', ['', publicKey], 'popup');
-        if(!password) {
-            throw new Error('Rejected by user');
-        }
-
-        console.log('PASSWORD', password);
-
-        try {
-            data.keyPair = await keyring.extractKey(publicKey, password);
-        } catch (e) {
-            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">Invalid password</span><br>', publicKey], 'popup');
-            if(!password) {
-                throw new Error('Rejected by user');
-            }
-
-            try {
-                data.keyPair = await keyring.extractKey(publicKey, password);
-            } catch (e) {
-                throw new Error('Invalid password');
-            }
-        }
-
-
-        await messenger.rpcCall('popup_close', [], 'popup');
-
         return await ton.contracts.createRunMessage(data);
 
     }
 }
 
+/**
+ * Open extension popup
+ * @returns {Promise<*>}
+ */
 async function openPopup() {
     return browser.windows.create({
         url: 'popup.html',
         type: 'popup',
-        width: 310,
+        width: 350,
         height: 536,
         // left: position.x,
         //  top: position.y,
     });
+}
+
+async function getKeysFromDeployAcceptence(publicKey, acceptMessage = 'Sign this message?') {
+    let popup = await openPopup();
+
+    //Simple timeout for initialization
+    await wait();
+
+    let allowSign = await messenger.rpcCall('popup_testSign', [acceptMessage, publicKey], 'popup');
+
+    //Sign allowed, make run
+    if(!allowSign) {
+        throw new Error('Rejected by user');
+    }
+
+
+    //Action requires password
+    let password = await messenger.rpcCall('popup_password', ['', publicKey], 'popup');
+    if(!password) {
+        throw new Error('Rejected by user');
+    }
+
+    let keyPair = {};
+
+    try {
+        keyPair = await keyring.extractKey(publicKey, password);
+    } catch (e) {
+        //Retry password
+        let password = await messenger.rpcCall('popup_password', ['<span style="color: red">Invalid password</span><br>', publicKey], 'popup');
+        if(!password) {
+            throw new Error('Rejected by user');
+        }
+
+        try {
+            keyPair = await keyring.extractKey(publicKey, password);
+        } catch (e) {
+            throw new Error('Invalid password');
+        }
+    }
+
+
+    await messenger.rpcCall('popup_close', [], 'popup');
+
+    return keyPair
+
 }
 
 //Messenger channel

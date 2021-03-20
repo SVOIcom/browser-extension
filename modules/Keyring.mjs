@@ -66,6 +66,18 @@ class Keyring {
 
         return {public: publicKey, secret: await this._storage.get(publicKey, password)};
     }
+
+    /**
+     * Delete key from keyring
+     * @param publicKey
+     * @returns {Promise<void>}
+     */
+    async removeKey(publicKey){
+        await this._storage.del(publicKey);
+        delete this._publicKeys[publicKey];
+        await this._saveData();
+    }
+
 }
 
 export default Keyring;

@@ -57,8 +57,18 @@ class PrivateStorage {
      * Clear storage
      * @returns {Promise<*>}
      */
-    async clear() {
-        return await browser.storage.sync.clear();
+
+    /* async clear() {
+         return await browser.storage.sync.clear();
+     }*/
+
+    /**
+     * Delete key from storage
+     * @param key
+     * @returns {Promise<*>}
+     */
+    async del(key) {
+        return await browser.storage.sync.remove(key);
     }
 
 
