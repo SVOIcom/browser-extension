@@ -64,7 +64,6 @@ const RPC = {
 
         let allowSign = await messenger.rpcCall('popup_testSign', ['Sign this message?', publicKey], 'popup');
 
-        await messenger.rpcCall('popup_close', [], 'popup');
 
         if(!allowSign) {
             throw new Error('Rejected by user');
@@ -74,7 +73,33 @@ const RPC = {
 
         let ton = await getFreeTON();
 
-        data.keyPair = {public: publicKey, secret: 'e682829f060325cdb06dedb59636f62f11234c0cbe53511580a388b38b4970bd'};
+
+        //Action requires password
+        let password = await messenger.rpcCall('popup_password', ['', publicKey], 'popup');
+        if(!password) {
+            throw new Error('Rejected by user');
+        }
+
+        console.log('PASSWORD', password);
+
+        try {
+            data.keyPair = await keyring.extractKey(publicKey, password);
+        } catch (e) {
+            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">Invalid password</span><br>', publicKey], 'popup');
+            if(!password) {
+                throw new Error('Rejected by user');
+            }
+
+            try {
+                data.keyPair = await keyring.extractKey(publicKey, password);
+            } catch (e) {
+                throw new Error('Invalid password');
+            }
+        }
+
+
+        await messenger.rpcCall('popup_close', [], 'popup');
+
         return await ton.contracts.createRunMessage(data);
 
     }

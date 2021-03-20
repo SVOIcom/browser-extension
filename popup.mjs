@@ -16,6 +16,15 @@ const RPC = {
             });
         })
     },
+    popup_password: (message, publicKey) => {
+        return new Promise((resolve, reject) => {
+            app.dialog.password(`${message} \nAction password required for public key: ${publicKey}`,'Password required',  (password) => {
+                resolve(password)
+            }, () => {
+                resolve(false)
+            });
+        })
+    },
     popup_close: async () => {
         setTimeout(() => {
             window.close();
