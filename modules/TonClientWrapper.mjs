@@ -105,14 +105,28 @@ class TonClientWrapper extends EventEmitter3 {
                     if(!callParams[0].keyPair.secret) {
                         let publicKey = callParams[0].keyPair.public ? callParams[0].keyPair.public : null;
                         //Run external sign
-                        //return confirm(`Sign this message? Pubkey: ${publicKey}`);
                         return await that._extensionRPCCall('main_run', [publicKey, ...callParams]);
-
                     }
                 }
             }
             return await mockedMethod.apply(this, callParams);
-        })
+        });
+
+        //createRunMessage
+        this._mockTonMethod('contracts', 'createRunMessage', async function (mockedMethod, callParams) {
+            if(callParams[0]) {
+                //If keypair defined
+                if(callParams[0].keyPair) {
+                    //And no private key provided, but public provided
+                    if(!callParams[0].keyPair.secret) {
+                        let publicKey = callParams[0].keyPair.public ? callParams[0].keyPair.public : null;
+                        //Run external sign
+                        return await that._extensionRPCCall('main_createRunMessage', [publicKey, ...callParams]);
+                    }
+                }
+            }
+            return await mockedMethod.apply(this, callParams);
+        });
     }
 
 

@@ -29,7 +29,6 @@ const RPC = {
     main_run: async (publicKey, data) => {
         console.log(publicKey, data);
         let popup = await openPopup();
-        console.log(popup);
 
         //Simple timeout for initialization
         await wait();
@@ -42,9 +41,40 @@ const RPC = {
             throw new Error('Rejected by user');
         }
 
+        //Sign allowed, make run
 
-        console.log('POPUP RESULT', allowSign);
         return allowSign;
+    }   ,
+
+
+    /**
+     * createRunMessage mock
+     * @param {string} publicKey
+     * @param {array} data
+     * @returns {Promise<*>}
+     */
+    main_createRunMessage: async (publicKey, data) => {
+        console.log(publicKey, data);
+        let popup = await openPopup();
+
+        //Simple timeout for initialization
+        await wait();
+
+        let allowSign = await messenger.rpcCall('popup_testSign', ['Sign this message?', publicKey], 'popup');
+
+        await messenger.rpcCall('popup_close', [], 'popup');
+
+        if(!allowSign) {
+            throw new Error('Rejected by user');
+        }
+
+        //Sign allowed, make run
+
+        let ton = await getFreeTON();
+
+        data.keyPair = {public: publicKey, secret: 'e682829f060325cdb06dedb59636f62f11234c0cbe53511580a388b38b4970bd'};
+        return await ton.contracts.createRunMessage(data);
+
     }
 }
 
@@ -63,12 +93,13 @@ async function openPopup() {
 let messenger = new ExtensionMessenger('background', RPC);
 window.messenger = messenger;
 
+/**
+ * Get TON client
+ * @returns {Promise<TonClientWrapper>}
+ */
 async function getFreeTON() {
     window.TONClient.setWasmOptions({binaryURL: 'ton-client/tonclient.wasm'});
     return await (new TonClientWrapper(true)).create({
         servers: ['net.ton.dev']
     });
 }
-
-let freeton = await getFreeTON();
-window.freeton = freeton;

@@ -35,9 +35,9 @@ const app = new Framework7({
     root: "#app",
     theme: "aurora",
     autoDarkTheme: true,
-	  dialog: {
-	    title: 'baTON',
-	  },
+    dialog: {
+        title: 'baTON',
+    },
     data: function () {
         return {
             user: {
