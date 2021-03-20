@@ -54,6 +54,7 @@
     "ton-client/main.js",
     "ton-client/tonclient.wasm",
     "freetonProvider.js",
-    "modules/*"
+    "modules/*",
+    "packages/*"
   ]
 }

@@ -7,8 +7,14 @@ const RPC = {
     'popup_fall': async () => {
         throw new Error('Some exception');
     },
-    popup_testSign: async (message, publicKey) => {
-        return confirm(`${message} Pubkey: ${publicKey}`);
+    popup_testSign: (message, publicKey) => {
+        return new Promise((resolve, reject) => {
+            app.dialog.confirm(`${message} Pubkey: ${publicKey}`, `Action required`, () => {
+                resolve(true)
+            }, () => {
+                resolve(false)
+            });
+        })
     },
     popup_close: async () => {
         setTimeout(() => {
@@ -18,3 +24,54 @@ const RPC = {
     }
 }
 let messenger = new ExtensionMessenger('popup', RPC);
+
+// Dom7
+const $ = Dom7;
+
+
+// Init App
+const app = new Framework7({
+    id: "baton",
+    root: "#app",
+    theme: "aurora",
+    autoDarkTheme: true,
+	  dialog: {
+	    title: 'baTON',
+	  },
+    data: function () {
+        return {
+            user: {
+                firstName: "John",
+                lastName: "Doe",
+            },
+        };
+    },
+    methods: {
+        helloWorld: function () {
+            app.dialog.alert("Hello World!");
+        },
+    },
+    on: {
+        pageAfterIn: async function (event, page) {
+
+        },
+        pageInit: async function (event, page) {
+
+        },
+    },
+    routes: [],
+    popup: {
+        closeOnEscape: true,
+    },
+    sheet: {
+        closeOnEscape: true,
+    },
+    popover: {
+        closeOnEscape: true,
+    },
+    actions: {
+        closeOnEscape: true,
+    },
+});
+
+window.app = app;

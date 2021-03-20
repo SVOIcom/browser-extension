@@ -1,4 +1,5 @@
 import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
+import TonClientWrapper from "./modules/TonClientWrapper.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -61,3 +62,13 @@ async function openPopup() {
 //Messenger channel
 let messenger = new ExtensionMessenger('background', RPC);
 window.messenger = messenger;
+
+async function getFreeTON() {
+    window.TONClient.setWasmOptions({binaryURL: 'ton-client/tonclient.wasm'});
+    return await (new TonClientWrapper(true)).create({
+        servers: ['net.ton.dev']
+    });
+}
+
+let freeton = await getFreeTON();
+window.freeton = freeton;

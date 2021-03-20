@@ -15,10 +15,11 @@ class TonClientWrapper extends EventEmitter3 {
     }
 
 
-    constructor() {
+    constructor(disableMocks = false) {
         super();
         this._rawTon = null;
         this._externalRequests = {};
+        this.disableMocks = disableMocks;
     }
 
     /**
@@ -34,25 +35,27 @@ class TonClientWrapper extends EventEmitter3 {
             this[key] = this._rawTon[key];
         }
 
-        this._configureMockedMethods();
+        if(!this.disableMocks) {
+            this._configureMockedMethods();
 
-        //Configure RPC
+            //Configure RPC
 
-        window.addEventListener("message", (event) => {
-            // We only accept messages from ourselves
-            if(event.source != window) {
-                return;
-            }
-
-            //is RPC call
-            if(event.data.requestId && event.data.result !== undefined) {
-                if(this._externalRequests[event.data.requestId]) {
-                    this._externalRequests[event.data.requestId](event.data);
-                    delete this._externalRequests[event.data.requestId];
+            window.addEventListener("message", (event) => {
+                // We only accept messages from ourselves
+                if(event.source != window) {
+                    return;
                 }
-            }
-        });
 
+                //is RPC call
+                if(event.data.requestId && event.data.result !== undefined) {
+                    if(this._externalRequests[event.data.requestId]) {
+                        this._externalRequests[event.data.requestId](event.data);
+                        delete this._externalRequests[event.data.requestId];
+                    }
+                }
+            });
+
+        }
 
         return this;
     }

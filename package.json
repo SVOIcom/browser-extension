@@ -18,5 +18,8 @@
   "homepage": "https://github.com/lailune/browser-extension#readme",
   "devDependencies": {
     "webextension-polyfill": "^0.7.0"
+  },
+  "dependencies": {
+    "framework7": "^6.0.12"
   }
 }
