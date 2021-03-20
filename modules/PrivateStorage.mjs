@@ -1,0 +1,67 @@
+import {default as Crypto} from "./Crypto.mjs";
+
+class PrivateStorage {
+    constructor() {
+        this.iv = null;
+        this.crypto = null;
+    }
+
+    async initialize(asEmpty = false) {
+
+        /**
+         *
+         * @type {Crypto}
+         */
+        this.crypto = new Crypto();
+
+        if(asEmpty) {
+            await this.clear();
+        }
+
+        return this;
+    }
+
+
+    /**
+     * Set key
+     * @param {string} key
+     * @param {object} value
+     * @param {string} password
+     * @returns {Promise<*>}
+     */
+    async set(key, value, password) {
+        value = JSON.stringify(value);
+        let encryptedData = await this.crypto.encrypt(value, password);
+
+        let field = {};
+        field[key] = encryptedData;
+        return await browser.storage.sync.set(field);
+    }
+
+    /**
+     * Get key
+     * @param {string} key
+     * @param {string} password
+     * @returns {Promise<*>}
+     */
+    async get(key, password) {
+        let encryptedData = await browser.storage.sync.get(key);
+        if(!encryptedData[key]) {
+            return null;
+        }
+
+        return JSON.parse(await this.crypto.decrypt(encryptedData[key], password));
+    }
+
+    /**
+     * Clear storage
+     * @returns {Promise<*>}
+     */
+    async clear() {
+        return await browser.storage.sync.clear();
+    }
+
+
+}
+
+export default PrivateStorage;

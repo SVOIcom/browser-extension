@@ -1,5 +1,6 @@
 import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
 import TonClientWrapper from "./modules/TonClientWrapper.mjs";
+import PrivateStorage from "./modules/PrivateStorage.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -44,7 +45,7 @@ const RPC = {
         //Sign allowed, make run
 
         return allowSign;
-    }   ,
+    },
 
 
     /**
@@ -92,6 +93,9 @@ async function openPopup() {
 //Messenger channel
 let messenger = new ExtensionMessenger('background', RPC);
 window.messenger = messenger;
+
+let storage = await (new PrivateStorage()).initialize();
+window.privateStorage = storage;
 
 /**
  * Get TON client
