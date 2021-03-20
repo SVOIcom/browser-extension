@@ -48,6 +48,7 @@
   "web_accessible_resources": [
     "ton-client/main.js",
     "ton-client/tonclient.wasm",
-    "freetonProvider.js"
+    "freetonProvider.js",
+    "modules/*"
   ]
 }

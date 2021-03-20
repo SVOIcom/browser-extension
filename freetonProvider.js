@@ -1,18 +1,24 @@
 console.log('I AM INJECTED');
 window.injected = true;
 
+import TonClientWrapper from "./modules/TonClientWrapper.mjs";
 
 console.log('Loading FreeTON provider');
 
 window.addEventListener('load', async () => {
-    try {
+    //try {
         console.log(window.TONClient);
         //Trying setup TON WASM client
         window.TONClient.setWasmOptions({binaryURL: window.tonWasmUrl});
 
-        let freeton = await TONClient.create({
+        let freeton = await (new TonClientWrapper()).create({
             servers: ['net.ton.dev']
         });
+
+
+        /*let freeton = await TONClient.create({
+            servers: ['net.ton.dev']
+        });*/
 
         //Check is ton already provided
         if(!window.ton) {
@@ -22,9 +28,8 @@ window.addEventListener('load', async () => {
 
         console.log('FreeTON provider ready');
 
-
-    } catch (e) {
+    /*} catch (e) {
         console.log('FREETON PROVIDER INITIALIZATION ERROR', e);
-    }
+    }*/
 });
 
