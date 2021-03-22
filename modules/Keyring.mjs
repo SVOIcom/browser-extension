@@ -48,6 +48,9 @@ class Keyring {
      * @returns {Promise<void>}
      */
     async addKey(publicKey, privateKeyOrSeedWithConfig, password) {
+        if(await this.isKeyInKeyring(publicKey)) {
+            throw new Error('Key already in keyring');
+        }
         const isSeed = typeof privateKeyOrSeedWithConfig === 'object';
         this._publicKeys[publicKey] = {isSeed};
 
@@ -72,11 +75,21 @@ class Keyring {
      * @param publicKey
      * @returns {Promise<void>}
      */
-    async removeKey(publicKey){
+    async removeKey(publicKey) {
         await this._storage.del(publicKey);
         delete this._publicKeys[publicKey];
         await this._saveData();
     }
+
+    /**
+     * Is key in keyring
+     * @param publicKey
+     * @returns {Promise<boolean>}
+     */
+    async isKeyInKeyring(publicKey) {
+        return typeof this._publicKeys[publicKey] !== 'undefined';
+    }
+
 
 }
 

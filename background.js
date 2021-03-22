@@ -30,22 +30,18 @@ const RPC = {
      */
     main_run: async (publicKey, data) => {
         console.log(publicKey, data);
-        let popup = await openPopup();
+        data.keyPair = await getKeysFromDeployAcceptence(publicKey)
 
-        //Simple timeout for initialization
-        await wait();
+        let ton = await getFreeTON();
+        return await ton.contracts.run(data);
+    },
 
-        let allowSign = await messenger.rpcCall('popup_testSign', ['Sign this message?', publicKey], 'popup');
+    main_runLocal: async (publicKey, data) => {
+        console.log(publicKey, data);
+        data.keyPair = await getKeysFromDeployAcceptence(publicKey)
 
-        await messenger.rpcCall('popup_close', [], 'popup');
-
-        if(!allowSign) {
-            throw new Error('Rejected by user');
-        }
-
-        //Sign allowed, make run
-
-        return allowSign;
+        let ton = await getFreeTON();
+        return await ton.contracts.runLocal(data);
     },
 
 
@@ -62,6 +58,23 @@ const RPC = {
         let ton = await getFreeTON();
         return await ton.contracts.createRunMessage(data);
 
+    },
+
+    /**
+     * Returns keys in keyring
+     * @returns {Promise<string[]>}
+     */
+    main_getPublicKeys: async () => {
+        return await keyring.getPublicKeys();
+    },
+
+    /**
+     * Check is public key in keyring
+     * @param publicKey
+     * @returns {Promise<*>}
+     */
+    main_isKeyInKeyring: async (publicKey) => {
+        return await keyring.isKeyInKeyring(publicKey);
     }
 }
 
@@ -77,6 +90,17 @@ async function openPopup() {
         height: 536,
         // left: position.x,
         //  top: position.y,
+    });
+}
+
+/**
+ * Get TON client
+ * @returns {Promise<TonClientWrapper>}
+ */
+async function getFreeTON() {
+    window.TONClient.setWasmOptions({binaryURL: 'ton-client/tonclient.wasm'});
+    return await (new TonClientWrapper(true)).create({
+        servers: ['net.ton.dev']
     });
 }
 
@@ -130,23 +154,22 @@ async function getKeysFromDeployAcceptence(publicKey, acceptMessage = 'Sign this
     return keyPair;
 }
 
+let messenger;
+let storage;
+let keyring;
+
+(async () => {
 //Messenger channel
-let messenger = new ExtensionMessenger('background', RPC);
-window.messenger = messenger;
+    messenger = new ExtensionMessenger('background', RPC);
+    window.messenger = messenger;
 
-let storage = await (new PrivateStorage()).initialize();
-window.privateStorage = storage;
 
-let keyring = await (new Keyring()).init();
-window.keyring = keyring;
+    keyring = await (new Keyring()).init();
+    window.keyring = keyring;
 
-/**
- * Get TON client
- * @returns {Promise<TonClientWrapper>}
- */
-async function getFreeTON() {
-    window.TONClient.setWasmOptions({binaryURL: 'ton-client/tonclient.wasm'});
-    return await (new TonClientWrapper(true)).create({
-        servers: ['net.ton.dev']
-    });
-}
+    storage = await (new PrivateStorage()).initialize();
+    window.privateStorage = storage;
+
+
+})()
+

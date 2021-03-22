@@ -20,6 +20,8 @@ class TonClientWrapper extends EventEmitter3 {
         this._rawTon = null;
         this._externalRequests = {};
         this.disableMocks = disableMocks;
+
+        this._setupAccounts();
     }
 
     /**
@@ -88,11 +90,14 @@ class TonClientWrapper extends EventEmitter3 {
         /*
         TODO for mock:
         contracts:
+            ✓run
             createDeployMessage
             deploy
-            runLocal
-            createRunMessage
+            ✓runLocal
+            ✓createRunMessage
             ?getDeployData
+            ?calcRunFees
+            ?calcDeployFees
 
          */
 
@@ -104,8 +109,10 @@ class TonClientWrapper extends EventEmitter3 {
                     //And no private key provided, but public provided
                     if(!callParams[0].keyPair.secret) {
                         let publicKey = callParams[0].keyPair.public ? callParams[0].keyPair.public : null;
-                        //Run external sign
-                        return await that._extensionRPCCall('main_run', [publicKey, ...callParams]);
+                        if(await that.accounts.isKeyInKeyring(publicKey)) {
+                            //Run external sign
+                            return await that._extensionRPCCall('main_run', [publicKey, ...callParams]);
+                        }
                     }
                 }
             }
@@ -120,13 +127,34 @@ class TonClientWrapper extends EventEmitter3 {
                     //And no private key provided, but public provided
                     if(!callParams[0].keyPair.secret) {
                         let publicKey = callParams[0].keyPair.public ? callParams[0].keyPair.public : null;
-                        //Run external sign
-                        return await that._extensionRPCCall('main_createRunMessage', [publicKey, ...callParams]);
+                        if(await that.accounts.isKeyInKeyring(publicKey)) {
+                            //Run external sign
+                            return await that._extensionRPCCall('main_createRunMessage', [publicKey, ...callParams]);
+                        }
                     }
                 }
             }
             return await mockedMethod.apply(this, callParams);
         });
+
+        //Mock contracts runLocal
+        this._mockTonMethod('contracts', 'runLocal', async function (mockedMethod, callParams) {
+            if(callParams[0]) {
+                //If keypair defined
+                if(callParams[0].keyPair) {
+                    //And no private key provided, but public provided
+                    if(!callParams[0].keyPair.secret) {
+                        let publicKey = callParams[0].keyPair.public ? callParams[0].keyPair.public : null;
+                        if(await that.accounts.isKeyInKeyring(publicKey)) {
+                            //Run external sign
+                            return await that._extensionRPCCall('main_runLocal', [publicKey, ...callParams]);
+                        }
+                    }
+                }
+            }
+            return await mockedMethod.apply(this, callParams);
+        });
+
     }
 
 
@@ -160,7 +188,7 @@ class TonClientWrapper extends EventEmitter3 {
      * @returns {Promise<*>}
      * @private
      */
-    _extensionRPCCall(method, params, target = '*') {
+    _extensionRPCCall(method, params = [], target = '*') {
         return new Promise((resolve, reject) => {
             let requestId = Math.random();
             this._externalRequests[requestId] = (data) => {
@@ -171,6 +199,19 @@ class TonClientWrapper extends EventEmitter3 {
             }
             window.postMessage({method: method, rpc: true, fromPage: true, requestId, params, target}, "*");
         })
+    }
+
+    _setupAccounts() {
+
+        let that = this;
+        this.accounts = {
+            getPublicKeys: async () => {
+                return await that._extensionRPCCall('main_getPublicKeys');
+            },
+            isKeyInKeyring: async (publicKey) => {
+                return await that._extensionRPCCall('main_isKeyInKeyring', [publicKey]);
+            },
+        }
     }
 }
 
