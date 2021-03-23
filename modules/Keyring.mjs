@@ -30,7 +30,9 @@ class Keyring {
      */
     async init() {
         await this._storage.initialize();
-        this._publicKeys = await this._storage.get('publicKeys', EXTENSION_SECRET);
+        try {
+            this._publicKeys = await this._storage.get('publicKeys', EXTENSION_SECRET);
+        }catch (e){}
 
         if(!this._publicKeys) {
             this._publicKeys = {}
