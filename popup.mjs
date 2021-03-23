@@ -1,4 +1,20 @@
+/*
+  _____ ___  _   ___        __    _ _      _
+ |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
+   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
+   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
+   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
+
+ */
+/**
+ * @name FreeTON browser wallet and injector
+ * @copyright SVOI.dev Labs - https://svoi.dev
+ * @license Apache-2.0
+ * @version 1.0
+ */
+
 import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
+import {default as theme} from "./modules/ui/theme.mjs"
 
 const RPC = {
     'popup_test': async (a, b) => {
@@ -18,7 +34,7 @@ const RPC = {
     },
     popup_password: (message, publicKey) => {
         return new Promise((resolve, reject) => {
-            app.dialog.password(`${message} \nAction password required for public key: ${publicKey}`,'Password required',  (password) => {
+            app.dialog.password(`${message} \nAction password required for public key: ${publicKey}`, 'Password required', (password) => {
                 resolve(password)
             }, () => {
                 resolve(false)
@@ -62,7 +78,7 @@ const app = new Framework7({
     },
     on: {
         pageAfterIn: async function (event, page) {
-
+            await theme.updateState();
         },
         pageInit: async function (event, page) {
 
@@ -82,5 +98,10 @@ const app = new Framework7({
         closeOnEscape: true,
     },
 });
-
 window.app = app;
+
+await theme.updateState();
+
+
+
+window.theme = theme;
