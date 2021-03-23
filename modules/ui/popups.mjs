@@ -13,7 +13,7 @@ class Popups {
             window.app.views.main.router.navigate("/accept");
 
             app.once('pageInit', () => {
-                console.log('PAGE');
+                console.log('PAGE ');
                 $('#testTitle').textContent = '432'
                 $('#testTitle').text('123');
 
