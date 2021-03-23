@@ -15,6 +15,8 @@
 
 import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
 import {default as theme} from "./modules/ui/theme.mjs"
+import {default as popups} from "./modules/ui/popups.mjs"
+import ROUTES from "./modules/ui/routes.mjs";
 
 const RPC = {
     'popup_test': async (a, b) => {
@@ -84,7 +86,7 @@ const app = new Framework7({
 
         },
     },
-    routes: [],
+    routes: ROUTES,
     popup: {
         closeOnEscape: true,
     },
@@ -103,5 +105,6 @@ window.app = app;
 await theme.updateState();
 
 
-
 window.theme = theme;
+
+window.popups = popups;

@@ -17,6 +17,7 @@ import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
 import TonClientWrapper from "./modules/TonClientWrapper.mjs";
 import PrivateStorage from "./modules/PrivateStorage.mjs";
 import Keyring from "./modules/Keyring.mjs";
+import Utils from "./modules/utils.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -129,7 +130,7 @@ async function getKeysFromDeployAcceptence(publicKey, acceptMessage = 'Sign this
     let popup = await openPopup();
 
     //Simple timeout for initialization
-    await wait();
+    await Utils.wait()
 
     let allowSign = await messenger.rpcCall('popup_testSign', [acceptMessage, publicKey], 'popup');
 
