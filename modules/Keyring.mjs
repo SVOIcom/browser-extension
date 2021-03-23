@@ -1,6 +1,6 @@
 import PrivateStorage from "./PrivateStorage.mjs";
 
-const EXTENSION_SECRET = 'baTon';
+const EXTENSION_SECRET = 'TONWallet';
 
 class Keyring {
     constructor() {

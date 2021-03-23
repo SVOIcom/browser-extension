@@ -40,12 +40,12 @@ const $ = Dom7;
 
 // Init App
 const app = new Framework7({
-    id: "baton",
+    id: "tonwallet",
     root: "#app",
     theme: "aurora",
     autoDarkTheme: true,
     dialog: {
-        title: 'baTON',
+        title: 'TONWallet',
     },
     data: function () {
         return {
