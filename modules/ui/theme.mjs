@@ -6,6 +6,8 @@
    |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
 
  */
+import LocalStorage from "../LocalStorage.mjs";
+
 /**
  * @name FreeTON browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
@@ -24,12 +26,13 @@ class Theme {
         this.updateState();
 
         this.toggleElement = null;
+        this.storage = new LocalStorage();
     }
 
     /**
      * Update component state
      */
-    updateState() {
+    async updateState() {
         if(typeof app.darkTheme !== "undefined") {
             console.log('Update state', window.app);
             window.globalTheme = window.app.darkTheme ? 'dark' : 'light';
@@ -41,15 +44,40 @@ class Theme {
             }
 
             this.toggleElement.off('change');
-            this.toggleElement.on('change', () => {
-                if(this.toggleElement.checked) {
-                    this.setLayoutTheme('dark');
-                } else {
-                    this.setLayoutTheme('light');
-                }
-            });
 
             this.toggleElement.checked = this.isDark();
+
+            this.toggleElement.on('change', async () => {
+                if(this.toggleElement.checked) {
+                    await this.setLayoutTheme('dark');
+                } else {
+                    await this.setLayoutTheme('light');
+                }
+
+                await this.saveState();
+            });
+
+
+        }
+    }
+
+    /**
+     * Save theme state
+     * @returns {Promise<void>}
+     */
+    async saveState() {
+        await this.storage.set('theme', this.isDark() ? 'dark' : 'light');
+    }
+
+    /**
+     * Load theme state
+     * @returns {Promise<void>}
+     */
+    async loadState() {
+        let theme = await this.storage.get('theme');
+        console.log(theme)
+        if(theme) {
+            await this.setLayoutTheme(theme);
         }
     }
 
@@ -57,18 +85,19 @@ class Theme {
      * Set theme
      * @param theme
      */
-    setLayoutTheme(theme) {
+    async setLayoutTheme(theme) {
         let $html = $('html');
         window.globalTheme = theme;
         $html.removeClass('theme-dark theme-light').addClass('theme-' + globalTheme);
         this.toggleElement.checked = this.isDark();
+        await this.saveState();
         //this.app.$setState({theme: globalTheme});
     }
 
     /**
      * Toggle theme
      */
-    toggle() {
+    async toggle() {
         if(window.globalTheme === 'light') {
             this.setLayoutTheme('dark');
         } else {

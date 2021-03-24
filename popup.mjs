@@ -117,6 +117,7 @@ const app = new Framework7({
 window.app = app;
 
 await theme.updateState();
+await theme.loadState();
 
 
 window.theme = theme;
