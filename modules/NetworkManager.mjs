@@ -44,8 +44,14 @@ class NetworkManager extends EventEmitter3 {
      * Returns current network config
      * @returns {Promise<{name: string, network: *}>}
      */
-    async getNetwork() {
-        return {name: this.currentNetwork, network: this.networks[this.currentNetwork]};
+    async getNetwork(name = undefined) {
+        if(!name) {
+            return {name: this.currentNetwork, network: this.networks[this.currentNetwork]};
+        } else if(typeof this.networks[name] === 'undefined') {
+            throw EXCEPTIONS.invalidNetwork;
+        } else {
+            return {name, network: this.networks[name]};
+        }
     }
 
     /**

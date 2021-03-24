@@ -20,6 +20,7 @@ import Keyring from "./modules/Keyring.mjs";
 import Utils from "./modules/utils.mjs";
 import EXCEPTIONS from "./modules/const/Exceptions.mjs";
 import NetworkManager from "./modules/NetworkManager.mjs";
+import MESSAGES from "./modules/const/Messages.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -50,7 +51,7 @@ const RPC = {
         console.log(publicKey, data);
         data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'run', data);
 
-        let ton = await getFreeTON();
+        let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
         return await ton.contracts.run(data);
     },
 
@@ -58,7 +59,7 @@ const RPC = {
         console.log(publicKey, data);
         data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'runLocal', data);
 
-        let ton = await getFreeTON();
+        let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
         return await ton.contracts.runLocal(data);
     },
 
@@ -73,7 +74,7 @@ const RPC = {
         console.log(publicKey, data);
         data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'createRunMessage', data)
 
-        let ton = await getFreeTON();
+        let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
         return await ton.contracts.createRunMessage(data);
 
     },
@@ -93,6 +94,13 @@ const RPC = {
      */
     main_isKeyInKeyring: async (publicKey) => {
         return await keyring.isKeyInKeyring(publicKey);
+    },
+
+    main_getNetwork: async (name = undefined) => {
+        return await networkManager.getNetwork(name);
+    },
+    main_getNetworks: async () => {
+        return await networkManager.getNetworks();
     }
 }
 
@@ -115,10 +123,10 @@ async function openPopup() {
  * Get TON client
  * @returns {Promise<TonClientWrapper>}
  */
-async function getFreeTON() {
+async function getFreeTON(server = 'net.ton.dev') {
     window.TONClient.setWasmOptions({binaryURL: 'ton-client/tonclient.wasm'});
     return await (new TonClientWrapper(true)).create({
-        servers: ['net.ton.dev']
+        servers: [server]
     });
 }
 
@@ -190,6 +198,11 @@ let messenger, storage, keyring, networkManager;
 
     networkManager = await (new NetworkManager()).initialize();
     window.networkManager = networkManager;
+
+    //If network changed, broadcast it to all tabs
+    networkManager.on(networkManager.EVENTS.networkChanged, async () => {
+        await messenger.broadcastTabsMessage(MESSAGES.NETWORK_CHANGED);
+    })
 
 })()
 

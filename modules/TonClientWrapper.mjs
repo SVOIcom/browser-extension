@@ -6,6 +6,8 @@
    |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
 
  */
+import MESSAGES from "./const/Messages.mjs";
+
 /**
  * @name FreeTON browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
@@ -32,6 +34,7 @@ class TonClientWrapper extends EventEmitter3 {
         this.disableMocks = disableMocks;
 
         this._setupAccounts();
+        this._setupNetwork();
     }
 
     /**
@@ -52,7 +55,7 @@ class TonClientWrapper extends EventEmitter3 {
 
             //Configure RPC
 
-            window.addEventListener("message", (event) => {
+            window.addEventListener("message", async (event) => {
                 // We only accept messages from ourselves
                 if(event.source != window) {
                     return;
@@ -63,6 +66,21 @@ class TonClientWrapper extends EventEmitter3 {
                     if(this._externalRequests[event.data.requestId]) {
                         this._externalRequests[event.data.requestId](event.data);
                         delete this._externalRequests[event.data.requestId];
+                    }
+                }
+
+                //Other messages
+                if(event.data.broadcastMessage) {
+                    switch (event.data.broadcastMessage) {
+
+                        //Network changed. Sets new params
+                        case MESSAGES.NETWORK_CHANGED:
+                            let network = await this.network.get();
+                            await this.setServers(network.network.url);
+                            break;
+                        default:
+                            //nop
+                            break;
                     }
                 }
             });
@@ -211,6 +229,10 @@ class TonClientWrapper extends EventEmitter3 {
         })
     }
 
+    /**
+     * Create accounts subobject
+     * @private
+     */
     _setupAccounts() {
 
         let that = this;
@@ -220,6 +242,23 @@ class TonClientWrapper extends EventEmitter3 {
             },
             isKeyInKeyring: async (publicKey) => {
                 return await that._extensionRPCCall('main_isKeyInKeyring', [publicKey]);
+            },
+        }
+    }
+
+    /**
+     * Create networks subobject
+     * @private
+     */
+    _setupNetwork() {
+
+        let that = this;
+        this.network = {
+            get: async (name = undefined) => {
+                return await that._extensionRPCCall('main_getNetwork', [name]);
+            },
+            getNetworks: async () => {
+                return await that._extensionRPCCall('main_getNetworks');
             },
         }
     }

@@ -98,6 +98,32 @@ class ExtensionMessenger {
         })
     }
 
+    /**
+     * Broadcast message to tabs
+     * @param message
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _broadcastTabsMessage(message) {
+        let tabs = await browser.tabs.query({});
+        for (let tab of tabs) {
+            try {
+                await browser.tabs.sendMessage(tab.id, message);
+            } catch (e) {
+            }
+        }
+    }
+
+    /**
+     * Broadcast defined message to all tabs
+     * @param type
+     * @param data
+     * @returns {Promise<void>}
+     */
+    async broadcastTabsMessage(type, data = {}) {
+        await this._broadcastTabsMessage({broadcastMessage: type, data, target: '*'})
+    }
+
 
 }
 
