@@ -101,6 +101,10 @@ const RPC = {
     },
     main_getNetworks: async () => {
         return await networkManager.getNetworks();
+    },
+    main_changeNetwork: async (network) => {
+        //TODO checking sender
+        return await networkManager.changeNetwork(network);
     }
 }
 

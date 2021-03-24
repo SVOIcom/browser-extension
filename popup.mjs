@@ -53,6 +53,7 @@ const RPC = {
 
     popup_networkChanged: async () => {
         console.log('NETWORK CHANGED');
+        await updateNetworkWidget();
         return true;
     },
 
@@ -128,3 +129,57 @@ await theme.loadState();
 window.theme = theme;
 
 window.popups = popups;
+
+
+//Glue code
+
+async function changeNetwork(network) {
+    console.log('CHANGE NETWORK', network);
+    await messenger.rpcCall('main_changeNetwork', [network], 'background');
+}
+
+async function updateNetworkWidget(){
+    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
+    $('#networkChanger').text(`Network: ${currentNetwork.name}`);
+
+}
+
+await updateNetworkWidget();
+
+$('#networkChanger').on('click', async () => {
+    let networks = await messenger.rpcCall('main_getNetworks', undefined, 'background');
+    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
+
+    let buttons = [
+        {
+            text: 'Select network',
+            label: true
+        },
+    ];
+
+    for (let networkName of Object.keys(networks)) {
+        let network = networks[networkName];
+        buttons.push({
+            text: networkName + `<span class="greyText smallText"> <br> ${network.description} <br><i>${network.url}</i></span>`,
+            bold: networkName === currentNetwork.name,
+            onClick: async function () {
+                await changeNetwork(networkName);
+
+            }
+        })
+    }
+
+    buttons.push({
+        text: 'Cancel',
+        color: 'red'
+    });
+
+
+    const actions = app.actions.create({
+        buttons
+
+    });
+
+    actions.open();
+    actions.$el.addClass('selectNetworkActions')
+})

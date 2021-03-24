@@ -1,13 +1,26 @@
-.detailsTable{
+.detailsTable {
     padding: 15px;
 }
 
-.detailsTable .col{
+.detailsTable .col {
     padding-bottom: 5px;
     overflow-x: auto;
     word-break: break-word;
 }
 
-.detailsTable .col:nth-child(2){
-   font-size: 12px;
+.detailsTable .col:nth-child(2) {
+    font-size: 12px;
+}
+
+.smallText {
+    font-size: 8pt;
+}
+
+.greyText {
+    color: #535353;
+}
+
+.selectNetworkActions .actions-button {
+    height: auto;
+    line-height: 25px;
 }
