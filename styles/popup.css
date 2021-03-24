@@ -5,4 +5,9 @@
 .detailsTable .col{
     padding-bottom: 5px;
     overflow-x: auto;
+    word-break: break-word;
+}
+
+.detailsTable .col:nth-child(2){
+   font-size: 12px;
 }

@@ -81,7 +81,6 @@ class ExtensionMessenger {
             let requestId = Math.random();
             this._externalRequests[requestId] = (data) => {
                 if(data.exception) {
-                    console.log('EXCEPTION MAKED', data)
                     return reject(data.result);
                 }
                 return resolve(data.result);
