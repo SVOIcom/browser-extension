@@ -199,9 +199,10 @@ let messenger, storage, keyring, networkManager;
     networkManager = await (new NetworkManager()).initialize();
     window.networkManager = networkManager;
 
-    //If network changed, broadcast it to all tabs
+    //If network changed, broadcast it to all tabs and popups
     networkManager.on(networkManager.EVENTS.networkChanged, async () => {
         await messenger.broadcastTabsMessage(MESSAGES.NETWORK_CHANGED);
+        await messenger.rpcCall('popup_networkChanged', [await networkManager.getNetwork()], 'popup');
     })
 
 })()

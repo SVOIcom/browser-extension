@@ -51,6 +51,11 @@ const RPC = {
         return true;
     },
 
+    popup_networkChanged: async () => {
+        console.log('NETWORK CHANGED');
+        return true;
+    },
+
     /**
      * Show accept signing window
      * @param publicKey
