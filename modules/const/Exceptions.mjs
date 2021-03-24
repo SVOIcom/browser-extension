@@ -15,6 +15,7 @@
 
 const EXCEPTIONS = {
     testException: {code: -1, message: 'Test exception', more: 'For testing purposes'},
+
     rejectedByUser: {
         code: 10000,
         message: 'Rejected by user',
@@ -25,6 +26,7 @@ const EXCEPTIONS = {
         message: 'Invalid password',
         more: 'The user entered the password incorrectly several times '
     },
+    invalidNetwork: {code: 10002, message: 'Invalid network', more: 'Invalid network selected'},
 }
 
 export default EXCEPTIONS;

@@ -18,7 +18,8 @@ import TonClientWrapper from "./modules/TonClientWrapper.mjs";
 import PrivateStorage from "./modules/PrivateStorage.mjs";
 import Keyring from "./modules/Keyring.mjs";
 import Utils from "./modules/utils.mjs";
-import EXCEPTIONS from "./modules/Exceptions.mjs";
+import EXCEPTIONS from "./modules/const/Exceptions.mjs";
+import NetworkManager from "./modules/NetworkManager.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -173,9 +174,7 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
     return keyPair;
 }
 
-let messenger;
-let storage;
-let keyring;
+let messenger, storage, keyring, networkManager;
 
 (async () => {
 //Messenger channel
@@ -189,6 +188,8 @@ let keyring;
     storage = await (new PrivateStorage()).initialize();
     window.privateStorage = storage;
 
+    networkManager = await (new NetworkManager()).initialize();
+    window.networkManager = networkManager;
 
 })()
 

@@ -17,7 +17,7 @@ import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
 import {default as theme} from "./modules/ui/theme.mjs"
 import {default as popups} from "./modules/ui/popups.mjs"
 import ROUTES from "./modules/ui/routes.mjs";
-import EXCEPTIONS from "./modules/Exceptions.mjs";
+import EXCEPTIONS from "./modules/const/Exceptions.mjs";
 
 const RPC = {
     'popup_test': async (a, b) => {

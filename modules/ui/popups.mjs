@@ -14,7 +14,7 @@
  */
 
 import Utils from "../utils.mjs";
-import EXCEPTIONS from "../Exceptions.mjs";
+import EXCEPTIONS from "../const/Exceptions.mjs";
 
 const $ = Dom7;
 
