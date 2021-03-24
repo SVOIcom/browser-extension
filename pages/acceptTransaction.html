@@ -8,11 +8,11 @@
                   <span class="if-not-md">Back</span>
                 </a> -->
             </div>
-            <div class="title">Accept sign</div>
+            <div class="title">Accept sign or transaction</div>
         </div>
     </div>
 
-     <div class="toolbar toolbar-bottom">
+    <div class="toolbar toolbar-bottom">
         <div class="toolbar-inner">
             <a href="#" class="link" id="txCancelButton">Cancel</a>
             <a href="#" class="link" id="txAcceptButton">Accept</a>
@@ -20,15 +20,37 @@
     </div>
 
     <div class="page-content">
-        <div class="block">
-            <p>Cards are a great way to contain and organize your information, especially when combined with List Views.
-                Cards can contain unique related data, like for example photos, text or links about a particular
-                subject. Cards are typically an entry point to more complex and detailed information.</p>
+        <div class="block-title">Details</div>
+
+        <div style="padding: 15px;" class="detailsTable">
+            <div class="row">
+                <div class="col"><b>Requested account</b></div>
+                <div class="col" id="acceptPublicKey"></div>
+            </div>
+            <div class="row">
+                <div class="col"><b>Type</b></div>
+                <div class="col" id="acceptTxType"></div>
+            </div>
+            <div class="row">
+                <div class="col"><b>Run address</b></div>
+                <div class="col" id="acceptRunAddress"></div>
+            </div>
+            <div class="row" id="acceptFunctionNameHolder">
+                <div class="col"><b>Calling function</b></div>
+                <div class="col" id="acceptFunctionName"></div>
+            </div>
+            <div class="row" id="acceptMessageFromCallerHolder">
+                <div class="col"><b>Message from caller</b></div>
+                <div class="col" id="acceptMessageFromCaller"></div>
+            </div>
+            <div class="row">
+                <div class="col"><b>Estimated fee</b></div>
+                <div class="col" id="acceptEstimatedFee">~ N/A</div>
+            </div>
         </div>
-        <div class="block-title">Simple Cards</div>
         <div class="card">
-            <div class="card-content card-content-padding">This is a simple card with plain text, but cards can also
-                contain their own header, footer, list view, image, or any other element.
+            <div class="card-content card-content-padding">When confirming a transaction, an additional commission may
+                be charged, as well as a transfer of unaccounted for in the calculation of funds.
             </div>
         </div>
 

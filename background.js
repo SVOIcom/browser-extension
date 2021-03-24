@@ -18,6 +18,7 @@ import TonClientWrapper from "./modules/TonClientWrapper.mjs";
 import PrivateStorage from "./modules/PrivateStorage.mjs";
 import Keyring from "./modules/Keyring.mjs";
 import Utils from "./modules/utils.mjs";
+import EXCEPTIONS from "./modules/Exceptions.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -32,7 +33,7 @@ const RPC = {
         return a + b;
     },
     'fall': async () => {
-        throw new Error('Some exception');
+        throw EXCEPTIONS.testException;
     },
     mainOpenPopup: () => {
         return openPopup();
@@ -46,7 +47,7 @@ const RPC = {
      */
     main_run: async (publicKey, data) => {
         console.log(publicKey, data);
-        data.keyPair = await getKeysFromDeployAcceptence(publicKey)
+        data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'run', data);
 
         let ton = await getFreeTON();
         return await ton.contracts.run(data);
@@ -54,7 +55,7 @@ const RPC = {
 
     main_runLocal: async (publicKey, data) => {
         console.log(publicKey, data);
-        data.keyPair = await getKeysFromDeployAcceptence(publicKey)
+        data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'runLocal', data);
 
         let ton = await getFreeTON();
         return await ton.contracts.runLocal(data);
@@ -69,7 +70,7 @@ const RPC = {
      */
     main_createRunMessage: async (publicKey, data) => {
         console.log(publicKey, data);
-        data.keyPair = await getKeysFromDeployAcceptence(publicKey)
+        data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'createRunMessage', data)
 
         let ton = await getFreeTON();
         return await ton.contracts.createRunMessage(data);
@@ -123,27 +124,29 @@ async function getFreeTON() {
 /**
  * Open accept sign message
  * @param publicKey
+ * @param type
+ * @param callingData
  * @param acceptMessage
  * @returns {Promise<{public, secret: *}>}
  */
-async function getKeysFromDeployAcceptence(publicKey, acceptMessage = 'Sign this message?') {
+async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData, acceptMessage = '') {
     let popup = await openPopup();
 
     //Simple timeout for initialization
-    await Utils.wait()
+    await Utils.wait(1000)
 
-    let allowSign = await messenger.rpcCall('popup_testSign', [acceptMessage, publicKey], 'popup');
+    let allowSign = await messenger.rpcCall('popup_acceptSignMessage', [publicKey, type, callingData, acceptMessage], 'popup');
 
     //Sign allowed, make run
     if(!allowSign) {
-        throw new Error('Rejected by user');
+        throw EXCEPTIONS.rejectedByUser;
     }
 
 
     //Action requires password
     let password = await messenger.rpcCall('popup_password', ['', publicKey], 'popup');
     if(!password) {
-        throw new Error('Rejected by user');
+        throw EXCEPTIONS.rejectedByUser;
     }
 
     let keyPair = {};
@@ -154,13 +157,13 @@ async function getKeysFromDeployAcceptence(publicKey, acceptMessage = 'Sign this
         //Retry password
         let password = await messenger.rpcCall('popup_password', ['<span style="color: red">Invalid password</span><br>', publicKey], 'popup');
         if(!password) {
-            throw new Error('Rejected by user');
+            throw EXCEPTIONS.rejectedByUser;
         }
 
         try {
             keyPair = await keyring.extractKey(publicKey, password);
         } catch (e) {
-            throw new Error('Invalid password');
+            throw EXCEPTIONS.invalidPassword;
         }
     }
 

@@ -1,0 +1,8 @@
+.detailsTable{
+    padding: 15px;
+}
+
+.detailsTable .col{
+    padding-bottom: 5px;
+    overflow-x: auto;
+}

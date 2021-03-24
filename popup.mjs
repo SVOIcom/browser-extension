@@ -17,13 +17,14 @@ import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
 import {default as theme} from "./modules/ui/theme.mjs"
 import {default as popups} from "./modules/ui/popups.mjs"
 import ROUTES from "./modules/ui/routes.mjs";
+import EXCEPTIONS from "./modules/Exceptions.mjs";
 
 const RPC = {
     'popup_test': async (a, b) => {
         return a * b;
     },
     'popup_fall': async () => {
-        throw new Error('Some exception');
+        throw EXCEPTIONS.testException;
     },
     popup_testSign: (message, publicKey) => {
         return new Promise((resolve, reject) => {
@@ -48,6 +49,19 @@ const RPC = {
             window.close();
         }, 10);
         return true;
+    },
+
+    /**
+     * Show accept signing window
+     * @param publicKey
+     * @param type
+     * @param callingData
+     * @param acceptMessage
+     * @returns {Promise<*>}
+     */
+    popup_acceptSignMessage: async (publicKey, type = 'run', callingData, acceptMessage) => {
+        callingData.additionalMessage = acceptMessage;
+        return popups.acceptTransaction(publicKey, type, callingData);
     }
 }
 let messenger = new ExtensionMessenger('popup', RPC);
