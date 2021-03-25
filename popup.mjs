@@ -170,6 +170,10 @@ $('#networkChanger').on('click', async () => {
     }
 
     buttons.push({
+        text: 'Add network',
+        color: ''
+    });
+    buttons.push({
         text: 'Cancel',
         color: 'red'
     });
