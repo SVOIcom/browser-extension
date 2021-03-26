@@ -18,6 +18,7 @@ import {default as theme} from "./modules/ui/theme.mjs"
 import {default as popups} from "./modules/ui/popups.mjs"
 import ROUTES from "./modules/ui/routes.mjs";
 import EXCEPTIONS from "./modules/const/Exceptions.mjs";
+import Utils from "./modules/utils.mjs";
 
 const RPC = {
     'popup_test': async (a, b) => {
@@ -44,6 +45,13 @@ const RPC = {
             });
         })
     },
+    popup_alert: (message) => {
+        return new Promise((resolve, reject) => {
+            return app.dialog.alert(message, () => {
+                resolve()
+            })
+        });
+    },
     popup_close: async () => {
         setTimeout(() => {
             window.close();
@@ -54,6 +62,12 @@ const RPC = {
     popup_networkChanged: async () => {
         console.log('NETWORK CHANGED');
         await updateNetworkWidget();
+        return true;
+    },
+
+    popup_accountChanged: async () => {
+        console.log('ACCOUNT CHANGED');
+        await updateAccountWidget();
         return true;
     },
 
@@ -138,7 +152,7 @@ async function changeNetwork(network) {
     await messenger.rpcCall('main_changeNetwork', [network], 'background');
 }
 
-async function updateNetworkWidget(){
+async function updateNetworkWidget() {
     let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
     $('#networkChanger').text(`Network: ${currentNetwork.name}`);
 
@@ -171,6 +185,65 @@ $('#networkChanger').on('click', async () => {
 
     buttons.push({
         text: 'Add network',
+        color: ''
+    });
+    buttons.push({
+        text: 'Cancel',
+        color: 'red'
+    });
+
+
+    const actions = app.actions.create({
+        buttons
+
+    });
+
+    actions.open();
+    actions.$el.addClass('selectNetworkActions')
+})
+
+
+async function updateAccountWidget() {
+    let account = await messenger.rpcCall('main_getAccount', undefined, 'background');
+    $('#accountChanger').text(`${Utils.shortenPubkey(account.public)}`);
+}
+
+await updateAccountWidget();
+
+async function changeAccount(publicKey) {
+    console.log('CHANGE ACCOUNT', publicKey);
+    await messenger.rpcCall('main_changeAccount', [publicKey], 'background');
+}
+
+$('#accountChanger').on('click', async () => {
+    let keys = await messenger.rpcCall('main_getPublicKeys', undefined, 'background');
+//TODO get wallets for keys
+    //Todo get current account
+
+    let buttons = [
+        {
+            text: 'Change account',
+            label: true
+        },
+    ];
+
+    for (let key of keys) {
+        buttons.push({
+            text: Utils.shortenPubkey(key),
+            //bold: key === currentNetwork.name,
+            onClick: async function () {
+                await changeAccount(key);
+
+            }
+        })
+    }
+
+    buttons.push({
+        text: 'Add existing wallet',
+        color: ''
+    });
+    buttons.push({
+        text: 'Create wallet',
         color: ''
     });
     buttons.push({

@@ -27,6 +27,7 @@ const EXCEPTIONS = {
         more: 'The user entered the password incorrectly several times '
     },
     invalidNetwork: {code: 10002, message: 'Invalid network', more: 'Invalid network selected'},
+    publicKeyNotFound: {code: 10003, message: 'Public key not found', more: 'No public key in keyring'},
 }
 
 export default EXCEPTIONS;

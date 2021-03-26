@@ -21,6 +21,7 @@ import Utils from "./modules/utils.mjs";
 import EXCEPTIONS from "./modules/const/Exceptions.mjs";
 import NetworkManager from "./modules/NetworkManager.mjs";
 import MESSAGES from "./modules/const/Messages.mjs";
+import AccountManager from "./modules/AccountManager.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -105,7 +106,24 @@ const RPC = {
     main_changeNetwork: async (network) => {
         //TODO checking sender
         return await networkManager.changeNetwork(network);
-    }
+    },
+
+    main_changeAccount: async (publicKey) => {
+        //TODO checking sender
+        if(!await keyring.isKeyInKeyring(publicKey)) {
+            await messenger.rpcCall('popup_alert', ['Public key not found'], 'popup');
+            throw EXCEPTIONS.publicKeyNotFound
+        }
+
+        await accountManager.changeAccount(publicKey);
+
+        console.log('CHANGE ACCOUNT', publicKey);
+        return true;
+    },
+
+    main_getAccount: async () => {
+        return await accountManager.getAccount();
+    },
 }
 
 /**
@@ -186,7 +204,7 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
     return keyPair;
 }
 
-let messenger, storage, keyring, networkManager;
+let messenger, storage, keyring, networkManager, accountManager;
 
 (async () => {
 //Messenger channel
@@ -208,6 +226,15 @@ let messenger, storage, keyring, networkManager;
         await messenger.broadcastTabsMessage(MESSAGES.NETWORK_CHANGED);
         await messenger.rpcCall('popup_networkChanged', [await networkManager.getNetwork()], 'popup');
     })
+
+    accountManager = await (new AccountManager(keyring)).initialize();
+    window.accountManager = accountManager;
+    //If network changed, broadcast it to all tabs and popups
+    accountManager.on(accountManager.EVENTS.accountChanged, async () => {
+        await messenger.broadcastTabsMessage(MESSAGES.ACCOUNT_CHANGED);
+        await messenger.rpcCall('popup_accountChanged', [await accountManager.getAccount()], 'popup');
+    })
+
 
 })()
 

@@ -23,7 +23,8 @@ class TonClientWrapper extends EventEmitter3 {
      * @type {{NETWORK_CHANGED: string}}
      */
     EVENTS = {
-        NETWORK_CHANGED: 'networkChanged'
+        NETWORK_CHANGED: 'networkChanged',
+        ACCOUNT_CHANGED: 'accountChanged',
     }
 
 
@@ -77,6 +78,10 @@ class TonClientWrapper extends EventEmitter3 {
                         case MESSAGES.NETWORK_CHANGED:
                             let network = await this.network.get();
                             await this.setServers(network.network.url);
+                            break;
+
+                        case MESSAGES.ACCOUNT_CHANGED:
+                            this.emit(this.EVENTS.ACCOUNT_CHANGED, await this.accounts.getAccount());
                             break;
                         default:
                             //nop
@@ -243,6 +248,9 @@ class TonClientWrapper extends EventEmitter3 {
             isKeyInKeyring: async (publicKey) => {
                 return await that._extensionRPCCall('main_isKeyInKeyring', [publicKey]);
             },
+            getAccount: async () => {
+                return await that._extensionRPCCall('main_getAccount');
+            }
         }
     }
 
