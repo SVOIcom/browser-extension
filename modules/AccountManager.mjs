@@ -45,7 +45,7 @@ class AccountManager extends EventEmitter3 {
             this.activeAccountPublicKey = await this.storage.get('activeAccountPublicKey', publicKeys[0]);
         }
 
-        this.activeAccountWallets = await this.storage.get('activeAccountWallets', {});
+        this.activeAccountWallets = await this.storage.get('activeAccountWallets', await this._getPublicKeyWallets(this.activeAccountPublicKey));
 
         await this.saveAccountState();
 
@@ -70,7 +70,7 @@ class AccountManager extends EventEmitter3 {
      * @private
      */
     async _getPublicKeyWallets(publicKey) {
-        return await this.storage.get('wallets_' + publicKey);
+        return await this.storage.get('wallets_' + publicKey, {});
     }
 
     /**
@@ -116,6 +116,19 @@ class AccountManager extends EventEmitter3 {
      */
     async getAccount() {
         return {public: this.activeAccountPublicKey, wallets: this.activeAccountWallets};
+    }
+
+    /**
+     * Set public key wallet address for ntwork
+     * @param {string} publicKey
+     * @param {string} network
+     * @param {object} wallet
+     * @returns {Promise<void>}
+     */
+    async setPublicKeyNetworkWallet(publicKey, network = 'main', wallet = {address: '', type: '', config: {}}) {
+        let publicKeyWallets = await this._getPublicKeyWallets(publicKey);
+        publicKeyWallets[network] = wallet;
+        await this._savePublicKeyWallets(publicKey, publicKeyWallets);
     }
 
 

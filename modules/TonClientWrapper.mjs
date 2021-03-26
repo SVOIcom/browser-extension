@@ -250,6 +250,11 @@ class TonClientWrapper extends EventEmitter3 {
             },
             getAccount: async () => {
                 return await that._extensionRPCCall('main_getAccount');
+            },
+            getWalletInfo: async () => {
+                let networkName = (await that.network.get()).name;
+                let wallets = (await that.accounts.getAccount()).wallets;
+                return wallets[networkName] ? wallets[networkName] : null;
             }
         }
     }
