@@ -114,10 +114,7 @@ const RPC = {
             await messenger.rpcCall('popup_alert', ['Public key not found'], 'popup');
             throw EXCEPTIONS.publicKeyNotFound
         }
-
         await accountManager.changeAccount(publicKey);
-
-        console.log('CHANGE ACCOUNT', publicKey);
         return true;
     },
 
@@ -229,7 +226,7 @@ let messenger, storage, keyring, networkManager, accountManager;
 
     accountManager = await (new AccountManager(keyring)).initialize();
     window.accountManager = accountManager;
-    //If network changed, broadcast it to all tabs and popups
+    //If account changed, broadcast it to all tabs and popups
     accountManager.on(accountManager.EVENTS.accountChanged, async () => {
         await messenger.broadcastTabsMessage(MESSAGES.ACCOUNT_CHANGED);
         await messenger.rpcCall('popup_accountChanged', [await accountManager.getAccount()], 'popup');
