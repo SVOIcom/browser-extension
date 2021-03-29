@@ -22,6 +22,7 @@ import EXCEPTIONS from "./modules/const/Exceptions.mjs";
 import NetworkManager from "./modules/NetworkManager.mjs";
 import MESSAGES from "./modules/const/Messages.mjs";
 import AccountManager from "./modules/AccountManager.mjs";
+import uiUtils from "./modules/ui/uiUtils";
 
 console.log('IM BACKGROUND');
 
@@ -39,7 +40,7 @@ const RPC = {
         throw EXCEPTIONS.testException;
     },
     mainOpenPopup: () => {
-        return openPopup();
+        return uiUtils.openPopup();
     },
 
     /**
@@ -123,20 +124,7 @@ const RPC = {
     },
 }
 
-/**
- * Open extension popup
- * @returns {Promise<*>}
- */
-async function openPopup() {
-    return browser.windows.create({
-        url: 'popup.html',
-        type: 'popup',
-        width: 350,
-        height: 536,
-        // left: position.x,
-        //  top: position.y,
-    });
-}
+
 
 /**
  * Get TON client
@@ -158,7 +146,7 @@ async function getFreeTON(server = 'net.ton.dev') {
  * @returns {Promise<{public, secret: *}>}
  */
 async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData, acceptMessage = '') {
-    let popup = await openPopup();
+    let popup = await uiUtils.openPopup();
 
     //Simple timeout for initialization
     await Utils.wait(1000)
