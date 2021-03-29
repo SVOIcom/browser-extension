@@ -16,6 +16,7 @@
 import Utils from "../../utils.mjs";
 import uiUtils from "../uiUtils.mjs";
 
+const UPDATE_INTERVAL = 10000;
 
 const $ = Dom7;
 
@@ -26,6 +27,7 @@ class walletWidget {
     constructor(messenger, app) {
         this.messenger = messenger;
         this.app = app;
+        this.wallet = null;
 
 
         $('.enterWalletButton').click(async () => {
@@ -58,6 +60,10 @@ class walletWidget {
             await this.updateWalletWidget();
 
         });
+
+        setInterval(async () => {
+            await this.updateWalletWidget();
+        }, UPDATE_INTERVAL)
     }
 
     /**
@@ -76,13 +82,24 @@ class walletWidget {
 
         if(account.wallets[currentNetwork.name]) {
             let wallet = account.wallets[currentNetwork.name];
+            this.wallet = wallet;
             $('.walletAddress').html(`<a data-clipboard="${wallet.address}" class="autoClipboard" title="${wallet.type}">${Utils.shortenPubkey(wallet.address)}</a>`)
+
+            try {
+                //Get wallet balance
+                let balance = await this.messenger.rpcCall('main_getWalletBalance', [wallet.address], 'background');
+
+                $('.walletBalance').text( Utils.unsignedNumberToSigned(balance));
+
+            }catch (e){
+                $('.walletBalance').text('0.0');
+            }
 
             $('.ifWalletExists').show();
             $('.ifWalletNotExists').hide();
         } else {
 
-
+            $('.walletBalance').text('0.0');
             $('.ifWalletExists').hide();
             $('.ifWalletNotExists').show();
         }

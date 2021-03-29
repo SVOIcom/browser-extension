@@ -151,12 +151,21 @@ const Utils = {
 
     /**
      * Create tvm cell payload with public key
-     * @param pubkey
+     * @param {string} pubkey
      * @returns {string}
      */
     createPubkeyTVMCELL(pubkey) {
         let data = 'b5ee9c720101010100' + '22000040' + pubkey;
         return this.hexToBase64(data);
+    },
+
+    /**
+     * Get JSON file
+     * @param {string} url
+     * @returns {Promise<any>}
+     */
+    async fetchJSON(url){
+        return await ((await fetch(url))).json();
     }
 };
 

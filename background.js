@@ -23,6 +23,7 @@ import NetworkManager from "./modules/NetworkManager.mjs";
 import MESSAGES from "./modules/const/Messages.mjs";
 import AccountManager from "./modules/AccountManager.mjs";
 import uiUtils from "./modules/ui/uiUtils.mjs";
+import Wallet from "./modules/freeton/contracts/Wallet.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -119,13 +120,32 @@ const RPC = {
         return true;
     },
 
+    /**
+     * Returns account info
+     * @returns {Promise<*>}
+     */
     main_getAccount: async () => {
         return await accountManager.getAccount();
     },
 
+    /**
+     * Set wallet object for public key
+     * @param {string} publicKey
+     * @param {string} network
+     * @param {object} wallet
+     * @returns {Promise<void>}
+     */
     main_setNetworkWallet: async (publicKey, network, wallet) => {
+        //TODO checking sender
         return await accountManager.setPublicKeyNetworkWallet(publicKey, network, wallet);
     },
+
+    main_getWalletBalance: async (address) => {
+        let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
+        let wallet = await (new Wallet(address, ton)).init();
+        return await wallet.getBalance();
+    },
+
 }
 
 
