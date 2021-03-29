@@ -22,6 +22,7 @@ import Utils from "./modules/utils.mjs";
 import uiUtils from "./modules/ui/uiUtils.mjs";
 import walletWidget from "./modules/ui/widgets/walletWidget.mjs";
 import networkWidget from "./modules/ui/widgets/networkWidget.mjs";
+import accountWidget from "./modules/ui/widgets/accountWidget.mjs";
 
 const RPC = {
     'popup_test': async (a, b) => {
@@ -97,7 +98,7 @@ const RPC = {
      */
     popup_accountChanged: async () => {
         console.log('ACCOUNT CHANGED');
-        await updateAccountWidget();
+        await account.updateAccountWidget();
         await wallet.updateWalletWidget();
         return true;
     },
@@ -177,72 +178,11 @@ window.popups = popups;
 
 
 //Glue code
-
-
-
-
-async function updateAccountWidget() {
-    let account = await messenger.rpcCall('main_getAccount', undefined, 'background');
-    $('#accountChanger').text(`${Utils.shortenPubkey(account.public)}`);
-}
-
-await updateAccountWidget();
-
-async function changeAccount(publicKey) {
-    console.log('CHANGE ACCOUNT', publicKey);
-    await messenger.rpcCall('main_changeAccount', [publicKey], 'background');
-}
-
-$('#accountChanger').on('click', async () => {
-    let keys = await messenger.rpcCall('main_getPublicKeys', undefined, 'background');
-//TODO get wallets for keys
-    //Todo get current account
-
-    let buttons = [
-        {
-            text: 'Change account',
-            label: true
-        },
-    ];
-
-    for (let key of keys) {
-        buttons.push({
-            text: Utils.shortenPubkey(key),
-            //bold: key === currentNetwork.name,
-            onClick: async function () {
-                await changeAccount(key);
-
-            }
-        })
-    }
-
-    buttons.push({
-        text: 'Add existing keypair',
-        color: ''
-    });
-    buttons.push({
-        text: 'Create keypair',
-        color: ''
-    });
-    buttons.push({
-        text: 'Cancel',
-        color: 'red'
-    });
-
-
-    const actions = app.actions.create({
-        buttons
-
-    });
-
-    actions.open();
-    actions.$el.addClass('selectNetworkActions')
-})
+let account = accountWidget(messenger, app);
+await account.updateAccountWidget();
 
 let network = networkWidget(messenger, app);
-
 await network.updateNetworkWidget();
 
 let wallet = walletWidget(messenger, app);
-
 await wallet.updateWalletWidget();
