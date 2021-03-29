@@ -18,8 +18,6 @@ import {default as theme} from "./modules/ui/theme.mjs"
 import {default as popups} from "./modules/ui/popups.mjs"
 import ROUTES from "./modules/ui/routes.mjs";
 import EXCEPTIONS from "./modules/const/Exceptions.mjs";
-import Utils from "./modules/utils.mjs";
-import uiUtils from "./modules/ui/uiUtils.mjs";
 import walletWidget from "./modules/ui/widgets/walletWidget.mjs";
 import networkWidget from "./modules/ui/widgets/networkWidget.mjs";
 import accountWidget from "./modules/ui/widgets/accountWidget.mjs";
