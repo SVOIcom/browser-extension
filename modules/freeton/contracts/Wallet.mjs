@@ -25,6 +25,10 @@ class Wallet {
         this.abi = null;
     }
 
+    /**
+     * Initialize wallet contract
+     * @returns {Promise<Wallet>}
+     */
     async init() {
         this.abi = await Utils.fetchJSON('/abi/SafeMultisigWallet.abi.json');
         this.contract = new Contract(this.abi, this.address, this.ton);
@@ -32,8 +36,23 @@ class Wallet {
         return this;
     }
 
+    /**
+     * Get wallet balance
+     * @returns {Promise<*>}
+     */
     async getBalance() {
         return await this.contract.getBalance();
+    }
+
+    /**
+     * Transfer TON
+     * @param to
+     * @param amount
+     * @param keyPair
+     * @returns {Promise<*>}
+     */
+    async transfer(to, amount, keyPair){
+            return await this.sendTransaction.deploy({to, amount}, keyPair);
     }
 }
 

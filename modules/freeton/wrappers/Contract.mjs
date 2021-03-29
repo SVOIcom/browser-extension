@@ -36,8 +36,8 @@ class Contract {
             }
 
             //Make method deployable
-            this[name].deploy = async function (args = undefined) {
-                return await that.deployMethod(name, args);
+            this[name].deploy = async function (args = undefined, keyPair = undefined) {
+                return await that.deployMethod(name, args, keyPair);
             }
         }
     }
