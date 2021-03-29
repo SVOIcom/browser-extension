@@ -22,7 +22,7 @@ import EXCEPTIONS from "./modules/const/Exceptions.mjs";
 import NetworkManager from "./modules/NetworkManager.mjs";
 import MESSAGES from "./modules/const/Messages.mjs";
 import AccountManager from "./modules/AccountManager.mjs";
-import uiUtils from "./modules/ui/uiUtils";
+import uiUtils from "./modules/ui/uiUtils.mjs";
 
 console.log('IM BACKGROUND');
 
