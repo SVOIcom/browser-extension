@@ -1,3 +1,85 @@
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(/fonts/MaterialIcons-Regular.eot); /* For IE6-8 */
+    src: local('Material Icons'),
+    local('MaterialIcons-Regular'),
+    url(../fonts/MaterialIcons-Regular.woff2) format('woff2'),
+    url(../fonts/MaterialIcons-Regular.woff) format('woff'),
+    url(../fonts/MaterialIcons-Regular.ttf) format('truetype');
+}
+
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px; /* Preferred icon size */
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
+
+    /* Support for Firefox. */
+    -moz-osx-font-smoothing: grayscale;
+
+    /* Support for IE. */
+    font-feature-settings: 'liga';
+}
+
+@font-face {
+    font-family: 'Framework7 Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url("../fonts/Framework7Icons-Regular.eot");
+    src: url("../fonts/Framework7Icons-Regular.woff2") format("woff2"),
+    url("../fonts/Framework7Icons-Regular.woff") format("woff"),
+    url("../fonts/Framework7Icons-Regular.ttf") format("truetype");
+}
+
+.f7-icons {
+    font-family: 'Framework7 Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-feature-settings: "liga";
+    -moz-font-feature-settings: "liga=1";
+    -moz-font-feature-settings: "liga";
+    font-feature-settings: "liga";
+    text-align: center;
+}
+
+#app {
+    padding: 5px;
+}
+
+.theme-dark body {
+    --f7-page-bg-color: #202020;
+    background-color: var(--f7-page-bg-color);
+}
+
+.theme-dark {
+    background-color: #202020;
+}
+
 .detailsTable {
     padding: 15px;
 }
@@ -23,4 +105,66 @@
 .selectNetworkActions .actions-button {
     height: auto;
     line-height: 25px;
+}
+
+.userWalletHolder {
+    text-align: center;
+    line-height: 20px;
+}
+
+.walletButton {
+    color: black;
+}
+
+.theme-dark .walletButton {
+    color: white;
+}
+
+.walletButton .buttonIcon {
+    background: #00A3D9;
+    border-radius: 50px;
+    padding: 15px;
+    color: white;
+}
+
+.walletButton:hover .buttonIcon{
+    background: #8dc5ea;
+}
+
+.walletButtonsRow {
+    padding: 20px 30px 20px 30px;
+}
+
+#networkChanger {
+    background: #e7e7e7;
+    margin-top: 5px;
+}
+
+#accountChanger {
+    background: #e7e7e7;
+    margin-top: 5px;
+}
+
+.theme-dark #networkChanger {
+    background: #262626;
+}
+
+.theme-dark #accountChanger {
+    background: #262626;
+}
+
+.walletLogoTopLeft {
+    height: 35px;
+}
+
+.walletTabs{
+    margin-top: -15px;
+}
+
+.tab-link-active{
+    border-bottom: 2px solid;
+}
+
+.tabbar .tab-link:not(.tab-link-active), .tabbar-labels .tab-link:not(.tab-link-active) {
+    background-color: #FFFFFF00;
 }

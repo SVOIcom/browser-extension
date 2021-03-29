@@ -34,7 +34,10 @@
             <div class="navbar">
                 <div class="navbar-bg"></div>
                 <div class="navbar-inner">
-                    <div class="title">TONWallet</div>
+                    <div class="left title">
+                        TONWallet
+                    </div>
+                    <div class="title"><img class="walletLogoTopLeft" src="./icons/128.png" alt="logo"/></div>
                     <div class="right">
                         <!-- <span>Dark mode</span> -->
                         <label class="toggle toggle-init" id="toggleDarkmode">
@@ -56,14 +59,96 @@
                         <a href="#" class="button " id="networkChanger">Change network</a>
                     </div>
                     <div class="col">
-                       <a href="#"  class="button "  id="accountChanger">Change account</a>
+                        <a href="#" class="button " id="accountChanger">Change account</a>
+                    </div>
+                </div>
+
+                <div class="userWalletHolder ">
+                    <h1 class="walletTokenIcon">💎</h1>
+                    <h1 class="walletBalance">0.0</h1>
+                    <h3 class="walletAddress">0:12312312312312312321</h3>
+
+                    <div class="row walletButtonsRow">
+                        <a href="/about/" class="col walletButton  getMoneyButton">
+                            <i class="material-icons buttonIcon">attach_money</i>
+                            <div>Get</div>
+                        </a>
+
+                        <a href="/about/" class="col walletButton sendMoneyButton">
+                            <i class="f7-icons buttonIcon">control</i>
+                            <div>Send</div>
+                        </a>
+
+                        <a href="/about/" class="col walletButton swapMoneyButton disabled">
+                            <i class="f7-icons buttonIcon">repeat</i>
+                            <div>Swap</div>
+                        </a>
                     </div>
                 </div>
 
 
-                <p>Page content goes here</p>
-                <!-- Link to another page -->
-                <a href="/about/">About app</a>
+                <div class="assetsAndActionsList">
+
+                    <div class="toolbar tabbar">
+                        <div class="toolbar-inner">
+                            <a href="#tabAssets" class="tab-link tab-link-active">Assets</a>
+                            <a href="#tabHistory" class="tab-link">History</a>
+                        </div>
+                    </div>
+                    <!-- Tabs -->
+                    <div class="tabs walletTabs">
+                        <!-- First tab, active -->
+                        <div class="tab tab-active" id="tabAssets">
+
+                            <div class="list">
+                                <ul>
+                                    <li>
+                                        <a href="#" class="item-link item-content">
+                                            <div class="item-media"><i class="icon icon-f7"></i></div>
+                                            <div class="item-inner">
+                                                <div class="item-title">USDT</div>
+                                                <div class="item-after">10.00003</div>
+                                            </div>
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a href="#" class="item-link item-content">
+                                            <div class="item-media"><i class="icon icon-f7"></i></div>
+                                            <div class="item-inner">
+                                                <div class="item-title">WETH</div>
+                                                <div class="item-after">100.00003</div>
+                                            </div>
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a href="#" class="item-link item-content">
+                                            <div class="item-media"><i class="icon icon-f7"></i></div>
+                                            <div class="item-inner">
+                                                <div class="item-title">BEN</div>
+                                                <div class="item-after">1000000</div>
+                                            </div>
+                                        </a>
+                                    </li>
+
+                                </ul>
+
+                            </div>
+                        </div>
+                        <!-- Second tab -->
+                        <div class="tab" id="tabHistory">
+                            <div class="block">
+                                <p><b>Tab 2 content</b></p>
+                                ...
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+
+
             </div>
         </div>
     </div>

@@ -19,13 +19,15 @@ const NETWORKS = {
         explorer: 'ton.live',
         description: 'FreeTON main net',
         site: 'https://freeton.org/',
-        faucet: null
+        faucet: null,
+        tokenIcon: '💎'
     },
     devnet: {
         url: 'net.ton.dev',
         explorer: 'net.ton.live',
         description: 'FreeTON test network',
         site: 'https://freeton.org/',
+        tokenIcon: '<span style="color: red">♦️</span>',
         faucet: {
             type: 'grant',
             address: '0:553b3ea098c3bae9a60d9b689beb183c3cf9a5e6bc5f20acf34d5edfa49a31c1',

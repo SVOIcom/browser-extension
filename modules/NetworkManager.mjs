@@ -77,7 +77,8 @@ class NetworkManager extends EventEmitter3 {
             explorer: explorerUrl,
             description,
             site: '',
-            faucet
+            faucet,
+            tokenIcon: '💸️'
         }
 
         await this.saveNetworks();
