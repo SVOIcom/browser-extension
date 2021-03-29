@@ -6,15 +6,16 @@
    |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
 
  */
-import Utils from "../../utils.mjs";
-import uiUtils from "../uiUtils.mjs";
-
 /**
  * @name FreeTON browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
  */
+
+import Utils from "../../utils.mjs";
+import uiUtils from "../uiUtils.mjs";
+
 
 const $ = Dom7;
 
@@ -52,7 +53,7 @@ class walletWidget {
             console.log(walletObj);
 
             //main_setNetworkWallet
-            await messenger.rpcCall('main_setNetworkWallet', [account.public, currentNetwork.name, walletObj], 'background');
+            await this.messenger.rpcCall('main_setNetworkWallet', [account.public, currentNetwork.name, walletObj], 'background');
 
             await this.updateWalletWidget();
 

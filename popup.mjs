@@ -21,6 +21,7 @@ import EXCEPTIONS from "./modules/const/Exceptions.mjs";
 import Utils from "./modules/utils.mjs";
 import uiUtils from "./modules/ui/uiUtils.mjs";
 import walletWidget from "./modules/ui/widgets/walletWidget.mjs";
+import networkWidget from "./modules/ui/widgets/networkWidget.mjs";
 
 const RPC = {
     'popup_test': async (a, b) => {
@@ -85,7 +86,7 @@ const RPC = {
      */
     popup_networkChanged: async () => {
         console.log('NETWORK CHANGED');
-        await updateNetworkWidget();
+        await network.updateNetworkWidget();
         await wallet.updateWalletWidget();
         return true;
     },
@@ -177,60 +178,7 @@ window.popups = popups;
 
 //Glue code
 
-async function changeNetwork(network) {
-    console.log('CHANGE NETWORK', network);
-    await messenger.rpcCall('main_changeNetwork', [network], 'background');
-}
 
-async function updateNetworkWidget() {
-    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
-    $('#networkChanger').text(`Network: ${currentNetwork.name}`);
-
-}
-
-await updateNetworkWidget();
-
-$('#networkChanger').on('click', async () => {
-    let networks = await messenger.rpcCall('main_getNetworks', undefined, 'background');
-    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
-
-    let buttons = [
-        {
-            text: 'Select network',
-            label: true
-        },
-    ];
-
-    for (let networkName of Object.keys(networks)) {
-        let network = networks[networkName];
-        buttons.push({
-            text: networkName + `<span class="greyText smallText"> <br> ${network.description} <br><i>${network.url}</i></span>`,
-            bold: networkName === currentNetwork.name,
-            onClick: async function () {
-                await changeNetwork(networkName);
-
-            }
-        })
-    }
-
-    buttons.push({
-        text: 'Add network',
-        color: ''
-    });
-    buttons.push({
-        text: 'Cancel',
-        color: 'red'
-    });
-
-
-    const actions = app.actions.create({
-        buttons
-
-    });
-
-    actions.open();
-    actions.$el.addClass('selectNetworkActions')
-})
 
 
 async function updateAccountWidget() {
@@ -290,6 +238,10 @@ $('#accountChanger').on('click', async () => {
     actions.open();
     actions.$el.addClass('selectNetworkActions')
 })
+
+let network = networkWidget(messenger, app);
+
+await network.updateNetworkWidget();
 
 let wallet = walletWidget(messenger, app);
 
