@@ -115,6 +115,7 @@ const RPC = {
     }
 }
 let messenger = new ExtensionMessenger('popup', RPC);
+window.messenger = messenger;
 
 // Dom7
 const $ = Dom7;

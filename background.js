@@ -140,11 +140,39 @@ const RPC = {
         return await accountManager.setPublicKeyNetworkWallet(publicKey, network, wallet);
     },
 
+    /**
+     * Returns wallet balance
+     * @param address
+     * @returns {Promise<*>}
+     */
     main_getWalletBalance: async (address) => {
         let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
         let wallet = await (new Wallet(address, ton)).init();
         return await wallet.getBalance();
     },
+
+    /**
+     * Transfer money to another account
+     * @param from
+     * @param publicKey
+     * @param to
+     * @param amount
+     * @param payload
+     * @returns {Promise<void>}
+     */
+    main_transfer: async (from, publicKey, to, amount, payload = '') => {
+        let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
+        let wallet = await (new Wallet(from, ton)).init();
+
+        let network = await networkManager.getNetwork();
+
+        let keyPair = await getKeysFromDeployAcceptence(publicKey, 'transfer', {
+            address: from,
+            additionalMessage: `Ths action sends ${amount} ${network.network.tokenIcon} to ${to} wallet.`,
+        });
+
+        return await wallet.transfer(to, amount, payload, keyPair);
+    }
 
 }
 

@@ -48,11 +48,18 @@ class Wallet {
      * Transfer TON
      * @param to
      * @param amount
+     * @param payload
      * @param keyPair
      * @returns {Promise<*>}
      */
-    async transfer(to, amount, keyPair){
-            return await this.sendTransaction.deploy({to, amount}, keyPair);
+    async transfer(to, amount, payload = '', keyPair) {
+        return await this.contract.submitTransaction.deploy({
+            dest: to,
+            value: amount,
+            bounce: true,
+            allBalance: false,
+            payload: payload
+        }, keyPair);
     }
 }
 
