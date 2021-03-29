@@ -19,6 +19,7 @@ import {default as popups} from "./modules/ui/popups.mjs"
 import ROUTES from "./modules/ui/routes.mjs";
 import EXCEPTIONS from "./modules/const/Exceptions.mjs";
 import Utils from "./modules/utils.mjs";
+import uiUtils from "./modules/ui/uiUtils.mjs";
 
 const RPC = {
     'popup_test': async (a, b) => {
@@ -36,6 +37,13 @@ const RPC = {
             });
         })
     },
+
+    /**
+     * Show password input window
+     * @param message
+     * @param publicKey
+     * @returns {Promise<unknown>}
+     */
     popup_password: (message, publicKey) => {
         return new Promise((resolve, reject) => {
             app.dialog.password(`${message} \nAction password required for public key: ${publicKey}`, 'Password required', (password) => {
@@ -45,6 +53,12 @@ const RPC = {
             });
         })
     },
+
+    /**
+     * Show alert
+     * @param message
+     * @returns {Promise<unknown>}
+     */
     popup_alert: (message) => {
         return new Promise((resolve, reject) => {
             return app.dialog.alert(message, () => {
@@ -52,6 +66,11 @@ const RPC = {
             })
         });
     },
+
+    /**
+     * Close current window
+     * @returns {Promise<boolean>}
+     */
     popup_close: async () => {
         setTimeout(() => {
             window.close();
@@ -59,15 +78,25 @@ const RPC = {
         return true;
     },
 
+    /**
+     * Network changed event
+     * @returns {Promise<boolean>}
+     */
     popup_networkChanged: async () => {
         console.log('NETWORK CHANGED');
         await updateNetworkWidget();
+        await updateWalletWidget();
         return true;
     },
 
+    /**
+     * Account changed event
+     * @returns {Promise<boolean>}
+     */
     popup_accountChanged: async () => {
         console.log('ACCOUNT CHANGED');
         await updateAccountWidget();
+        await updateWalletWidget();
         return true;
     },
 
@@ -260,3 +289,75 @@ $('#accountChanger').on('click', async () => {
     actions.open();
     actions.$el.addClass('selectNetworkActions')
 })
+
+/**
+ * Update wallet info
+ * @returns {Promise<void>}
+ */
+async function updateWalletWidget() {
+    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
+    let account = await messenger.rpcCall('main_getAccount', undefined, 'background');
+
+
+    console.log(account);
+    $('.walletTokenIcon').html(currentNetwork.network.tokenIcon);
+
+    console.log(account.wallets[currentNetwork.name], currentNetwork.name);
+
+    if(account.wallets[currentNetwork.name]) {
+        let wallet = account.wallets[currentNetwork.name];
+        $('.walletAddress').html(`<a data-clipboard="${wallet.address}" class="autoClipboard" title="${wallet.type}">${Utils.shortenPubkey(wallet.address)}</a>`)
+
+        $('.ifWalletExists').show();
+        $('.ifWalletNotExists').hide();
+    } else {
+
+
+        $('.ifWalletExists').hide();
+        $('.ifWalletNotExists').show();
+    }
+
+    $('.autoClipboard').click(uiUtils.selfCopyElement());
+
+}
+
+$('.enterWalletButton').click(async () => {
+
+    let address = await promptWalletAddress();
+    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
+    let account = await messenger.rpcCall('main_getAccount', undefined, 'background');
+
+    if(!address || address.length === 0) {
+        return;
+    }
+
+    let walletType = await uiUtils.popupSelector(['SafeMultisig', 'SafeMultisig2', 'SURF'], 'Wallet type');
+
+    if(!walletType) {
+        return;
+    }
+
+    const walletObj = {
+        address: address,
+        type: walletType,
+        config: {},
+    }
+
+    console.log(walletObj);
+
+    //main_setNetworkWallet
+    await messenger.rpcCall('main_setNetworkWallet', [account.public, currentNetwork.name, walletObj], 'background');
+
+    await updateWalletWidget();
+
+});
+
+function promptWalletAddress() {
+    return new Promise((resolve, reject) => {
+        app.dialog.prompt(`Enter wallet address:`, 'Entering address', (address) => {
+            resolve(address)
+        }, reject);
+    })
+}
+
+await updateWalletWidget();

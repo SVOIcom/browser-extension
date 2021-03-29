@@ -66,24 +66,41 @@
                 <div class="userWalletHolder ">
                     <h1 class="walletTokenIcon">💎</h1>
                     <h1 class="walletBalance">0.0</h1>
-                    <h3 class="walletAddress">0:12312312312312312321</h3>
+                    <div class="ifWalletExists">
+                        <h3 class="walletAddress">0:12312312312312312321</h3>
 
-                    <div class="row walletButtonsRow">
-                        <a href="/about/" class="col walletButton  getMoneyButton">
-                            <i class="material-icons buttonIcon">attach_money</i>
-                            <div>Get</div>
-                        </a>
+                        <div class="row walletButtonsRow">
+                            <a href="/about/" class="col walletButton  getMoneyButton">
+                                <i class="material-icons buttonIcon">attach_money</i>
+                                <div>Get</div>
+                            </a>
 
-                        <a href="/about/" class="col walletButton sendMoneyButton">
-                            <i class="f7-icons buttonIcon">control</i>
-                            <div>Send</div>
-                        </a>
+                            <a href="/about/" class="col walletButton sendMoneyButton">
+                                <i class="f7-icons buttonIcon">control</i>
+                                <div>Send</div>
+                            </a>
 
-                        <a href="/about/" class="col walletButton swapMoneyButton disabled">
-                            <i class="f7-icons buttonIcon">repeat</i>
-                            <div>Swap</div>
-                        </a>
+                            <a href="/about/" class="col walletButton swapMoneyButton disabled">
+                                <i class="f7-icons buttonIcon">repeat</i>
+                                <div>Swap</div>
+                            </a>
+                        </div>
                     </div>
+
+                    <div class="ifWalletNotExists" style="display: none">
+                        <div class="row walletButtonsRow">
+                            <a href="#" class="col walletButton  deployWalletButton">
+                                <i class="material-icons buttonIcon">done</i>
+                                <div>Deploy wallet</div>
+                            </a>
+
+                            <a href="#" class="col walletButton enterWalletButton">
+                                <i class="material-icons buttonIcon">edit</i>
+                                <div>Enter address</div>
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
 
 

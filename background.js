@@ -122,8 +122,11 @@ const RPC = {
     main_getAccount: async () => {
         return await accountManager.getAccount();
     },
-}
 
+    main_setNetworkWallet: async (publicKey, network, wallet) => {
+        return await accountManager.setPublicKeyNetworkWallet(publicKey, network, wallet);
+    },
+}
 
 
 /**

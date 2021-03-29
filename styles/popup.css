@@ -179,3 +179,7 @@
 .theme-dark .historyList .tokenSpan {
     background: #464545;
 }
+
+.walletTokenIcon{
+    font-size: 30px;
+}
