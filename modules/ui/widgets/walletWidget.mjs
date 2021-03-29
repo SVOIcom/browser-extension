@@ -75,10 +75,10 @@ class walletWidget {
         let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
 
 
-        console.log(account);
+        //console.log(account);
         $('.walletTokenIcon').html(currentNetwork.network.tokenIcon);
 
-        console.log(account.wallets[currentNetwork.name], currentNetwork.name);
+        //console.log(account.wallets[currentNetwork.name], currentNetwork.name);
 
         if(account.wallets[currentNetwork.name]) {
             let wallet = account.wallets[currentNetwork.name];

@@ -169,7 +169,7 @@ const RPC = {
         let keyPair = await getKeysFromDeployAcceptence(publicKey, 'transfer', {
             address: from,
             additionalMessage: `Ths action sends ${amount} ${network.network.tokenIcon} to ${to} wallet.`,
-        });
+        }, undefined, true);
 
         return await wallet.transfer(to, amount, payload, keyPair);
     }
@@ -177,15 +177,22 @@ const RPC = {
 }
 
 
+let freeTONInstances = {};
+
 /**
  * Get TON client
  * @returns {Promise<TonClientWrapper>}
  */
 async function getFreeTON(server = 'net.ton.dev') {
+    if(freeTONInstances[server]) {
+        return freeTONInstances[server]
+    }
     window.TONClient.setWasmOptions({binaryURL: 'ton-client/tonclient.wasm'});
-    return await (new TonClientWrapper(true)).create({
+    freeTONInstances[server] = await (new TonClientWrapper(true)).create({
         servers: [server]
     });
+
+    return freeTONInstances[server]
 }
 
 /**
@@ -194,10 +201,14 @@ async function getFreeTON(server = 'net.ton.dev') {
  * @param type
  * @param callingData
  * @param acceptMessage
+ * @param dontCreatePopup
  * @returns {Promise<{public, secret: *}>}
  */
-async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData, acceptMessage = '') {
-    let popup = await uiUtils.openPopup();
+async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData, acceptMessage = '', dontCreatePopup = false) {
+
+    if(!dontCreatePopup) {
+        let popup = await uiUtils.openPopup();
+    }
 
     //Simple timeout for initialization
     await Utils.wait(1000)
@@ -234,8 +245,9 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
         }
     }
 
-
-    await messenger.rpcCall('popup_close', [], 'popup');
+    if(!dontCreatePopup) {
+        await messenger.rpcCall('popup_close', [], 'popup');
+    }
 
     return keyPair;
 }
