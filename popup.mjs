@@ -268,11 +268,11 @@ $('#accountChanger').on('click', async () => {
     }
 
     buttons.push({
-        text: 'Add existing wallet',
+        text: 'Add existing keypair',
         color: ''
     });
     buttons.push({
-        text: 'Create wallet',
+        text: 'Create keypair',
         color: ''
     });
     buttons.push({
