@@ -168,3 +168,14 @@
 .tabbar .tab-link:not(.tab-link-active), .tabbar-labels .tab-link:not(.tab-link-active) {
     background-color: #FFFFFF00;
 }
+
+.historyList .tokenSpan {
+    font-weight: 600;
+    background: #e2e2e2;
+    border-radius: 25px;
+    padding: 5px;
+}
+
+.theme-dark .historyList .tokenSpan {
+    background: #464545;
+}
