@@ -110,7 +110,7 @@ const RPC = {
      * @returns {Promise<*>}
      */
     popup_acceptSignMessage: async (publicKey, type = 'run', callingData, acceptMessage) => {
-        callingData.additionalMessage = acceptMessage;
+        callingData.additionalMessage = !callingData.additionalMessage?acceptMessage:callingData.additionalMessage;
         return popups.acceptTransaction(publicKey, type, callingData);
     }
 }

@@ -183,3 +183,14 @@
 .walletTokenIcon{
     font-size: 30px;
 }
+
+#acceptMessageFromCaller{
+    word-break: break-word;
+}
+
+.intextWallet{
+    word-break: break-word;
+    -webkit-user-select: all;
+    user-select: all;
+    
+}

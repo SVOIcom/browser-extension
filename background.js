@@ -168,7 +168,7 @@ const RPC = {
 
         let keyPair = await getKeysFromDeployAcceptence(publicKey, 'transfer', {
             address: from,
-            additionalMessage: `Ths action sends ${amount} ${network.network.tokenIcon} to ${to} wallet.`,
+            additionalMessage: `Ths action sends <b>${Utils.unsignedNumberToSigned(amount)}</b> ${network.network.tokenIcon} to <span class="intextWallet">${to}</span> wallet.`,
         }, undefined, true);
 
         return await wallet.transfer(to, amount, payload, keyPair);
