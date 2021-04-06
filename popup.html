@@ -66,24 +66,41 @@
                 <div class="userWalletHolder ">
                     <h1 class="walletTokenIcon">💎</h1>
                     <h1 class="walletBalance">0.0</h1>
-                    <h3 class="walletAddress">0:12312312312312312321</h3>
+                    <div class="ifWalletExists">
+                        <h3 class="walletAddress">0:12312312312312312321</h3>
 
-                    <div class="row walletButtonsRow">
-                        <a href="/about/" class="col walletButton  getMoneyButton">
-                            <i class="material-icons buttonIcon">attach_money</i>
-                            <div>Get</div>
-                        </a>
+                        <div class="row walletButtonsRow">
+                            <a href="/about/" class="col walletButton  getMoneyButton">
+                                <i class="material-icons buttonIcon">attach_money</i>
+                                <div>Get</div>
+                            </a>
 
-                        <a href="/about/" class="col walletButton sendMoneyButton">
-                            <i class="f7-icons buttonIcon">control</i>
-                            <div>Send</div>
-                        </a>
+                            <a href="/about/" class="col walletButton sendMoneyButton">
+                                <i class="f7-icons buttonIcon">control</i>
+                                <div>Send</div>
+                            </a>
 
-                        <a href="/about/" class="col walletButton swapMoneyButton disabled">
-                            <i class="f7-icons buttonIcon">repeat</i>
-                            <div>Swap</div>
-                        </a>
+                            <a href="/about/" class="col walletButton swapMoneyButton disabled">
+                                <i class="f7-icons buttonIcon">repeat</i>
+                                <div>Swap</div>
+                            </a>
+                        </div>
                     </div>
+
+                    <div class="ifWalletNotExists" style="display: none">
+                        <div class="row walletButtonsRow">
+                            <a href="#" class="col walletButton  deployWalletButton">
+                                <i class="material-icons buttonIcon">done</i>
+                                <div>Deploy wallet</div>
+                            </a>
+
+                            <a href="#" class="col walletButton enterWalletButton">
+                                <i class="material-icons buttonIcon">edit</i>
+                                <div>Enter address</div>
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
 
 
@@ -100,7 +117,7 @@
                         <!-- First tab, active -->
                         <div class="tab tab-active" id="tabAssets">
 
-                            <div class="list">
+                            <div class="list assetsList">
                                 <ul>
                                     <li>
                                         <a href="#" class="item-link item-content">
@@ -138,9 +155,42 @@
                         </div>
                         <!-- Second tab -->
                         <div class="tab" id="tabHistory">
-                            <div class="block">
-                                <p><b>Tab 2 content</b></p>
-                                ...
+
+                                <div class="list historyList">
+                                    <ul>
+                                        <li>
+                                            <a href="#" class="item-link item-content">
+                                                <div class="item-media"><i class="material-icons">call_received</i></div>
+                                                <div class="item-inner">
+                                                    <div class="item-title"> 💎  0:12312312312 </div>
+                                                    <div class="item-after">10.00003</div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="item-link item-content">
+                                                <div class="item-media"><i class="material-icons">call_made</i></div>
+                                                <div class="item-inner">
+                                                    <div class="item-title"> 💎  0:12312312312 </div>
+                                                    <div class="item-after">1</div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="item-link item-content">
+                                                <div class="item-media"><i class="material-icons">call_made</i></div>
+                                                <div class="item-inner">
+                                                    <div class="item-title"> <span class="tokenSpan">USDT</span>  0:12312312312 </div>
+                                                    <div class="item-after">100.1</div>
+                                                </div>
+                                            </a>
+                                        </li>
+
+
+
+                                    </ul>
+
+
                             </div>
                         </div>
 

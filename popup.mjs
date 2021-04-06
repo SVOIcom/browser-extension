@@ -18,7 +18,9 @@ import {default as theme} from "./modules/ui/theme.mjs"
 import {default as popups} from "./modules/ui/popups.mjs"
 import ROUTES from "./modules/ui/routes.mjs";
 import EXCEPTIONS from "./modules/const/Exceptions.mjs";
-import Utils from "./modules/utils.mjs";
+import walletWidget from "./modules/ui/widgets/walletWidget.mjs";
+import networkWidget from "./modules/ui/widgets/networkWidget.mjs";
+import accountWidget from "./modules/ui/widgets/accountWidget.mjs";
 
 const RPC = {
     'popup_test': async (a, b) => {
@@ -36,6 +38,30 @@ const RPC = {
             });
         })
     },
+
+    /**
+     * Show toast message
+     * @param message
+     * @returns {Toast.Toast}
+     */
+    popup_showToast: (message) => {
+        return new Promise((resolve, reject) => {
+            app.toast.create({
+                closeTimeout: 3000,
+                destroyOnClose: true,
+                text: message
+            }).open();
+            resolve(true);
+        });
+
+    },
+
+    /**
+     * Show password input window
+     * @param message
+     * @param publicKey
+     * @returns {Promise<unknown>}
+     */
     popup_password: (message, publicKey) => {
         return new Promise((resolve, reject) => {
             app.dialog.password(`${message} \nAction password required for public key: ${publicKey}`, 'Password required', (password) => {
@@ -45,6 +71,12 @@ const RPC = {
             });
         })
     },
+
+    /**
+     * Show alert
+     * @param message
+     * @returns {Promise<unknown>}
+     */
     popup_alert: (message) => {
         return new Promise((resolve, reject) => {
             return app.dialog.alert(message, () => {
@@ -52,6 +84,11 @@ const RPC = {
             })
         });
     },
+
+    /**
+     * Close current window
+     * @returns {Promise<boolean>}
+     */
     popup_close: async () => {
         setTimeout(() => {
             window.close();
@@ -59,15 +96,25 @@ const RPC = {
         return true;
     },
 
+    /**
+     * Network changed event
+     * @returns {Promise<boolean>}
+     */
     popup_networkChanged: async () => {
         console.log('NETWORK CHANGED');
-        await updateNetworkWidget();
+        await network.updateNetworkWidget();
+        await wallet.updateWalletWidget();
         return true;
     },
 
+    /**
+     * Account changed event
+     * @returns {Promise<boolean>}
+     */
     popup_accountChanged: async () => {
         console.log('ACCOUNT CHANGED');
-        await updateAccountWidget();
+        await account.updateAccountWidget();
+        await wallet.updateWalletWidget();
         return true;
     },
 
@@ -80,11 +127,13 @@ const RPC = {
      * @returns {Promise<*>}
      */
     popup_acceptSignMessage: async (publicKey, type = 'run', callingData, acceptMessage) => {
-        callingData.additionalMessage = acceptMessage;
+        callingData.additionalMessage = !callingData.additionalMessage ? acceptMessage : callingData.additionalMessage;
         return popups.acceptTransaction(publicKey, type, callingData);
     }
 }
 let messenger = new ExtensionMessenger('popup', RPC);
+popups.messenger = messenger;
+window.messenger = messenger;
 
 // Dom7
 const $ = Dom7;
@@ -146,117 +195,22 @@ window.popups = popups;
 
 
 //Glue code
+let account = accountWidget(messenger, app);
+await account.updateAccountWidget();
 
-async function changeNetwork(network) {
-    console.log('CHANGE NETWORK', network);
-    await messenger.rpcCall('main_changeNetwork', [network], 'background');
-}
+let network = networkWidget(messenger, app);
+await network.updateNetworkWidget();
 
-async function updateNetworkWidget() {
-    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
-    $('#networkChanger').text(`Network: ${currentNetwork.name}`);
+let wallet = walletWidget(messenger, app);
+await wallet.updateWalletWidget();
 
-}
 
-await updateNetworkWidget();
-
-$('#networkChanger').on('click', async () => {
-    let networks = await messenger.rpcCall('main_getNetworks', undefined, 'background');
-    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
-
-    let buttons = [
-        {
-            text: 'Select network',
-            label: true
-        },
-    ];
-
-    for (let networkName of Object.keys(networks)) {
-        let network = networks[networkName];
-        buttons.push({
-            text: networkName + `<span class="greyText smallText"> <br> ${network.description} <br><i>${network.url}</i></span>`,
-            bold: networkName === currentNetwork.name,
-            onClick: async function () {
-                await changeNetwork(networkName);
-
-            }
-        })
+$('.sendMoneyButton').click(async () => {
+    console.log('aaaa');
+    try {
+        await popups.createTransaction();
+    } catch (e) {
+        //app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
     }
-
-    buttons.push({
-        text: 'Add network',
-        color: ''
-    });
-    buttons.push({
-        text: 'Cancel',
-        color: 'red'
-    });
-
-
-    const actions = app.actions.create({
-        buttons
-
-    });
-
-    actions.open();
-    actions.$el.addClass('selectNetworkActions')
-})
-
-
-async function updateAccountWidget() {
-    let account = await messenger.rpcCall('main_getAccount', undefined, 'background');
-    $('#accountChanger').text(`${Utils.shortenPubkey(account.public)}`);
-}
-
-await updateAccountWidget();
-
-async function changeAccount(publicKey) {
-    console.log('CHANGE ACCOUNT', publicKey);
-    await messenger.rpcCall('main_changeAccount', [publicKey], 'background');
-}
-
-$('#accountChanger').on('click', async () => {
-    let keys = await messenger.rpcCall('main_getPublicKeys', undefined, 'background');
-//TODO get wallets for keys
-    //Todo get current account
-
-    let buttons = [
-        {
-            text: 'Change account',
-            label: true
-        },
-    ];
-
-    for (let key of keys) {
-        buttons.push({
-            text: Utils.shortenPubkey(key),
-            //bold: key === currentNetwork.name,
-            onClick: async function () {
-                await changeAccount(key);
-
-            }
-        })
-    }
-
-    buttons.push({
-        text: 'Add existing wallet',
-        color: ''
-    });
-    buttons.push({
-        text: 'Create wallet',
-        color: ''
-    });
-    buttons.push({
-        text: 'Cancel',
-        color: 'red'
-    });
-
-
-    const actions = app.actions.create({
-        buttons
-
-    });
-
-    actions.open();
-    actions.$el.addClass('selectNetworkActions')
+    console.log('Transaction created');
 })

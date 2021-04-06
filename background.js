@@ -23,6 +23,7 @@ import NetworkManager from "./modules/NetworkManager.mjs";
 import MESSAGES from "./modules/const/Messages.mjs";
 import AccountManager from "./modules/AccountManager.mjs";
 import uiUtils from "./modules/ui/uiUtils.mjs";
+import Wallet from "./modules/freeton/contracts/Wallet.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -119,22 +120,88 @@ const RPC = {
         return true;
     },
 
+    /**
+     * Returns account info
+     * @returns {Promise<*>}
+     */
     main_getAccount: async () => {
         return await accountManager.getAccount();
     },
+
+    /**
+     * Set wallet object for public key
+     * @param {string} publicKey
+     * @param {string} network
+     * @param {object} wallet
+     * @returns {Promise<void>}
+     */
+    main_setNetworkWallet: async (publicKey, network, wallet) => {
+        //TODO checking sender
+        return await accountManager.setPublicKeyNetworkWallet(publicKey, network, wallet);
+    },
+
+    /**
+     * Returns wallet balance
+     * @param address
+     * @returns {Promise<*>}
+     */
+    main_getWalletBalance: async (address) => {
+        let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
+        let wallet = await (new Wallet(address, ton)).init();
+        return await wallet.getBalance();
+    },
+
+    /**
+     * Transfer money to another account
+     * @param from
+     * @param publicKey
+     * @param to
+     * @param amount
+     * @param payload
+     * @returns {Promise<void>}
+     */
+    main_transfer: async (from, publicKey, to, amount, payload = '') => {
+
+        //TODO Check sender
+
+        let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
+        let wallet = await (new Wallet(from, ton)).init();
+
+        let network = await networkManager.getNetwork();
+
+        console.log(amount);
+
+        let keyPair = await getKeysFromDeployAcceptence(publicKey, 'transfer', {
+            address: from,
+            additionalMessage: `Ths action sends <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> ${network.network.tokenIcon} to <span class="intextWallet">${to}</span> wallet.`,
+        }, undefined, true);
+
+        await messenger.rpcCall('popup_showToast', ['Transaction created'], 'popup');
+
+
+
+        return await wallet.transfer(to, amount, payload, keyPair);
+    }
+
 }
 
 
+let freeTONInstances = {};
 
 /**
  * Get TON client
  * @returns {Promise<TonClientWrapper>}
  */
 async function getFreeTON(server = 'net.ton.dev') {
+    if(freeTONInstances[server]) {
+        return freeTONInstances[server]
+    }
     window.TONClient.setWasmOptions({binaryURL: 'ton-client/tonclient.wasm'});
-    return await (new TonClientWrapper(true)).create({
+    freeTONInstances[server] = await (new TonClientWrapper(true)).create({
         servers: [server]
     });
+
+    return freeTONInstances[server]
 }
 
 /**
@@ -143,10 +210,14 @@ async function getFreeTON(server = 'net.ton.dev') {
  * @param type
  * @param callingData
  * @param acceptMessage
+ * @param dontCreatePopup
  * @returns {Promise<{public, secret: *}>}
  */
-async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData, acceptMessage = '') {
-    let popup = await uiUtils.openPopup();
+async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData, acceptMessage = '', dontCreatePopup = false) {
+
+    if(!dontCreatePopup) {
+        let popup = await uiUtils.openPopup();
+    }
 
     //Simple timeout for initialization
     await Utils.wait(1000)
@@ -183,8 +254,9 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
         }
     }
 
-
-    await messenger.rpcCall('popup_close', [], 'popup');
+    if(!dontCreatePopup) {
+        await messenger.rpcCall('popup_close', [], 'popup');
+    }
 
     return keyPair;
 }

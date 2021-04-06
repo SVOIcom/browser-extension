@@ -129,6 +129,15 @@ class AccountManager extends EventEmitter3 {
         let publicKeyWallets = await this._getPublicKeyWallets(publicKey);
         publicKeyWallets[network] = wallet;
         await this._savePublicKeyWallets(publicKey, publicKeyWallets);
+
+        if(publicKey === this.activeAccountPublicKey) {
+            this.activeAccountWallets = publicKeyWallets;
+        }
+
+        await this.saveAccountState();
+
+        return true;
+
     }
 
 
