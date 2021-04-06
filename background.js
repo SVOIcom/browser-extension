@@ -176,6 +176,10 @@ const RPC = {
             additionalMessage: `Ths action sends <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> ${network.network.tokenIcon} to <span class="intextWallet">${to}</span> wallet.`,
         }, undefined, true);
 
+        await messenger.rpcCall('popup_showToast', ['Transaction created'], 'popup');
+
+
+
         return await wallet.transfer(to, amount, payload, keyPair);
     }
 

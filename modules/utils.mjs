@@ -166,6 +166,17 @@ const Utils = {
      */
     async fetchJSON(url){
         return await ((await fetch(url))).json();
+    },
+
+    /**
+     * Check TON address
+     * @param {string} address
+     * @returns {boolean}
+     */
+    validateTONAddress(address){
+        const regex = /^-?[0-9a-fA-F]?[0-9a-fA-F]:[a-fA-F0-9]{64}/gm;
+
+        return (regex.exec(address)) !== null;
     }
 };
 

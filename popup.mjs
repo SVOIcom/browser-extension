@@ -40,6 +40,23 @@ const RPC = {
     },
 
     /**
+     * Show toast message
+     * @param message
+     * @returns {Toast.Toast}
+     */
+    popup_showToast: (message) => {
+        return new Promise((resolve, reject) => {
+            app.toast.create({
+                closeTimeout: 3000,
+                destroyOnClose: true,
+                text: message
+            }).open();
+            resolve(true);
+        });
+
+    },
+
+    /**
      * Show password input window
      * @param message
      * @param publicKey
@@ -110,11 +127,12 @@ const RPC = {
      * @returns {Promise<*>}
      */
     popup_acceptSignMessage: async (publicKey, type = 'run', callingData, acceptMessage) => {
-        callingData.additionalMessage = !callingData.additionalMessage?acceptMessage:callingData.additionalMessage;
+        callingData.additionalMessage = !callingData.additionalMessage ? acceptMessage : callingData.additionalMessage;
         return popups.acceptTransaction(publicKey, type, callingData);
     }
 }
 let messenger = new ExtensionMessenger('popup', RPC);
+popups.messenger = messenger;
 window.messenger = messenger;
 
 // Dom7
@@ -185,3 +203,14 @@ await network.updateNetworkWidget();
 
 let wallet = walletWidget(messenger, app);
 await wallet.updateWalletWidget();
+
+
+$('.sendMoneyButton').click(async () => {
+    console.log('aaaa');
+    try {
+        await popups.createTransaction();
+    } catch (e) {
+        //app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
+    }
+    console.log('Transaction created');
+})
