@@ -161,14 +161,19 @@ const RPC = {
      * @returns {Promise<void>}
      */
     main_transfer: async (from, publicKey, to, amount, payload = '') => {
+
+        //TODO Check sender
+
         let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
         let wallet = await (new Wallet(from, ton)).init();
 
         let network = await networkManager.getNetwork();
 
+        console.log(amount);
+
         let keyPair = await getKeysFromDeployAcceptence(publicKey, 'transfer', {
             address: from,
-            additionalMessage: `Ths action sends <b>${Utils.unsignedNumberToSigned(amount)}</b> ${network.network.tokenIcon} to <span class="intextWallet">${to}</span> wallet.`,
+            additionalMessage: `Ths action sends <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> ${network.network.tokenIcon} to <span class="intextWallet">${to}</span> wallet.`,
         }, undefined, true);
 
         return await wallet.transfer(to, amount, payload, keyPair);

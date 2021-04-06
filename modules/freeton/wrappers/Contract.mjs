@@ -106,22 +106,33 @@ class Contract {
      * @returns {Promise<*>}
      */
     async deployMethod(method, args = {}, keyPair = undefined) {
-        let params = {
-            address: this.address,
-            abi: this.abi,
-            functionName: method,
-            input: args,
-            keyPair
-        };
+        try {
+            let params = {
+                address: this.address,
+                abi: this.abi,
+                functionName: method,
+                input: args,
+                keyPair
+            };
 
-        let message = await this.ton.contracts.createRunMessage(params);
-        let transaction = await this.ton.contracts.sendMessage(message.message);
+            let message = await this.ton.contracts.createRunMessage(params);
+            let transaction = await this.ton.contracts.sendMessage(message.message);
 
-        let result = await this.ton.contracts.waitForRunTransaction(message, transaction);
+            console.log(transaction);
 
-        result.tx = transaction;
+            let result = await this.ton.contracts.waitForRunTransaction(message, transaction);
 
-        return result;
+            console.log(result);
+
+            result.tx = transaction;
+
+            return result;
+        } catch (e) {
+            console.log('DEPLOY ERROR', e);
+            throw e;
+        }
+
+
     }
 
 }

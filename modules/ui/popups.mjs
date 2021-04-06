@@ -44,7 +44,7 @@ class Popups {
                 }
 
                 if(callingDetails.additionalMessage && callingDetails.additionalMessage !== '') {
-                    $('#acceptMessageFromCaller').text(callingDetails.additionalMessage);
+                    $('#acceptMessageFromCaller').html(callingDetails.additionalMessage);
                 } else {
                     $('#acceptMessageFromCallerHolder').hide();
                 }
