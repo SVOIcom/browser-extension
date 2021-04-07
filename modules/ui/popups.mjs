@@ -158,6 +158,115 @@ class Popups {
             })
         })
     }
+
+    initPage() {
+        let self = this;
+
+        return new Promise((resolve, reject) => {
+            window.app.views.main.router.navigate("/initPage");
+
+            app.once('pageInit', () => {            
+                
+                $("#importSeed").on( "click", () => {
+                    self.importSeed();
+                });
+
+                $("#createNewSeed").on( "click", () => {
+                    self.getSeed();
+                });
+
+                $('#returnButton3').once('click', () => {
+                    Utils.appBack();
+                });
+        
+            });
+
+        });
+    }
+
+    importSeed() {
+        return new Promise((resolve, reject) => {
+            let self = this;
+
+            console.log("click");
+
+            window.app.views.main.router.navigate("/importSeed");
+
+            app.once('pageInit', () => {         
+                
+                checkPolicyCheckbox();
+
+                $("#policy1").on( "click", () => {
+                    self.goToPolicy();
+                });
+                
+                $("#submit").on( "click", () => {
+                    validatePassword();
+                });
+
+                $("#policyCheckbox").on( "change", () => {
+                    checkPolicyCheckbox();
+                });
+        
+                $('#returnButton').once('click', () => {
+                    Utils.appBack();
+                });
+
+
+
+            });
+
+        });
+    }
+
+    getSeed() {
+        return new Promise((resolve, reject) => {
+            let self = this;
+
+            console.log("click");
+
+            window.app.views.main.router.navigate("/getSeed");
+
+            app.once('pageInit', () => {   
+
+                checkPolicyCheckbox();
+                
+                $("#policy").on( "click", () => {
+                    self.goToPolicy();
+                });
+                
+                $("#submit").on( "click", () => {
+                    validatePassword();
+                });
+
+                $("#policyCheckbox").on( "change", () => {
+                    checkPolicyCheckbox();
+                });
+        
+                $('#returnButton').once('click', () => {
+                    Utils.appBack();
+                });
+
+            });
+
+        });
+    }
+
+    goToPolicy() {
+        return new Promise((resolve, reject) => {
+            window.app.views.main.router.navigate("/policy");
+
+            app.once('pageInit', () => {            
+        
+                $('#returnButton2').once('click', () => {
+                    Utils.appBack();
+                });
+
+            });
+
+        });
+    }
+
 }
 
 export default new Popups();

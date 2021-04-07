@@ -145,6 +145,7 @@ const app = new Framework7({
     root: "#app",
     theme: "aurora",
     autoDarkTheme: true,
+    view:{stackPages: true,},
     dialog: {
         title: 'TONWallet',
     },
@@ -193,6 +194,11 @@ window.theme = theme;
 
 window.popups = popups;
 
+let walletsObj = (await messenger.rpcCall('main_getAccount', undefined, 'background')).wallets;
+
+if (Object.keys(walletsObj).length === 0){
+    popups.initPage();
+}
 
 //Glue code
 let account = accountWidget(messenger, app);
