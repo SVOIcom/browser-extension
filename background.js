@@ -25,6 +25,8 @@ import AccountManager from "./modules/AccountManager.mjs";
 import uiUtils from "./modules/ui/uiUtils.mjs";
 import Wallet from "./modules/freeton/contracts/Wallet.mjs";
 import FreetonInstance from "./modules/freeton/FreetonInstance.mjs";
+import FreetonCrypto from "./modules/freeton/FreetonCrypto.mjs";
+import FreetonDeploy from "./modules/freeton/FreetonDeploy.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -180,8 +182,23 @@ const RPC = {
         await messenger.rpcCall('popup_showToast', ['Transaction created'], 'popup');
 
 
-
         return await wallet.transfer(to, amount, payload, keyPair);
+    },
+
+    main_deployWallet: async (publicKey, type) => {
+        //TODO Check sender
+
+        let network = await networkManager.getNetwork();
+
+        let keyPair = await getKeysFromDeployAcceptence(publicKey, 'Deploy contract', {
+            //address: from,
+            additionalMessage: `Ths action deploys ${type} wallet contract.`,
+        }, undefined, true);
+
+        let contractDeployer = new FreetonDeploy(network.network.url);
+
+        return await contractDeployer.deployWallet(keyPair, type);
+
     }
 
 }
@@ -260,6 +277,8 @@ let messenger, storage, keyring, networkManager, accountManager;
 
     networkManager = await (new NetworkManager()).initialize();
     window.networkManager = networkManager;
+
+    window.freetonCrypto = FreetonCrypto;
 
     //If network changed, broadcast it to all tabs and popups
     networkManager.on(networkManager.EVENTS.networkChanged, async () => {

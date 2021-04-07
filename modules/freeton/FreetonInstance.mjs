@@ -13,7 +13,6 @@
  * @version 1.0
  */
 
-
 import TonClientWrapper from "../TonClientWrapper.mjs";
 
 /**
