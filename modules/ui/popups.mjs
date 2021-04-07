@@ -188,9 +188,11 @@ class Popups {
         return new Promise((resolve, reject) => {
             let self = this;
 
-            console.log("click");
-
             window.app.views.main.router.navigate("/importSeed");
+
+            let passwordCheck = 0;
+            let policyCheck = 0;
+            let seedPhraseCheck = 0;
 
             app.once('pageInit', () => {         
                 
@@ -200,19 +202,36 @@ class Popups {
                     self.goToPolicy();
                 });
                 
-                $("#submit").on( "click", () => {
-                    validatePassword();
+                $("#submit").on( "click", async () => {
+                    passwordCheck = validatePassword();
+                    seedPhraseCheck = checkSeedPhrase();
+                    console.log(seedPhraseCheck);
+                    if(seedPhraseCheck === 1){
+                        console.log("start");
+                        let seedPhraseVal = $("#seedPhaseArea").val();
+                        console.log(seedPhraseVal)
+
+                        try{
+                            console.log("start2")
+                            let keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
+                            console.log(keyPair, "<-----")
+                        } catch (e){
+                            console.log(e)
+                        }
+
+
+                    }
+                
+
                 });
 
                 $("#policyCheckbox").on( "change", () => {
-                    checkPolicyCheckbox();
+                    policyCheck = checkPolicyCheckbox();
                 });
         
                 $('#returnButton').once('click', () => {
                     Utils.appBack();
                 });
-
-
 
             });
 
@@ -220,14 +239,19 @@ class Popups {
     }
 
     getSeed() {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             let self = this;
 
-            console.log("click");
-
+            let seedPhrase = await this.messenger.rpcCall('main_generateSeedPhrase', undefined, 'background');
+            
             window.app.views.main.router.navigate("/getSeed");
 
             app.once('pageInit', () => {   
+
+                let passwordCheck = 0;
+                let policyCheck = 0;
+    
+                $("#seedPhrase").text(seedPhrase);
 
                 checkPolicyCheckbox();
                 
@@ -236,13 +260,15 @@ class Popups {
                 });
                 
                 $("#submit").on( "click", () => {
-                    validatePassword();
+                    passwordCheck = validatePassword();
+                    console.log(passwordCheck)
+                    console.log(policyCheck)
                 });
 
                 $("#policyCheckbox").on( "change", () => {
-                    checkPolicyCheckbox();
+                    policyCheck = checkPolicyCheckbox();
                 });
-        
+
                 $('#returnButton').once('click', () => {
                     Utils.appBack();
                 });

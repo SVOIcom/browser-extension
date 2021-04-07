@@ -199,7 +199,23 @@ const RPC = {
 
         return await contractDeployer.deployWallet(keyPair, type);
 
-    }
+    },
+
+    /**
+     * Generates seed phrase
+     * @returns {Promise<*>}
+     */
+    main_generateSeedPhrase: async () => {
+        return await freetonCrypto.generateSeed();
+    },
+
+     /**
+     * Generates seed phrase
+     * @returns {Promise<*>}
+     */
+    main_getKeysFromSeedPhrase: async (seed) => {
+        return await freetonCrypto.seedToKeypair(seed);
+    },
 
 }
 

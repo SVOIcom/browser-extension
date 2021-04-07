@@ -122,3 +122,29 @@ function validatePassword() {
     }
 
 }
+
+
+/**
+ * validate policy checkbox field
+ * @returns {Boolean}
+ */
+ function checkSeedPhrase() {
+
+    let seedPhaseAreaLabel = $("#seedPhaseAreaLabel");
+    let seedPhaseAreaLi = $("#seedPhaseAreaLi");
+    let seedPhaseArea = $("#seedPhaseArea");
+    let seedPhrase = $("#seedPhaseArea");
+
+    if (seedPhrase.val() === ""){
+        seedPhaseAreaLi.addClass('item-input-invalid');
+        seedPhaseArea.addClass("input-invalid");
+        seedPhaseAreaLabel.text("Please enter your seed phrase");
+        return 0
+    } else {
+        seedPhaseAreaLi.removeClass('item-input-invalid');
+        seedPhaseArea.removeClass("input-invalid");
+        return 1
+    }
+
+
+}
