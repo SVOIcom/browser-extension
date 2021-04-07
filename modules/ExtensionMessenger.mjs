@@ -31,6 +31,8 @@ class ExtensionMessenger {
                                     code: e.code,
                                     lineNumber: e.lineNumber,
                                     fileName: e.fileName,
+                                    fullExceptionEncoded: JSON.stringify(e),
+                                    fullException: JSON.parse(JSON.stringify(e))
                                 },
                                 exception: true
                             };

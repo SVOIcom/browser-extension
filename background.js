@@ -24,6 +24,9 @@ import MESSAGES from "./modules/const/Messages.mjs";
 import AccountManager from "./modules/AccountManager.mjs";
 import uiUtils from "./modules/ui/uiUtils.mjs";
 import Wallet from "./modules/freeton/contracts/Wallet.mjs";
+import FreetonInstance from "./modules/freeton/FreetonInstance.mjs";
+import FreetonCrypto from "./modules/freeton/FreetonCrypto.mjs";
+import FreetonDeploy from "./modules/freeton/FreetonDeploy.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -54,7 +57,7 @@ const RPC = {
         console.log(publicKey, data);
         data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'run', data);
 
-        let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         return await ton.contracts.run(data);
     },
 
@@ -62,7 +65,7 @@ const RPC = {
         console.log(publicKey, data);
         data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'runLocal', data);
 
-        let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         return await ton.contracts.runLocal(data);
     },
 
@@ -77,7 +80,7 @@ const RPC = {
         console.log(publicKey, data);
         data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'createRunMessage', data)
 
-        let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         return await ton.contracts.createRunMessage(data);
 
     },
@@ -146,7 +149,7 @@ const RPC = {
      * @returns {Promise<*>}
      */
     main_getWalletBalance: async (address) => {
-        let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         let wallet = await (new Wallet(address, ton)).init();
         return await wallet.getBalance();
     },
@@ -164,7 +167,7 @@ const RPC = {
 
         //TODO Check sender
 
-        let ton = await getFreeTON((await networkManager.getNetwork()).network.url);
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         let wallet = await (new Wallet(from, ton)).init();
 
         let network = await networkManager.getNetwork();
@@ -179,30 +182,27 @@ const RPC = {
         await messenger.rpcCall('popup_showToast', ['Transaction created'], 'popup');
 
 
-
         return await wallet.transfer(to, amount, payload, keyPair);
+    },
+
+    main_deployWallet: async (publicKey, type) => {
+        //TODO Check sender
+
+        let network = await networkManager.getNetwork();
+
+        let keyPair = await getKeysFromDeployAcceptence(publicKey, 'Deploy contract', {
+            //address: from,
+            additionalMessage: `Ths action deploys ${type} wallet contract.`,
+        }, undefined, true);
+
+        let contractDeployer = new FreetonDeploy(network.network.url);
+
+        return await contractDeployer.deployWallet(keyPair, type);
+
     }
 
 }
 
-
-let freeTONInstances = {};
-
-/**
- * Get TON client
- * @returns {Promise<TonClientWrapper>}
- */
-async function getFreeTON(server = 'net.ton.dev') {
-    if(freeTONInstances[server]) {
-        return freeTONInstances[server]
-    }
-    window.TONClient.setWasmOptions({binaryURL: 'ton-client/tonclient.wasm'});
-    freeTONInstances[server] = await (new TonClientWrapper(true)).create({
-        servers: [server]
-    });
-
-    return freeTONInstances[server]
-}
 
 /**
  * Open accept sign message
@@ -277,6 +277,8 @@ let messenger, storage, keyring, networkManager, accountManager;
 
     networkManager = await (new NetworkManager()).initialize();
     window.networkManager = networkManager;
+
+    window.freetonCrypto = FreetonCrypto;
 
     //If network changed, broadcast it to all tabs and popups
     networkManager.on(networkManager.EVENTS.networkChanged, async () => {
