@@ -101,7 +101,7 @@ function validatePassword() {
 
 
 /**
- * validate password fields
+ * validate policy checkbox field
  * @returns {Boolean}
  */
  function checkPolicyCheckbox() {
