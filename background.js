@@ -145,13 +145,24 @@ const RPC = {
 
     /**
      * Returns wallet balance
-     * @param address
+     * @param {string} address
      * @returns {Promise<*>}
      */
     main_getWalletBalance: async (address) => {
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         let wallet = await (new Wallet(address, ton)).init();
         return await wallet.getBalance();
+    },
+
+    /**
+     * Check wallet deployed
+     * @param {string} address
+     * @returns {Promise<boolean>}
+     */
+    main_getWalletDeployed: async (address) => {
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+        let wallet = await (new Wallet(address, ton)).init();
+        return await wallet.contractDeployed();
     },
 
     /**
@@ -183,6 +194,12 @@ const RPC = {
 
 
         return await wallet.transfer(to, amount, payload, keyPair);
+    },
+
+    main_createWallet: async (publicKey, type) => {
+        let network = await networkManager.getNetwork();
+        let contractDeployer = new FreetonDeploy(network.network.url);
+        return await contractDeployer.createWallet(publicKey, type);
     },
 
     main_deployWallet: async (publicKey, type) => {

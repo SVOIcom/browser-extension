@@ -45,6 +45,28 @@ class Wallet {
     }
 
     /**
+     * Check is contract deployed
+     * @returns {Promise<boolean>}
+     */
+    async contractDeployed() {
+        let result = await this.ton.queries.accounts.query({
+            filter: {id: {eq: this.address}},
+            result: 'balance acc_type'
+        });
+
+
+        if(result.length === 0) {
+            return false;
+        }
+
+        if(result[0].acc_type === 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Transfer TON
      * @param to
      * @param amount

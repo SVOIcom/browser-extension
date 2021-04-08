@@ -7,19 +7,24 @@ class WalletContract {
         SurfMultisig: 'SurfMultisig'
     }
 
+    static WALLET_TYPES_LIST = [
+        'SafeMultisig',
+        'SURF'
+    ];
+
     /**
      * Returns SafeMultisig wallet
      * @returns {Promise<{imageBase64: *, abi: *}>}
      * @constructor
      */
-    static async  SafeMultisig() {
+    static async SafeMultisig() {
         return {
             abi: await Utils.fetchJSON('/abi/SafeMultisigWallet.abi.json'),
             imageBase64: await Utils.fetchJSON('/abi/contracts/SafeMultisigWallet.base64.json')
         }
     }
 
-    static async  SurfMultisig() {
+    static async SurfMultisig() {
         return {
             abi: await Utils.fetchJSON('/abi/SurfMultisigWallet.abi.json'),
             imageBase64: await Utils.fetchJSON('/abi/contracts/SurfMultisigWallet.base64.json')
@@ -31,7 +36,7 @@ class WalletContract {
      * @param type
      * @returns {Promise<{imageBase64: *, abi: *}>}
      */
-    static async  getWalletData(type = WalletContract.WALLET_TYPES.SafeMultisig) {
+    static async getWalletData(type = WalletContract.WALLET_TYPES.SafeMultisig) {
         switch (type) {
             case 'SafeMultisig':
             case 'SafeMultisigWallet':
