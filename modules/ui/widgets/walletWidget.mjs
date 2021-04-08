@@ -62,8 +62,12 @@ class walletWidget {
 
         });
 
-        $('.createWalletButton').click(async () => {
-            let walletType = await uiUtils.popupSelector(WalletContract.WALLET_TYPES_LIST, 'Wallet type');
+        $('.createWalletButton, .editWalletButton').click(async () => {
+            let walletType = await uiUtils.popupSelector([...WalletContract.WALLET_TYPES_LIST, {
+                text: 'Enter custom address', onClick: async () => {
+                    $('.enterWalletButton').click();
+                }
+            }], 'Wallet type');
 
             if(!walletType) {
                 return;

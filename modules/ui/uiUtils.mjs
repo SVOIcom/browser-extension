@@ -47,12 +47,19 @@ const uiUtils = {
             ];
 
             for (let item of items) {
-                buttons.push({
-                    text: item,
-                    onClick: async function () {
-                        resolve(item);
-                    }
-                });
+
+                if(typeof item === 'string') {
+                    buttons.push({
+                        text: item,
+                        onClick: async function () {
+                            resolve(item);
+                        }
+                    });
+                }
+
+                if(typeof item === 'object') {
+                    buttons.push(item)
+                }
             }
 
             buttons.push({
