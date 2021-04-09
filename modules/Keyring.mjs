@@ -15,6 +15,7 @@
 
 
 import PrivateStorage from "./PrivateStorage.mjs";
+import EXCEPTIONS from "./const/Exceptions.mjs";
 
 const EXTENSION_SECRET = 'TONWallet';
 
@@ -67,7 +68,7 @@ class Keyring {
      */
     async addKey(publicKey, privateKeyOrSeedWithConfig, password) {
         if(await this.isKeyInKeyring(publicKey)) {
-            throw new Error('Key already in keyring');
+            throw EXCEPTIONS.keyAlreadyInKeyring;
         }
         const isSeed = typeof privateKeyOrSeedWithConfig === 'object';
         this._publicKeys[publicKey] = {isSeed};
@@ -75,6 +76,8 @@ class Keyring {
         await this._storage.set(publicKey, privateKeyOrSeedWithConfig, password);
 
         await this._saveData();
+
+        return true;
     }
 
     /**

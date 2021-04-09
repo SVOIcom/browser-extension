@@ -128,7 +128,7 @@ function validatePassword() {
  * validate policy checkbox field
  * @returns {Boolean}
  */
- function checkSeedPhrase() {
+ function checkSeedPhraseExist() {
 
     let seedPhaseAreaLabel = $("#seedPhaseAreaLabel");
     let seedPhaseAreaLi = $("#seedPhaseAreaLi");
@@ -145,6 +145,33 @@ function validatePassword() {
         seedPhaseArea.removeClass("input-invalid");
         return 1
     }
+}
 
+
+/**
+ * validate policy checkbox field
+ * @returns {Boolean}
+ */
+ function seedPhraseInvalid(code) {
+
+    let seedPhaseAreaLabel = $("#seedPhaseAreaLabel");
+    let seedPhaseAreaLi = $("#seedPhaseAreaLi");
+    let seedPhaseArea = $("#seedPhaseArea");
+
+    let validFlag = 1
+
+    if (code == 10004){
+        seedPhaseAreaLi.addClass('item-input-invalid');
+        seedPhaseArea.addClass("input-invalid");
+        seedPhaseAreaLabel.text("This seed phrase is already in your wallet");
+        validFlag = 0
+        } else {
+        seedPhaseAreaLi.addClass('item-input-invalid');
+        seedPhaseArea.addClass("input-invalid");
+        seedPhaseAreaLabel.text("This seed phrase is invalid");
+        validFlag = 0
+        }
+
+    return validFlag;
 
 }

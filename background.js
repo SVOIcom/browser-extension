@@ -217,6 +217,15 @@ const RPC = {
         return await freetonCrypto.seedToKeypair(seed);
     },
 
+    /**
+     * Add account to storage
+     * @returns {Promise<*>}
+     */
+    main_addAccount: async (publicKey, privateKey, password) => {
+        return await accountManager.addAccount(publicKey, privateKey, password);
+    },
+    
+
 }
 
 

@@ -194,11 +194,13 @@ window.theme = theme;
 
 window.popups = popups;
 
-let walletsObj = (await messenger.rpcCall('main_getAccount', undefined, 'background')).wallets;
+let walletsObj = (await messenger.rpcCall('main_getAccount', undefined, 'background')).public;
 
-if (Object.keys(walletsObj).length === 0){
-    popups.initPage();
-}
+popups.initPage();
+
+// if (walletsObj != null){
+//     popups.initPage();
+// }
 
 //Glue code
 let account = accountWidget(messenger, app);

@@ -9,8 +9,12 @@ const Utils = {
             setTimeout(resolve, timeout)
         })
     },
-    appBack: () => {
-        app.views.main.router.back();
+    appBack: (url =  "", options= {}) => {
+        app.views.main.router.back(url, options);
+    },
+    reloadPage: () => {
+        app.views.main.router.reloadPage();
+        app.views.main.router.clearPreviousHistory();
     },
     shortenPubkey: (pubkey, delimiter = '...') => {
         pubkey = String(pubkey);

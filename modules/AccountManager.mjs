@@ -61,6 +61,7 @@ class AccountManager extends EventEmitter3 {
      */
     async _savePublicKeyWallets(publicKey, wallets = {}) {
         await this.storage.set('wallets_' + publicKey, wallets);
+        return true;
     }
 
     /**
@@ -85,6 +86,7 @@ class AccountManager extends EventEmitter3 {
         await this.keyring.addKey(publicKey, privateOrSeed, password);
         await this._savePublicKeyWallets(publicKey, wallets);
         await this.saveAccountState();
+        return true;
     }
 
     /**
@@ -169,6 +171,7 @@ class AccountManager extends EventEmitter3 {
     async saveAccountState() {
         await this.storage.set('activeAccountPublicKey', this.activeAccountPublicKey);
         await this.storage.set('activeAccountWallets', this.activeAccountWallets);
+        return true;
     }
 }
 

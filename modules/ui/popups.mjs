@@ -192,11 +192,12 @@ class Popups {
 
             let passwordCheck = 0;
             let policyCheck = 0;
-            let seedPhraseCheck = 0;
+            let seedPhraseEntered = 0;
+            let seedPhraseCheck = 0
 
             app.once('pageInit', () => {         
                 
-                checkPolicyCheckbox();
+                policyCheck = checkPolicyCheckbox();
 
                 $("#policy1").on( "click", () => {
                     self.goToPolicy();
@@ -204,25 +205,50 @@ class Popups {
                 
                 $("#submit").on( "click", async () => {
                     passwordCheck = validatePassword();
-                    seedPhraseCheck = checkSeedPhrase();
-                    console.log(seedPhraseCheck);
-                    if(seedPhraseCheck === 1){
-                        console.log("start");
+                    seedPhraseEntered = checkSeedPhraseExist();
+                    policyCheck = checkPolicyCheckbox();
+
+                    if(seedPhraseEntered === 1 && passwordCheck === 1 && policyCheck === 1){
                         let seedPhraseVal = $("#seedPhaseArea").val();
-                        console.log(seedPhraseVal)
 
                         try{
-                            console.log("start2")
-                            let keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
-                            console.log(keyPair, "<-----")
+                            let keyPair = ""
+
+                            try{
+                                keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
+
+                            } catch (e){
+                                seedPhraseCheck = seedPhraseInvalid(e.code);
+                                return false;
+
+                            }
+
+                            // Utils.appBack("/", {force : true,  reloadCurrent: true, ignoreCache: true,});
+                            // Utils.reloadPage();
+                            // location.reload();
+
+                            let publicKey = keyPair.public;
+                            let privateKey =  keyPair.secret;
+                            let password = $("#password").val();
+
+                            try{
+                                await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
+                                await this.messenger.rpcCall('main_changeAccount', [publicKey,], 'background');
+
+                            } catch (e){
+                                seedPhraseCheck = seedPhraseInvalid(e.code);
+                                return false;
+
+                            }
+
+                            if (seedPhraseCheck == 1 ) {location.reload();}
+                            
                         } catch (e){
-                            console.log(e)
+                            console.log(e);
+
                         }
-
-
                     }
                 
-
                 });
 
                 $("#policyCheckbox").on( "change", () => {
