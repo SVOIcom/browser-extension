@@ -163,7 +163,7 @@ class Popups {
         let self = this;
 
         return new Promise((resolve, reject) => {
-            window.app.views.main.router.navigate("/initPage");
+            window.app.views.main.router.navigate("/initPage", {animate: false});
 
             app.once('pageInit', () => {            
                 
@@ -268,7 +268,7 @@ class Popups {
         return new Promise(async (resolve, reject) => {
             let self = this;
 
-            let seedPhrase = await this.messenger.rpcCall('main_generateSeedPhrase', undefined, 'background');
+            let seedPhraseVal = await this.messenger.rpcCall('main_generateSeedPhrase', undefined, 'background');
             
             window.app.views.main.router.navigate("/getSeed");
 
@@ -277,7 +277,7 @@ class Popups {
                 let passwordCheck = 0;
                 let policyCheck = 0;
     
-                $("#seedPhrase").text(seedPhrase);
+                $("#seedPhrase").text(seedPhraseVal);
 
                 checkPolicyCheckbox();
                 
@@ -285,8 +285,23 @@ class Popups {
                     self.goToPolicy();
                 });
                 
-                $("#submit").on( "click", () => {
+                $("#submit").on( "click", async () => {
                     passwordCheck = validatePassword();
+                    policyCheck = checkPolicyCheckbox();
+                    if (passwordCheck === 1 && policyCheck === 1){
+                        let keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
+
+                        let publicKey = keyPair.public;
+                        let privateKey =  keyPair.secret;
+                        let password = $("#password").val();
+
+                        console.log(publicKey, privateKey);
+
+                        await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
+                        await this.messenger.rpcCall('main_changeAccount', [publicKey,], 'background');
+
+                        location.reload();
+                    }
                     console.log(passwordCheck)
                     console.log(policyCheck)
                 });

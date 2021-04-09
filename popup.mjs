@@ -195,12 +195,12 @@ window.theme = theme;
 window.popups = popups;
 
 let walletsObj = (await messenger.rpcCall('main_getAccount', undefined, 'background')).public;
+// console.log(walletsObj, "<<<<<<");
+// popups.initPage();
 
-popups.initPage();
-
-// if (walletsObj != null){
-//     popups.initPage();
-// }
+if (walletsObj == null){
+    popups.initPage();
+}
 
 //Glue code
 let account = accountWidget(messenger, app);
