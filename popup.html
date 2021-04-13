@@ -66,28 +66,34 @@
                 <div class="userWalletHolder ">
                     <h1 class="walletTokenIcon">💎</h1>
                     <h1 class="walletBalance">0.0</h1>
-                    <div class="ifWalletExists">
-                        <h3 class="walletAddress">0:12312312312312312321</h3>
+                    <div class="">
+                        <h3 class="ifWalletNotDeployed"><span class="walletAddress">0:12312312312312312321</span>
+                            <a href="#" class="addressEditButton  editWalletButton" title="Change wallet contract type">
+                                <i class="material-icons buttonIcon">edit</i>
+                            </a>
+                        </h3>
 
-                        <div class="row walletButtonsRow">
-                            <a href="/about/" class="col walletButton  getMoneyButton">
+                        <div class="row walletButtonsRow ifWalletExists">
+                            <a href="#" class="col walletButton  getMoneyButton">
                                 <i class="material-icons buttonIcon">attach_money</i>
                                 <div>Get</div>
                             </a>
 
-                            <a href="/about/" class="col walletButton sendMoneyButton">
+                            <a href="#" class="col walletButton sendMoneyButton">
                                 <i class="f7-icons buttonIcon">control</i>
                                 <div>Send</div>
                             </a>
 
-                            <a href="/about/" class="col walletButton swapMoneyButton disabled">
+                            <a href="#" class="col walletButton swapMoneyButton disabled">
                                 <i class="f7-icons buttonIcon">repeat</i>
                                 <div>Swap</div>
                             </a>
+
+
                         </div>
                     </div>
 
-                    <div class="ifWalletNotExists" style="display: none">
+                    <div class="ifWalletNotExists " style="display: none">
                         <div class="row walletButtonsRow">
 
                             <a href="#" class="col walletButton  createWalletButton">
@@ -114,14 +120,14 @@
 
                     <div class="toolbar tabbar">
                         <div class="toolbar-inner">
-                            <a href="#tabAssets" class="tab-link tab-link-active">Assets</a>
-                            <a href="#tabHistory" class="tab-link">History</a>
+                            <a href="#tabAssets" class="tab-link ">Assets</a>
+                            <a href="#tabHistory" class="tab-link tab-link-active">History</a>
                         </div>
                     </div>
                     <!-- Tabs -->
                     <div class="tabs walletTabs">
                         <!-- First tab, active -->
-                        <div class="tab tab-active" id="tabAssets">
+                        <div class="tab " id="tabAssets">
 
                             <div class="list assetsList">
                                 <ul>
@@ -160,7 +166,7 @@
                             </div>
                         </div>
                         <!-- Second tab -->
-                        <div class="tab" id="tabHistory">
+                        <div class="tab tab-active" id="tabHistory">
 
                                 <div class="list historyList">
                                     <ul>

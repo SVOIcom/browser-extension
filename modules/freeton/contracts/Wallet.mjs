@@ -45,6 +45,28 @@ class Wallet {
     }
 
     /**
+     * Check is contract deployed
+     * @returns {Promise<boolean>}
+     */
+    async contractDeployed() {
+        let result = await this.ton.queries.accounts.query({
+            filter: {id: {eq: this.address}},
+            result: 'balance acc_type'
+        });
+
+
+        if(result.length === 0) {
+            return false;
+        }
+
+        if(result[0].acc_type === 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Transfer TON
      * @param to
      * @param amount
@@ -60,6 +82,46 @@ class Wallet {
             allBalance: false,
             payload: payload
         }, keyPair);
+    }
+
+    async _getWalletMessages(filter = {}, limit = 20) {
+        return this.ton.queries.messages.query({
+            filter: filter,
+            /*orderBy:[
+                {path:"now",direction:"ASC"},
+                {path:"lt",direction:"ASC"}
+            ],*/
+            limit: limit,
+            result: 'id created_at dst src'
+        })
+    }
+
+
+    /**
+     * Get wallet messages history
+     * @returns {Promise<this>}
+     */
+    async getHistory(limit = 20) {
+        let outcomes = await this._getWalletMessages({
+            src: {
+                eq: this.address
+            }
+        }, limit);
+
+        let incomes = await this._getWalletMessages({
+            dst: {
+                eq: this.address
+            }
+        }, limit);
+
+        let messages = [...outcomes, ...incomes];
+
+        messages = messages.sort(function (a, b) {
+            return a.created_at > b.created_at
+        });
+
+        return messages;
+
     }
 }
 

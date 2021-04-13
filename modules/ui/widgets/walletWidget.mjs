@@ -15,6 +15,7 @@
 
 import Utils from "../../utils.mjs";
 import uiUtils from "../uiUtils.mjs";
+import WalletContract from "../../const/WalletContract.mjs";
 
 const UPDATE_INTERVAL = 10000;
 
@@ -40,7 +41,7 @@ class walletWidget {
                 return;
             }
 
-            let walletType = await uiUtils.popupSelector(['SafeMultisig', 'SafeMultisig2', 'SURF'], 'Wallet type');
+            let walletType = await uiUtils.popupSelector(WalletContract.WALLET_TYPES_LIST, 'Wallet type');
 
             if(!walletType) {
                 return;
@@ -58,6 +59,70 @@ class walletWidget {
             await this.messenger.rpcCall('main_setNetworkWallet', [account.public, currentNetwork.name, walletObj], 'background');
 
             await this.updateWalletWidget();
+
+        });
+
+        $('.createWalletButton, .editWalletButton').click(async () => {
+            let walletType = await uiUtils.popupSelector([...WalletContract.WALLET_TYPES_LIST, {
+                text: 'Enter custom address', onClick: async () => {
+                    $('.enterWalletButton').click();
+                }
+            }], 'Wallet type');
+
+            if(!walletType) {
+                return;
+            }
+
+            let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
+            let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
+
+            let newWallet = await this.messenger.rpcCall('main_createWallet', [account.public, walletType], 'background');
+
+            console.log('NEW WALLET', newWallet);
+
+            const walletObj = {
+                address: newWallet,
+                type: walletType,
+                config: {},
+            }
+
+            await this.messenger.rpcCall('main_setNetworkWallet', [account.public, currentNetwork.name, walletObj], 'background');
+
+            await this.updateWalletWidget();
+
+
+        });
+
+        $('.deployWalletButton').click(async () => {
+
+            let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
+            let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
+            if(account.wallets[currentNetwork.name]) {
+                let wallet = account.wallets[currentNetwork.name];
+
+                let balance = 0;
+                try {
+                    balance = await this.messenger.rpcCall('main_getWalletBalance', [wallet.address], 'background');
+                } catch (e) {
+                }
+
+                if(balance === 0) {
+                    app.dialog.alert(`The balance of the current wallet is empty. To create a wallet contract, you need to top up the balance by at least 1 TON`);
+                    await this.updateWalletWidget();
+                    return;
+                }
+
+                try {
+                    await this.messenger.rpcCall('main_deployWallet', [account.public, wallet.type], 'background');
+                } catch (e) {
+                    app.dialog.alert(`Wallet deploy error: ${JSON.stringify(e)}`);
+                }
+
+                await this.updateWalletWidget();
+
+                app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: 'Wallet deployed'}).open();
+
+            }
 
         });
 
@@ -85,23 +150,38 @@ class walletWidget {
             this.wallet = wallet;
             $('.walletAddress').html(`<a data-clipboard="${wallet.address}" class="autoClipboard" title="${wallet.type}">${Utils.shortenPubkey(wallet.address)}</a>`)
 
+            let deployed = await this.messenger.rpcCall('main_getWalletDeployed', [wallet.address], 'background');
+
             try {
                 //Get wallet balance
                 let balance = await this.messenger.rpcCall('main_getWalletBalance', [wallet.address], 'background');
 
-                $('.walletBalance').text( Utils.unsignedNumberToSigned(balance));
 
-            }catch (e){
+                $('.walletBalance').text(Utils.unsignedNumberToSigned(balance));
+
+            } catch (e) {
                 $('.walletBalance').text('0.0');
             }
 
-            $('.ifWalletExists').show();
-            $('.ifWalletNotExists').hide();
+            //If not deployed, show deploy button
+            if(deployed) {
+                $('.ifWalletExists').show();
+                $('.ifWalletNotExists').hide();
+            } else {
+                $('.ifWalletExists').hide();
+                $('.createWalletButton').hide();
+                $('.deployWalletButton').show();
+                $('.ifWalletNotExists').show();
+                $('.ifWalletNotDeployed').show();
+            }
         } else {
-
+            //If wallet not deployed and not created
             $('.walletBalance').text('0.0');
             $('.ifWalletExists').hide();
             $('.ifWalletNotExists').show();
+            $('.createWalletButton').show();
+            $('.deployWalletButton').hide();
+            $('.ifWalletNotDeployed').hide();
         }
 
         $('.autoClipboard').click(uiUtils.selfCopyElement());

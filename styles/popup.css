@@ -194,3 +194,17 @@
     user-select: all;
     
 }
+
+.addressEditButton{
+    cursor: pointer;
+    color: black;
+}
+
+.addressEditButton:hover{
+    color: #707070;
+}
+
+.theme-dark  .addressEditButton{
+    color: white;
+}
+

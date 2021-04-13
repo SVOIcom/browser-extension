@@ -30,6 +30,14 @@ class FreetonDeploy {
         return deployMessage.address;
     }
 
+    /**
+     * Deploy contract to network
+     * @param contractData
+     * @param constructorParams
+     * @param initParams
+     * @param keyPair
+     * @returns {Promise<*>}
+     */
     async deployContract(contractData, constructorParams, initParams, keyPair) {
         const ton = await FreetonInstance.getFreeTON(this.server);
 
@@ -81,6 +89,25 @@ class FreetonDeploy {
         };
 
         return await this.deployContract(walletContractData, constructorParams, {}, keyPair);
+    }
+
+    /**
+     * Create wallet address
+     * @param publicKey
+     * @param type
+     * @returns {Promise<*>}
+     */
+    async createWallet(publicKey, type = WalletContract.WALLET_TYPES.SafeMultisig) {
+
+        let walletContractData = await WalletContract.getWalletData(type);
+        const constructorParams = {
+            owners: [
+                `0x${publicKey}`
+            ],
+            reqConfirms: 1
+        };
+
+        return await this.getPreDeployContractAddress(walletContractData, constructorParams, {}, publicKey);
     }
 }
 
