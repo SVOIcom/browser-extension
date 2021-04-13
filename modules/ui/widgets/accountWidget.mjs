@@ -15,6 +15,7 @@
 
 import Utils from "../../utils.mjs";
 import uiUtils from "../uiUtils.mjs";
+import {default as popups} from "/modules/ui/popups.mjs"
 
 
 const $ = Dom7;
@@ -53,11 +54,13 @@ class accountWidget {
 
             buttons.push({
                 text: 'Add existing keypair',
-                color: ''
+                color: '',
+                onClick: async () => {popups.importSeed()}
             });
             buttons.push({
                 text: 'Create keypair',
-                color: ''
+                color: '',
+                onClick: async () => {popups.getSeed()}
             });
             buttons.push({
                 text: 'Cancel',
