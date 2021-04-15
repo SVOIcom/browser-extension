@@ -10,6 +10,7 @@ class ExtensionMessenger {
             //RPC call
             (async () => {
                 if(msg.rpc && (msg.target === this.reciver || msg.target === '*')) {
+                    this.RPC.sender = msg.sender;
                     if(this.RPC[msg.method]) {
 
                         let resultMsg = null;

@@ -9,8 +9,7 @@ window.addEventListener("message", function (event) {
 
     //Outcome RPC to page
     if(event.data.method  /*&& (event.data.type == "FROM_PAGE")*/) {
-        browser.runtime.sendMessage(event.data);
-
+        browser.runtime.sendMessage({...event.data, sender: 'page', senderMore: {url: window.location}});
     }
 });
 

@@ -37,13 +37,19 @@ const wait = (timeout = 500) => {
 }
 
 const RPC = {
+    sender: null,
     'test': async (a, b) => {
         return a + b;
     },
     'fall': async () => {
         throw EXCEPTIONS.testException;
     },
-    mainOpenPopup: () => {
+    mainOpenPopup: function async() {
+
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+
         return uiUtils.openPopup();
     },
 
@@ -108,13 +114,17 @@ const RPC = {
     main_getNetworks: async () => {
         return await networkManager.getNetworks();
     },
-    main_changeNetwork: async (network) => {
-        //TODO checking sender
+    main_changeNetwork: async function (network) {
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
         return await networkManager.changeNetwork(network);
     },
 
-    main_changeAccount: async (publicKey) => {
-        //TODO checking sender
+    main_changeAccount: async function (publicKey) {
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
         if(!await keyring.isKeyInKeyring(publicKey)) {
             await messenger.rpcCall('popup_alert', ['Public key not found'], 'popup');
             throw EXCEPTIONS.publicKeyNotFound
@@ -138,8 +148,10 @@ const RPC = {
      * @param {object} wallet
      * @returns {Promise<void>}
      */
-    main_setNetworkWallet: async (publicKey, network, wallet) => {
-        //TODO checking sender
+    main_setNetworkWallet: async function (publicKey, network, wallet) {
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
         return await accountManager.setPublicKeyNetworkWallet(publicKey, network, wallet);
     },
 
@@ -161,7 +173,7 @@ const RPC = {
      * @param amount
      * @returns {Promise<Wallet>}
      */
-    main_getWalletHistory: async (address, amount=20) => {
+    main_getWalletHistory: async function (address, amount = 20) {
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         let wallet = await (new Wallet(address, ton)).init();
         window.wallet = wallet;
@@ -210,14 +222,22 @@ const RPC = {
         return await wallet.transfer(to, amount, payload, keyPair);
     },
 
-    main_createWallet: async (publicKey, type) => {
+    main_createWallet: async function (publicKey, type) {
+
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+
         let network = await networkManager.getNetwork();
         let contractDeployer = new FreetonDeploy(network.network.url);
         return await contractDeployer.createWallet(publicKey, type);
     },
 
-    main_deployWallet: async (publicKey, type) => {
-        //TODO Check sender
+    main_deployWallet: async function (publicKey, type) {
+
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
 
         let network = await networkManager.getNetwork();
 
@@ -240,7 +260,7 @@ const RPC = {
         return await freetonCrypto.generateSeed();
     },
 
-     /**
+    /**
      * Generates seed phrase
      * @returns {Promise<*>}
      */
@@ -252,10 +272,13 @@ const RPC = {
      * Add account to storage
      * @returns {Promise<*>}
      */
-    main_addAccount: async (publicKey, privateKey, password) => {
+    main_addAccount: async function (publicKey, privateKey, password) {
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
         return await accountManager.addAccount(publicKey, privateKey, password);
     },
-    
+
 
 }
 

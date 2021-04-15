@@ -29,6 +29,7 @@ const EXCEPTIONS = {
     invalidNetwork: {code: 10002, message: 'Invalid network', more: 'Invalid network selected'},
     publicKeyNotFound: {code: 10003, message: 'Public key not found', more: 'No public key in keyring'},
     keyAlreadyInKeyring: {code: 10004, message: 'Key already in keyring', more: 'Key, that you enter, is already in your local storage'},
+    invalidInvoker: {code: 10005, message: 'Invalid invoker', more: 'Internal error. You can\'t invoke this RPC method'},
 }
 
 export default EXCEPTIONS;
