@@ -210,6 +210,8 @@ class walletWidget {
             let wallet = account.wallets[currentNetwork.name];
             //historyList
             try {
+
+
                 let history = await this.messenger.rpcCall('main_getWalletHistory', [wallet.address, 10], 'background');
                 let html = `<ul>`;
 
@@ -253,10 +255,7 @@ class walletWidget {
 
             }
         }else{
-            $('.historyList').html(`<div class="block block-strong text-align-center">
-                        Empty
-                           
-                    </div>`);
+            $('.historyList').html(`<div class="block block-strong text-align-center">Empty</div>`);
         }
     }
 }
