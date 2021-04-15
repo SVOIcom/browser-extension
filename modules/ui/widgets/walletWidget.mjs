@@ -210,7 +210,7 @@ class walletWidget {
             let wallet = account.wallets[currentNetwork.name];
             //historyList
             try {
-                let history = await this.messenger.rpcCall('main_getWalletHistory', [wallet.address, 5], 'background');
+                let history = await this.messenger.rpcCall('main_getWalletHistory', [wallet.address, 10], 'background');
                 let html = `<ul>`;
 
                 for (let story of history) {
@@ -226,8 +226,18 @@ class walletWidget {
                              </li>`
                 }
 
-                html += `</ul>`;
 
+                html += ` <li>
+                                <a href="https://${currentNetwork.network.explorer}/accounts/accountDetails?id=${wallet.address}" class="item-link item-content externalHref" target="_blank">
+                                    <div class="item-media"><i class="material-icons">visibility</i></div>
+                                    <div class="item-inner">
+                                        <div class="item-title"> View all in explorer </div>
+                                        <div class="item-after"></div>
+                                    </div>
+                                </a>
+                             </li>`
+
+                html += `</ul>`;
 
                 $('.historyList').html(html);
 
