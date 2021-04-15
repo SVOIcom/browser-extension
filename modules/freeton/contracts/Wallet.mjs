@@ -84,15 +84,24 @@ class Wallet {
         }, keyPair);
     }
 
-    async _getWalletMessages(filter = {}, limit = 20) {
+    /**
+     * Return messages for current wallet by filter
+     * @param filter
+     * @param limit
+     * @returns {Promise<*>}
+     * @private
+     */
+    async getWalletMessages(filter = {}, limit = 20) {
         return this.ton.queries.messages.query({
             filter: filter,
             /*orderBy:[
                 {path:"now",direction:"ASC"},
                 {path:"lt",direction:"ASC"}
             ],*/
+            orderBy: [
+                {path: "now", direction: "DESC"}],
             limit: limit,
-            result: 'id created_at dst src'
+            result: 'id created_at dst src boc value'
         })
     }
 
@@ -102,13 +111,13 @@ class Wallet {
      * @returns {Promise<this>}
      */
     async getHistory(limit = 20) {
-        let outcomes = await this._getWalletMessages({
+        let outcomes = await this.getWalletMessages({
             src: {
                 eq: this.address
             }
         }, limit);
 
-        let incomes = await this._getWalletMessages({
+        let incomes = await this.getWalletMessages({
             dst: {
                 eq: this.address
             }
@@ -116,9 +125,13 @@ class Wallet {
 
         let messages = [...outcomes, ...incomes];
 
-        messages = messages.sort(function (a, b) {
-            return a.created_at > b.created_at
-        });
+        messages = messages.sort((a, b) =>  b.created_at - a.created_at);
+
+        for (let i in messages) {
+            if(messages[i].value !== null) {
+                messages[i].value = Number(messages[i].value);
+            }
+        }
 
         return messages;
 

@@ -128,6 +128,7 @@ class walletWidget {
 
         setInterval(async () => {
             await this.updateWalletWidget();
+
         }, UPDATE_INTERVAL)
     }
 
@@ -184,8 +185,9 @@ class walletWidget {
             $('.ifWalletNotDeployed').hide();
         }
 
-        $('.autoClipboard').click(uiUtils.selfCopyElement());
+        await this.updateHistoryList();
 
+        $('.autoClipboard').click(uiUtils.selfCopyElement());
     }
 
     /**
@@ -198,6 +200,43 @@ class walletWidget {
                 resolve(address)
             }, reject);
         })
+    }
+
+    async updateHistoryList() {
+
+        let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
+        let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
+        if(account.wallets[currentNetwork.name]) {
+            let wallet = account.wallets[currentNetwork.name];
+            //historyList
+            try {
+                let history = await this.messenger.rpcCall('main_getWalletHistory', [wallet.address, 5], 'background');
+                let html = `<ul>`;
+
+                for (let story of history) {
+                    console.log(story);
+                    html += ` <li>
+                                <a href="https://${currentNetwork.network.explorer}/messages/messageDetails?id=${story.id}" class="item-link item-content externalHref" target="_blank">
+                                    <div class="item-media"><i class="material-icons">${story.src === wallet.address ? 'call_made' : 'call_received'}</i></div>
+                                    <div class="item-inner">
+                                        <div class="item-title"> ${currentNetwork.network.tokenIcon}  <span>${Utils.shortenPubkey(story.id)}</span> </div>
+                                        <div class="item-after">${story.value === null ? 'ext' : Utils.unsignedNumberToSigned(story.value)}</div>
+                                    </div>
+                                </a>
+                             </li>`
+                }
+
+                html += `</ul>`;
+
+
+                $('.historyList').html(html);
+
+                $('.externalHref').click(function ()  {
+                    window.open($(this).attr('href'));
+                })
+            } catch (e) {
+            }
+        }
     }
 }
 

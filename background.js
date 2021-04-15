@@ -151,7 +151,21 @@ const RPC = {
     main_getWalletBalance: async (address) => {
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         let wallet = await (new Wallet(address, ton)).init();
+        window.wallet = wallet;
         return await wallet.getBalance();
+    },
+
+    /**
+     * Returns wallet history
+     * @param address
+     * @param amount
+     * @returns {Promise<Wallet>}
+     */
+    main_getWalletHistory: async (address, amount=20) => {
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+        let wallet = await (new Wallet(address, ton)).init();
+        window.wallet = wallet;
+        return await wallet.getHistory(amount);
     },
 
     /**
