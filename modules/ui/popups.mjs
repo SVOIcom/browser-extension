@@ -193,7 +193,7 @@ class Popups {
             let passwordCheck = 0;
             let policyCheck = 0;
             let seedPhraseEntered = 0;
-            let seedPhraseCheck = 0
+            let seedPhraseCheck = 0;
 
             app.once('pageInit', () => {         
                 
@@ -216,11 +216,11 @@ class Popups {
 
                             try{
                                 keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
-
+                                seedPhraseCheck = 1;
                             } catch (e){
+                                console.log("error1");
                                 seedPhraseCheck = seedPhraseInvalid(e.code);
                                 return false;
-
                             }
 
                             // Utils.appBack("/", {force : true,  reloadCurrent: true, ignoreCache: true,});
@@ -234,14 +234,20 @@ class Popups {
                             try{
                                 await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
                                 await this.messenger.rpcCall('main_changeAccount', [publicKey,], 'background');
+                                seedPhraseCheck = 1;
 
                             } catch (e){
+                                console.log("error2");
                                 seedPhraseCheck = seedPhraseInvalid(e.code);
                                 return false;
 
                             }
 
-                            if (seedPhraseCheck == 1 ) {location.reload();}
+                            console.log(seedPhraseCheck, "<<<<<<<<<");
+                            if (seedPhraseCheck == 1 ) {
+                                console.log(seedPhraseCheck);
+                                location.reload();
+                            }
                             
                         } catch (e){
                             console.log(e);

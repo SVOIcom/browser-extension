@@ -16,6 +16,7 @@
 
 
 const uiUtils = {
+
     /**
      * Open extension popup
      * @returns {Promise<*>}
@@ -69,6 +70,7 @@ const uiUtils = {
                     resolve();
                 }
             });
+            
             const actions = app.actions.create({
                 buttons
 
@@ -78,6 +80,7 @@ const uiUtils = {
             //actions.$el.addClass('selectNetworkActions')
         })
     },
+
     /**
      * Copy text to clipboard
      * @param text
@@ -86,7 +89,6 @@ const uiUtils = {
     copyToClipboard: async (text) => {
         await navigator.clipboard.writeText(text);
         app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: 'Copied!'}).open();
-
     },
 
     /**
