@@ -78,7 +78,7 @@ class Wallet {
         return await this.contract.submitTransaction.deploy({
             dest: to,
             value: amount,
-            bounce: true,
+            bounce: false,
             allBalance: false,
             payload: payload
         }, keyPair);
