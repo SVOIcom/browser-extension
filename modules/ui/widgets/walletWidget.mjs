@@ -245,7 +245,18 @@ class walletWidget {
                     window.open($(this).attr('href'));
                 })
             } catch (e) {
+
+                $('.historyList').html(`<div class="block block-strong text-align-center">
+                        Empty
+                           <a class="button externalHref" href="https://${currentNetwork.network.explorer}/accounts/accountDetails?id=${wallet.address}" target="_blank">View in explorer</a>
+                    </div>`);
+
             }
+        }else{
+            $('.historyList').html(`<div class="block block-strong text-align-center">
+                        Empty
+                           
+                    </div>`);
         }
     }
 }
