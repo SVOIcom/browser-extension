@@ -27,6 +27,7 @@ import Wallet from "./modules/freeton/contracts/Wallet.mjs";
 import FreetonInstance from "./modules/freeton/FreetonInstance.mjs";
 import FreetonCrypto from "./modules/freeton/FreetonCrypto.mjs";
 import FreetonDeploy from "./modules/freeton/FreetonDeploy.mjs";
+import BroxusTIP3 from "./modules/freeton/contracts/tokens/tip3-fungible/broxus/BroxusTIP3.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -358,6 +359,9 @@ let messenger, storage, keyring, networkManager, accountManager;
     window.networkManager = networkManager;
 
     window.freetonCrypto = FreetonCrypto;
+
+    let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+    window.tip3 = await (new BroxusTIP3(ton, '0:0c4cad39cf61d92df6ab7c78552441b0524973e282f1e7a6acf5f06773cdc605')).init();
 
     //If network changed, broadcast it to all tabs and popups
     networkManager.on(networkManager.EVENTS.networkChanged, async () => {

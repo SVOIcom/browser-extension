@@ -197,6 +197,10 @@ const Utils = {
         const regex = /^-?[0-9a-fA-F]?[0-9a-fA-F]:[a-fA-F0-9]{64}/gm;
 
         return (regex.exec(address)) !== null;
+    },
+
+    hex2String(hexString){
+        return Buffer.from(hexString, 'hex').toString();
     }
 };
 
