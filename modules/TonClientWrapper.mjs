@@ -6,8 +6,6 @@
    |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
 
  */
-import MESSAGES from "./const/Messages.mjs";
-
 /**
  * @name FreeTON browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
@@ -15,6 +13,7 @@ import MESSAGES from "./const/Messages.mjs";
  * @version 1.0
  */
 
+import MESSAGES from "./const/Messages.mjs";
 
 class TonClientWrapper extends EventEmitter3 {
 

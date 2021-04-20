@@ -6,8 +6,6 @@
    |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
 
  */
-import FreetonInstance from "./FreetonInstance.mjs";
-
 /**
  * @name FreeTON browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
@@ -15,6 +13,7 @@ import FreetonInstance from "./FreetonInstance.mjs";
  * @version 1.0
  */
 
+import FreetonInstance from "./FreetonInstance.mjs";
 export const MNEMONIC_DICTIONARY = {
     TON: 0,
     ENGLISH: 1,
