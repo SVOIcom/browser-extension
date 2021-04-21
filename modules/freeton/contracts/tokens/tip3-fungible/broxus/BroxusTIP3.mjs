@@ -97,6 +97,9 @@ class BroxusTIP3 {
 
     }
 
+    async deployWallet(address){
+
+    }
 }
 
 export default BroxusTIP3;

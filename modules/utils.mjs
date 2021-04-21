@@ -199,6 +199,11 @@ const Utils = {
         return (regex.exec(address)) !== null;
     },
 
+    /**
+     * Hex encoded string to string
+     * @param hexString
+     * @returns {*}
+     */
     hex2String(hexString){
         return Buffer.from(hexString, 'hex').toString();
     }
