@@ -28,6 +28,8 @@ import FreetonInstance from "./modules/freeton/FreetonInstance.mjs";
 import FreetonCrypto from "./modules/freeton/FreetonCrypto.mjs";
 import FreetonDeploy from "./modules/freeton/FreetonDeploy.mjs";
 import BroxusTIP3 from "./modules/freeton/contracts/tokens/tip3-fungible/broxus/BroxusTIP3.mjs";
+import TokenManager from "./modules/TokenManager.mjs";
+import Token from "./modules/Token.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -279,6 +281,60 @@ const RPC = {
         }
         return await accountManager.addAccount(publicKey, privateKey, password);
     },
+
+    /**
+     * Get account tokens
+     * @returns {Promise<*>}
+     */
+    main_getAccountTokens: async function (publicKey) {
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+
+        const tokenManager = await (new TokenManager()).init()
+        return await tokenManager.getAccountTokens(publicKey);
+    },
+
+    /**
+     * Get token info
+     * @param {string} tokenRootAddress
+     * @returns {Promise<{symbol, totalSupply: number, rootAddress: *, decimals: number, name, icon: null|string, fungible: boolean, type: string|{ERC20_TOKENS: {}, TIP3_NONFUNGIBLE_TOKENS: {}, TIP3_FUNGIBLE_TOKENS: {broxus: string}}|*}>}
+     */
+    main_getTokenInfo: async function (tokenRootAddress) {
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+        const token = await (new Token(tokenRootAddress, ton)).init();
+
+        return await token.getInfo();
+    },
+
+    main_getTokenBalance: async function (tokenRootAddress, publicKey) {
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+        const token = await (new Token(tokenRootAddress, ton)).init();
+
+        return await token.getPubkeyBalance(publicKey);
+    },
+
+    /**
+     * Add token to account
+     * @param publicKey
+     * @param tokenRootAddress
+     * @returns {Promise<boolean>}
+     */
+    main_addAccountToken: async function (publicKey, tokenRootAddress) {
+
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+
+        const tokenManager = await (new TokenManager()).init();
+
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+        const token = await (new Token(tokenRootAddress, ton)).init();
+
+        await tokenManager.addAccountToken(publicKey, tokenRootAddress, await token.getInfo());
+
+        return true;
+    }
 
 
 }

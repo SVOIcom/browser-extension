@@ -230,3 +230,7 @@
 ::-webkit-scrollbar-thumb:hover {
     background: #676767;
 }
+
+.assetsList .tokenIcon{
+    max-height: 20px;
+}

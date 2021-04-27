@@ -17,9 +17,11 @@ import Utils from "../../../../../utils.mjs";
 
 class BroxusTIP3 {
 
-    NAME = 'BroxusTIP3';
-    ROOT_CODE_HASH = '2ff4aaaab0f31d5a7b276b78a490277aa043d445bb71ac7c3dac8ae9e39b4d23';
-    WALLET_CODE_HASH = '2f062cde9cc0e2999f6bded5b4f160578b81530aaa3ae7d7077df60cd40f6056';
+    static CLASS_NAME = 'BroxusTIP3';
+    static ROOT_CODE_HASH = '2ff4aaaab0f31d5a7b276b78a490277aa043d445bb71ac7c3dac8ae9e39b4d23';
+    static WALLET_CODE_HASH = '2f062cde9cc0e2999f6bded5b4f160578b81530aaa3ae7d7077df60cd40f6056';
+    static TOKEN_TYPE = 'TIP3';
+    static TOKEN_FUNGUBLE = true;
 
     constructor(ton, rootAddress) {
         this.ton = ton;
@@ -34,7 +36,7 @@ class BroxusTIP3 {
 
     /**
      * Get token info
-     * @returns {Promise<{symbol, totalSupply: number, decimals: number, name}>}
+     * @returns {Promise<{symbol, totalSupply: number, decimals: number, name, icon: null}>}
      */
     async getTokenInfo() {
         const runResult = await this.ton.contracts.runLocal({
@@ -53,6 +55,7 @@ class BroxusTIP3 {
             name: Utils.hex2String(out.name),
             symbol: Utils.hex2String(out.symbol),
             totalSupply: Number(out.total_supply),
+            icon: null
 
         };
     }
@@ -97,7 +100,7 @@ class BroxusTIP3 {
 
     }
 
-    async deployWallet(address){
+    async deployWallet(address) {
 
     }
 }
