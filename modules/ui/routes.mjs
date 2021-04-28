@@ -28,6 +28,10 @@ const ROUTES = [
         path: '/policy',
         url: './pages/policy.html',
     },
+    {
+        path: '/tokenWallet',
+        url: './pages/tokenWallet.html',
+    },
 ]
 
 export default ROUTES;

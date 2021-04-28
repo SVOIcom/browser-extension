@@ -13,9 +13,6 @@
  * @version 1.0
  */
 
-import PrivateStorage from "./PrivateStorage.mjs";
-import EXCEPTIONS from "./const/Exceptions.mjs";
-import LocalStorage from "./LocalStorage.mjs";
 import Tokens from "./freeton/contracts/tokens/Tokens.mjs";
 import TOKEN_LIST from "./const/TokenList.mjs";
 
@@ -73,6 +70,10 @@ class Token {
     async getPubkeyBalance(publicKey) {
         let walletAddress = await this.tokenContract.getWalletAddress(publicKey);
         return await this.getBalance(walletAddress);
+    }
+
+    async getPubkeyWalletAddress(publicKey){
+        return await this.tokenContract.getWalletAddress(publicKey);
     }
 
     async getBalance(walletAddress) {

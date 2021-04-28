@@ -31,41 +31,44 @@ class TokenManager {
     /**
      * Add token to account
      * @param publicKey
+     * @param network
      * @param tokenRootAddress
      * @param tokenInfo
      * @returns {Promise<void>}
      */
-    async addAccountToken(publicKey, tokenRootAddress, tokenInfo = {}) {
-        let accountTokens = await this._storage.get(publicKey + '_tokens', {});
+    async addAccountToken(publicKey, network, tokenRootAddress, tokenInfo = {}) {
+        let accountTokens = await this._storage.get(publicKey + '_' + network + '_tokens', {});
 
         accountTokens[tokenRootAddress] = {...tokenInfo, tokenRootAddress};
 
         console.log('ADD TOKN', tokenInfo);
 
-        await this._storage.set(publicKey + '_tokens', accountTokens);
+        await this._storage.set(publicKey + '_' + network + '_tokens', accountTokens);
     }
 
     /**
      * Remove token from account
      * @param publicKey
      * @param tokenRootAddress
+     * @param network
      * @returns {Promise<void>}
      */
-    async removeAccountToken(publicKey, tokenRootAddress) {
-        let accountTokens = await this._storage.get(publicKey + '_tokens', {});
+    async removeAccountToken(publicKey, tokenRootAddress, network) {
+        let accountTokens = await this._storage.get(publicKey + '_' + network + '_tokens', {});
 
         delete accountTokens[tokenRootAddress]
 
-        await this._storage.set(publicKey + '_tokens', accountTokens);
+        await this._storage.set(publicKey + '_' + network + '_tokens', accountTokens);
     }
 
     /**
      * Get account tokens
      * @param publicKey
+     * @param network
      * @returns {Promise<*>}
      */
-    async getAccountTokens(publicKey) {
-        return await this._storage.get(publicKey + '_tokens', {});
+    async getAccountTokens(publicKey, network) {
+        return await this._storage.get(publicKey + '_' + network + '_tokens', {});
     }
 }
 

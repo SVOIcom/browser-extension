@@ -17,6 +17,7 @@ import Utils from "../../utils.mjs";
 import uiUtils from "../uiUtils.mjs";
 import WalletContract from "../../const/WalletContract.mjs";
 import TOKEN_LIST from "../../const/TokenList.mjs";
+import popups from "../popups.mjs";
 
 const UPDATE_INTERVAL = 10000;
 
@@ -269,26 +270,31 @@ class walletWidget {
     async updateAssetsList() {
 
         const that = this;
-
+        let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
         let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
 
-        let tokens = await this.messenger.rpcCall('main_getAccountTokens', [account.public], 'background');
+        let tokens = await this.messenger.rpcCall('main_getAccountTokens', [account.public, currentNetwork.name], 'background');
 
         let html = `<ul>`;
 
         for (let tokenAddress of Object.keys(tokens)) {
 
             let tokenInfo = tokens[tokenAddress];
-            let tokenBalance = await this.messenger.rpcCall('main_getTokenBalance', [tokenAddress, account.public], 'background');
+            let tokenBalance = null;
+
+            try {
+                tokenBalance = await this.messenger.rpcCall('main_getTokenBalance', [tokenAddress, account.public], 'background');
+            } catch (e) {
+            }
 
             console.log(tokenInfo);
 
             html += ` <li>
-                        <a href="#" data-address="${tokenAddress}" class="item-link item-content">
+                        <a href="#" data-address="${tokenAddress}" class="item-link item-content tokenButton">
                             <div class="item-media">${tokenInfo.icon}</div>
                             <div class="item-inner">
                                 <div class="item-title">${tokenInfo.name} (${tokenInfo.symbol})</div>
-                                <div class="item-after">${tokenInfo.fungible ? tokenBalance : 'NFT'}</div>
+                                <div class="item-after">${tokenInfo.fungible ? (tokenBalance !== null ? tokenBalance : 'Not deployed') : 'NFT'}</div>
                             </div>
                         </a>
                     </li>`;
@@ -314,7 +320,7 @@ class walletWidget {
 
             async function addTokenToAccount(rootTokenAddress) {
                 try {
-                    await that.messenger.rpcCall('main_addAccountToken', [account.public, rootTokenAddress], 'background');
+                    await that.messenger.rpcCall('main_addAccountToken', [account.public, rootTokenAddress, currentNetwork.name], 'background');
                 } catch (e) {
                     console.log(e);
                     app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: 'Token adding error'}).open();
@@ -346,6 +352,11 @@ class walletWidget {
 
                 }
             }], 'Select token');
+        });
+
+        $('.tokenButton').click(async function () {
+            let tokenAddress = $(this).data('address');
+            await popups.tokenWallet(tokenAddress, account.public, that.messenger);
         })
     }
 }

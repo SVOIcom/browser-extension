@@ -286,13 +286,13 @@ const RPC = {
      * Get account tokens
      * @returns {Promise<*>}
      */
-    main_getAccountTokens: async function (publicKey) {
+    main_getAccountTokens: async function (publicKey, network) {
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
         }
 
         const tokenManager = await (new TokenManager()).init()
-        return await tokenManager.getAccountTokens(publicKey);
+        return await tokenManager.getAccountTokens(publicKey, network);
     },
 
     /**
@@ -314,13 +314,21 @@ const RPC = {
         return await token.getPubkeyBalance(publicKey);
     },
 
+    main_getTokenWalletAddress: async function (tokenRootAddress, publicKey) {
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+        const token = await (new Token(tokenRootAddress, ton)).init();
+
+        return await token.getPubkeyWalletAddress(publicKey);
+    },
+
     /**
      * Add token to account
      * @param publicKey
      * @param tokenRootAddress
+     * @param network
      * @returns {Promise<boolean>}
      */
-    main_addAccountToken: async function (publicKey, tokenRootAddress) {
+    main_addAccountToken: async function (publicKey, tokenRootAddress, network) {
 
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
@@ -331,7 +339,7 @@ const RPC = {
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         const token = await (new Token(tokenRootAddress, ton)).init();
 
-        await tokenManager.addAccountToken(publicKey, tokenRootAddress, await token.getInfo());
+        await tokenManager.addAccountToken(publicKey,network, tokenRootAddress, await token.getInfo());
 
         return true;
     }

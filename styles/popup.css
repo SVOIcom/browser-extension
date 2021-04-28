@@ -107,7 +107,7 @@
     line-height: 25px;
 }
 
-.userWalletHolder {
+.userWalletHolder, .tokenWalletHolder {
     text-align: center;
     line-height: 20px;
 }
@@ -233,4 +233,8 @@
 
 .assetsList .tokenIcon{
     max-height: 20px;
+}
+
+.tokenWalletHolder .tokenIcon{
+    max-height: 48px;
 }
