@@ -47,6 +47,11 @@ const RPC = {
     'fall': async () => {
         throw EXCEPTIONS.testException;
     },
+
+    /**
+     * Open popup
+     * @returns {Promise<*>}
+     */
     mainOpenPopup: function async() {
 
         if(this.sender !== 'popup') {
@@ -70,6 +75,12 @@ const RPC = {
         return await ton.contracts.run(data);
     },
 
+    /**
+     * Run contract local
+     * @param publicKey
+     * @param data
+     * @returns {Promise<*>}
+     */
     main_runLocal: async (publicKey, data) => {
         console.log(publicKey, data);
         data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'runLocal', data);
@@ -111,12 +122,28 @@ const RPC = {
         return await keyring.isKeyInKeyring(publicKey);
     },
 
+    /**
+     * Get current network
+     * @param name
+     * @returns {Promise<{name: string, network: *}>}
+     */
     main_getNetwork: async (name = undefined) => {
         return await networkManager.getNetwork(name);
     },
+
+    /**
+     * Get existsing networks
+     * @returns {Promise<*>}
+     */
     main_getNetworks: async () => {
         return await networkManager.getNetworks();
     },
+
+    /**
+     * Change current network
+     * @param network
+     * @returns {Promise<*>}
+     */
     main_changeNetwork: async function (network) {
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
@@ -124,6 +151,11 @@ const RPC = {
         return await networkManager.changeNetwork(network);
     },
 
+    /**
+     * Change current account
+     * @param publicKey
+     * @returns {Promise<boolean>}
+     */
     main_changeAccount: async function (publicKey) {
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
@@ -225,6 +257,12 @@ const RPC = {
         return await wallet.transfer(to, amount, payload, keyPair);
     },
 
+    /**
+     * Create or change wallet
+     * @param publicKey
+     * @param type
+     * @returns {Promise<*>}
+     */
     main_createWallet: async function (publicKey, type) {
 
         if(this.sender !== 'popup') {
@@ -236,6 +274,12 @@ const RPC = {
         return await contractDeployer.createWallet(publicKey, type);
     },
 
+    /**
+     * Deploy multisig wallet
+     * @param publicKey
+     * @param type
+     * @returns {Promise<*>}
+     */
     main_deployWallet: async function (publicKey, type) {
 
         if(this.sender !== 'popup') {
@@ -307,6 +351,12 @@ const RPC = {
         return await token.getInfo();
     },
 
+    /**
+     * Get token balance
+     * @param tokenRootAddress
+     * @param publicKey
+     * @returns {Promise<*>}
+     */
     main_getTokenBalance: async function (tokenRootAddress, publicKey) {
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         const token = await (new Token(tokenRootAddress, ton)).init();
@@ -314,6 +364,12 @@ const RPC = {
         return await token.getPubkeyBalance(publicKey);
     },
 
+    /**
+     * Get token wallet address by public key
+     * @param tokenRootAddress
+     * @param publicKey
+     * @returns {Promise<string>}
+     */
     main_getTokenWalletAddress: async function (tokenRootAddress, publicKey) {
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         const token = await (new Token(tokenRootAddress, ton)).init();
@@ -342,7 +398,35 @@ const RPC = {
         await tokenManager.addAccountToken(publicKey,network, tokenRootAddress, await token.getInfo());
 
         return true;
-    }
+    },
+
+    /**
+     * Transfer token
+     * @param {string} walletAddress Current wallet
+     * @param {string} publicKey
+     * @param to
+     * @param amount
+     * @returns {Promise<*>}
+     */
+    main_tokenTransfer: async function (walletAddress, publicKey, to, amount) {
+
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+
+        let keyPair = await getKeysFromDeployAcceptence(publicKey, 'token_transfer', {
+            address: walletAddress,
+            additionalMessage: `Ths action sends <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> tokens to <span class="intextWallet">${to}</span> wallet.`,
+        }, undefined, true);
+
+        const token = await (new Token(null, ton)).init();
+
+        await messenger.rpcCall('popup_showToast', ['Token transaction created'], 'popup');
+
+        return await token.transfer(to, amount, keyPair);
+    },
 
 
 }

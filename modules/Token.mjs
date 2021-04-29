@@ -24,6 +24,10 @@ class Token {
         this.tokenContract = null;
     }
 
+    /**
+     * Initialize token
+     * @returns {Promise<Token>}
+     */
     async init() {
         this.tokenContract = await (new (Tokens.getTokenContract(this.tokenClass))(this.ton, this.rootAddress)).init();
         return this;
@@ -67,18 +71,45 @@ class Token {
         }
     }
 
+    /**
+     * Get wallet token balance by public key
+     * @param publicKey
+     * @returns {Promise<*>}
+     */
     async getPubkeyBalance(publicKey) {
         let walletAddress = await this.tokenContract.getWalletAddress(publicKey);
         return await this.getBalance(walletAddress);
     }
 
+    /**
+     * Get wallet address by public key
+     * @param publicKey
+     * @returns {Promise<string>}
+     */
     async getPubkeyWalletAddress(publicKey){
         return await this.tokenContract.getWalletAddress(publicKey);
     }
 
+    /**
+     * Get wallet token balance
+     * @param walletAddress
+     * @returns {Promise<*>}
+     */
     async getBalance(walletAddress) {
         return await this.tokenContract.getBalance(walletAddress);
     }
+
+    /**
+     * Transfer token
+     * @param dest
+     * @param amount
+     * @param keyPair
+     * @returns {Promise<*>}
+     */
+    async transfer(dest, amount, keyPair){
+        return await this.tokenContract.transfer(dest, amount, keyPair)
+    }
+
 }
 
 export default Token;

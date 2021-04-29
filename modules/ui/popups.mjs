@@ -340,6 +340,79 @@ class Popups {
         });
     }
 
+    createTokenTransaction(walletAddress, messenger) {
+        return new Promise((resolve, reject) => {
+            window.app.views.main.router.navigate("/createTransaction");
+
+            app.once('pageInit', () => {
+
+                $('.transferCommentField').hide();
+
+                $('#transferAmount').on('keyup', () => {
+                    let amount = $('#transferAmount').val();
+                    let checker = Utils.numberToUnsignedNumber(amount);
+                    if(!checker) {
+                        $('#transferAmount').parent().parent().parent().addClass('item-input-invalid');
+                    } else {
+                        $('#transferAmount').parent().parent().parent().removeClass('item-input-invalid');
+                    }
+                });
+
+                $('#transferAddress').on('keyup', () => {
+                    let address = $('#transferAddress').val();
+                    if(!Utils.validateTONAddress(address)) {
+                        $('#transferAddress').parent().parent().parent().addClass('item-input-invalid');
+                    } else {
+                        $('#transferAddress').parent().parent().parent().removeClass('item-input-invalid');
+                    }
+                });
+
+                $('#txTransfer').once('click', async () => {
+                    let amount = $('#transferAmount').val();
+                    let address = $('#transferAddress').val();
+                    let checker = Utils.numberToUnsignedNumber(amount);
+
+                    if(!Utils.validateTONAddress(address)) {
+                        return app.dialog.alert('Invalid address');
+                    }
+
+                    if(!checker) {
+                        return app.dialog.alert('Invalid amount');
+                    }
+
+                    let account = await messenger.rpcCall('main_getAccount', undefined, 'background');
+                    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
+
+
+                    Utils.appBack();
+
+                   // try {
+                        resolve(await messenger.rpcCall('main_tokenTransfer', [
+                            walletAddress,
+                            account.public,
+                            address,
+                            checker
+                        ], 'background'));
+                   /* } catch (e) {
+
+                        reject(e);
+                        app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
+                        throw e;
+                    }*/
+
+
+                });
+
+                $('#txCancelButton').once('click', () => {
+                    Utils.appBack();
+                    reject(EXCEPTIONS.rejectedByUser);
+                });
+
+
+            })
+        })
+    }
+
     tokenWallet(rootTokenAddress, publicKey, messenger) {
         return new Promise((resolve, reject) => {
             window.app.views.main.router.navigate("/tokenWallet");
@@ -374,6 +447,17 @@ class Popups {
                     $('.ifTokenWalletExists').hide();
                 }
 
+                $('.sendTokenButton').click(async () => {
+
+                    try {
+                        await popups.createTokenTransaction(walletAddress, messenger);
+                    } catch (e) {
+                        //app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
+                    }
+                    console.log('Transaction created');
+                })
+
+                $('.autoClipboard').click(uiUtils.selfCopyElement());
                 resolve();
             });
         });

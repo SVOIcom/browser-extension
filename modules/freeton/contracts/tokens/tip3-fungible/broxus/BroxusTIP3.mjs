@@ -96,8 +96,46 @@ class BroxusTIP3 {
         return runResult.output.value0;
     }
 
+
+    /**
+     * Transfer tokens
+     * @param dest
+     * @param amount
+     * @param keyPair
+     * @returns {Promise<*>}
+     */
     async transfer(dest, amount, keyPair) {
 
+        let walletAddress = await this.getWalletAddress(keyPair.public);
+
+        try {
+            let params = {
+                address: walletAddress,
+                abi: this.WalletABI,
+                functionName: 'transfer',
+                input: {
+                    to: dest,
+                    tokens: amount,
+                    grams: 0
+                },
+                keyPair
+            };
+
+            let message = await this.ton.contracts.createRunMessage(params);
+            let transaction = await this.ton.contracts.sendMessage(message.message);
+
+
+            let result = await this.ton.contracts.waitForRunTransaction(message, transaction);
+
+            console.log(result);
+
+            result.tx = transaction;
+
+            return result;
+        } catch (e) {
+            console.log('DEPLOY ERROR', e);
+            throw e;
+        }
     }
 
     async deployWallet(address) {
