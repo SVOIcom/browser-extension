@@ -371,6 +371,10 @@ class Popups {
                     self.initPage();
                 });
 
+                $("#getAccountInfo").on( "click", async () => {
+                    let test = await this.messenger.rpcCall('main_getAccountInfo', [pubKey], 'background');
+                    console.log(test);
+                });
 
                 $('#returnButton').once('click', () => {
                     location.reload();

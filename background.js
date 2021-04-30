@@ -283,11 +283,49 @@ const RPC = {
      * Add account to storage
      * @returns {Promise<*>}
      */
-    main_getAccountInfo: async function (publicKey, password) {
+    main_getAccountInfo: async function (publicKey) {
 
+
+        let password = await messenger.rpcCall('popup_password', ['', publicKey], 'popup');
+        if(!password) {
+            throw EXCEPTIONS.rejectedByUser;
+        }
+    
         let keyPair = {};
+    
+        try {
+            keyPair = await keyring.extractKey(publicKey, password);
+        } catch (e) {
+            //Retry password
+            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">Invalid password</span><br>', publicKey], 'popup');
+            if(!password) {
+                throw EXCEPTIONS.rejectedByUser;
+            }
+
+            try {
+                keyPair = await keyring.extractKey(publicKey, password);
+            } catch (e) {
+                throw EXCEPTIONS.invalidPassword;
+            }
+        }
+
 
         keyPair = await keyring.extractKey(publicKey, password);
+
+        let text = 
+            `<ul>
+                <li id="seedPhaseAreaLi" class="item-content item-input item-input-outline">
+                <div class="item-inner">
+                    <div id="seedPhaseAreaLabel" class="item-title item-floating-label">Seed phrase</div>
+                    <div class="item-input-wrap">
+                        <textarea id="seedPhaseArea" style="--f7-textarea-height: 80px; --f7-textarea-padding-vertical: 10px;"></textarea>
+                    </div>
+                </div>
+                </li>
+            </ul>`
+
+        messenger.rpcCall('popup_alert', [`<span >Private key for ${keyPair.public} account is "${keyPair.secret}"</span>`, publicKey], 'popup');
+
         return keyPair;
     },
 
@@ -336,7 +374,7 @@ const RPC = {
      * Add account to storage
      * @returns {Promise<*>}
      */
-        main_deleteAccount: async function (publicKey) {
+    main_deleteAccount: async function (publicKey) {
 
         let password = await messenger.rpcCall('popup_password', ['', publicKey], 'popup');
         if(!password) {
