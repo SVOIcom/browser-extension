@@ -330,7 +330,7 @@ class Popups {
             window.app.views.main.router.navigate("/policy");
 
             app.once('pageInit', () => {            
-        
+
                 $('#returnButton2').once('click', () => {
                     Utils.appBack();
                 });
@@ -339,6 +339,51 @@ class Popups {
 
         });
     }
+
+    accSettings(pubKey) {
+        let self = this;
+
+        return new Promise((resolve, reject) => {
+            window.app.views.main.router.navigate("/accSettings", {animate: false});
+            console.log("asdasdasd0");
+            app.once('pageInit', () => {            
+
+                $("#submit").on( "click", async () => {
+                    console.log("asdasdasd1");
+                    let AccountValid = checkAccountName();
+                    let succesNameChange = false 
+                    if (AccountValid === 1){
+                        let accountName = $("#accountName").val();
+                        try{
+                            console.log("asdasdasd2");
+                            succesNameChange = await this.messenger.rpcCall('main_setAccountName', [pubKey, accountName], 'background');
+                        } catch (e){
+                            console.log(e);
+                            return e;
+                        }
+                        location.reload();
+                    }
+                });
+
+                $("#forgetAccount").on( "click", async () => {
+                    await this.messenger.rpcCall('main_deleteAccount', [pubKey], 'background');
+                    location.reload();
+                    self.initPage();
+                });
+
+
+                $('#returnButton').once('click', () => {
+                    location.reload();
+                    // Utils.appBack();
+                });
+
+            });
+
+        });
+    }
+
+
+
 
 }
 

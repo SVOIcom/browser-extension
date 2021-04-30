@@ -28,6 +28,10 @@ const ROUTES = [
         path: '/policy',
         url: './pages/policy.html',
     },
+    {
+        path: '/accSettings',
+        url: './pages/accSettings.html',
+    },
 ]
 
 export default ROUTES;

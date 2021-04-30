@@ -45,12 +45,15 @@ class PrivateStorage {
      * @param {string} password
      * @returns {Promise<*>}
      */
-    async set(key, value, password) {
+    async set(key, value, password, name="") {
         value = JSON.stringify(value);
         let encryptedData = await this.crypto.encrypt(value, password);
 
         let field = {};
         field[key] = encryptedData;
+        if (key !== "publicKeys"){
+            field[`${key}_name`] = name;
+        };
         return await browser.storage.sync.set(field);
     }
 
@@ -69,6 +72,18 @@ class PrivateStorage {
         return JSON.parse(await this.crypto.decrypt(encryptedData[key], password));
     }
 
+    async getName(key) {
+        // return await browser.storage.sync.get();
+        return (await browser.storage.sync.get(`${key}_name`))[`${key}_name`];
+    }
+
+    async setName(key, name="") {
+        let field = {};
+        field[`${key}_name`] = name;
+        await browser.storage.sync.set(field);
+        return true
+    }
+
     /**
      * Clear storage
      * @returns {Promise<*>}
@@ -84,7 +99,8 @@ class PrivateStorage {
      * @returns {Promise<*>}
      */
     async del(key) {
-        return await browser.storage.sync.remove(key);
+        await browser.storage.sync.remove(key);
+        return true;
     }
 
 

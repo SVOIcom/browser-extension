@@ -42,8 +42,14 @@ class accountWidget {
             ];
 
             for (let key of keys) {
+                let accHaveName = await this.messenger.rpcCall('main_getAccountName', [key], 'background');
+                let buttonText = Utils.shortenPubkey(key);
+                if (accHaveName !== ""){
+                    buttonText = accHaveName;
+                } 
+                
                 buttons.push({
-                    text: Utils.shortenPubkey(key),
+                    text: buttonText,
                     //bold: key === currentNetwork.name,
                     onClick: async function () {
                         await that.changeAccount(key);
@@ -85,7 +91,14 @@ class accountWidget {
 
     async updateAccountWidget() {
         let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
-        $('#accountChanger').text(`${Utils.shortenPubkey(account.public)}`);
+
+        let accHaveName = await this.messenger.rpcCall('main_getAccountName', [account.public], 'background');
+        let buttonText = Utils.shortenPubkey(account.public)
+        if (accHaveName !== ""){
+            buttonText = accHaveName;
+        } 
+
+        $('#accountChanger').text(buttonText);
     }
 
 

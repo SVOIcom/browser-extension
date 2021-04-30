@@ -87,8 +87,16 @@ class Keyring {
      * @returns {Promise<{public, secret: *}>}
      */
     async extractKey(publicKey, password) {
+        // await this._storage.setName(publicKey, "aaaa");
+        return {public: publicKey, secret: await this._storage.get(publicKey, password), name: await this._storage.getName(publicKey)};
+    }
 
-        return {public: publicKey, secret: await this._storage.get(publicKey, password)};
+    async setAccountName(publicKey, name) {
+        return await this._storage.setName(publicKey, name);
+    }
+
+    async getAccountName(publicKey) {
+        return await this._storage.getName(publicKey);
     }
 
     /**
@@ -98,8 +106,10 @@ class Keyring {
      */
     async removeKey(publicKey) {
         await this._storage.del(publicKey);
+        await this._storage.del(`${publicKey}_name`);
         delete this._publicKeys[publicKey];
         await this._saveData();
+        return true;
     }
 
     /**

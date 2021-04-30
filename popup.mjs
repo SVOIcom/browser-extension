@@ -14,13 +14,15 @@
  */
 
 import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
-import {default as theme} from "./modules/ui/theme.mjs"
-import {default as popups} from "./modules/ui/popups.mjs"
+import {default as theme} from "./modules/ui/theme.mjs";
+import {default as popups} from "./modules/ui/popups.mjs";
 import ROUTES from "./modules/ui/routes.mjs";
 import EXCEPTIONS from "./modules/const/Exceptions.mjs";
 import walletWidget from "./modules/ui/widgets/walletWidget.mjs";
 import networkWidget from "./modules/ui/widgets/networkWidget.mjs";
 import accountWidget from "./modules/ui/widgets/accountWidget.mjs";
+
+import Utils from "./modules/utils.mjs";
 
 const RPC = {
     'popup_test': async (a, b) => {
@@ -214,11 +216,54 @@ await wallet.updateWalletWidget();
 
 
 $('.sendMoneyButton').click(async () => {
-    console.log('aaaa');
+
     try {
         await popups.createTransaction();
     } catch (e) {
         //app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
     }
     console.log('Transaction created');
+})
+
+async function updateAccounsInSettings(){
+    $('#accountList').empty();
+
+    let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
+
+    pubKeys.forEach(async function(pubKey)
+        {
+
+            let accHaveName = await messenger.rpcCall('main_getAccountName', [pubKey], 'background');
+            let buttonText = Utils.shortenPubkey(pubKey);
+            if (accHaveName !== ""){
+                buttonText = accHaveName;
+            };
+
+
+            let appendStr = `<li><a href="" id="${pubKey}">${buttonText}</a></li>`;
+            $('#accountList').append(appendStr);
+            $(`#${pubKey}`).once('click', () => {
+                popups.accSettings(pubKey);
+                app.panel.close('right',true);
+
+            });
+
+        });
+
+}
+
+window.updateAccounsInSettings = updateAccounsInSettings
+
+$('#openSettings').once('click', () => {
+    updateAccounsInSettings();
+})
+
+$('#deleteAccounts').once('click', async () => {
+    // popups.accSettings();
+    let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
+    console.log([pubKeys[0], "aaaaaa"]);
+    console.log(await messenger.rpcCall('main_isKeyInKeyring', [pubKeys[0]], 'background'));
+    
+    console.log(await messenger.rpcCall('main_getAccountInfo', [pubKeys[0], "aaaaaa"], 'background'))
+    app.panel.close('right',true);
 })

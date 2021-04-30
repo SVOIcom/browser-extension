@@ -279,6 +279,90 @@ const RPC = {
         return await accountManager.addAccount(publicKey, privateKey, password);
     },
 
+    /**
+     * Add account to storage
+     * @returns {Promise<*>}
+     */
+    main_getAccountInfo: async function (publicKey, password) {
+
+        let keyPair = {};
+
+        keyPair = await keyring.extractKey(publicKey, password);
+        return keyPair;
+    },
+
+    /**
+     * Add account to storage
+     * @returns {Promise<*>}
+     */
+    main_getAccountName: async function (publicKey) {
+
+        return await keyring.getAccountName(publicKey);
+    },
+
+    /**
+     * Add account to storage
+     * @returns {Promise<*>}
+     */
+    main_setAccountName: async function (publicKey, name) {
+
+        let password = await messenger.rpcCall('popup_password', ['', publicKey], 'popup');
+        if(!password) {
+            throw EXCEPTIONS.rejectedByUser;
+        }
+    
+        let keyPair = {};
+    
+        try {
+            keyPair = await keyring.extractKey(publicKey, password);
+        } catch (e) {
+            //Retry password
+            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">Invalid password</span><br>', publicKey], 'popup');
+            if(!password) {
+                throw EXCEPTIONS.rejectedByUser;
+            }
+
+            try {
+                keyPair = await keyring.extractKey(publicKey, password);
+            } catch (e) {
+                throw EXCEPTIONS.invalidPassword;
+            }
+        }
+
+        return await keyring.setAccountName(publicKey, name);
+    },
+
+    /**
+     * Add account to storage
+     * @returns {Promise<*>}
+     */
+        main_deleteAccount: async function (publicKey) {
+
+        let password = await messenger.rpcCall('popup_password', ['', publicKey], 'popup');
+        if(!password) {
+            throw EXCEPTIONS.rejectedByUser;
+        }
+    
+        let keyPair = {};
+    
+        try {
+            keyPair = await keyring.extractKey(publicKey, password);
+        } catch (e) {
+            //Retry password
+            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">Invalid password</span><br>', publicKey], 'popup');
+            if(!password) {
+                throw EXCEPTIONS.rejectedByUser;
+            }
+
+            try {
+                keyPair = await keyring.extractKey(publicKey, password);
+            } catch (e) {
+                throw EXCEPTIONS.invalidPassword;
+            }
+        }
+        await accountManager.removeAccount(publicKey)
+        return await keyring.removeKey(publicKey);
+    },
 
 }
 
