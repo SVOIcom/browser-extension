@@ -74,7 +74,12 @@ class PrivateStorage {
 
     async getName(key) {
         // return await browser.storage.sync.get();
-        return (await browser.storage.sync.get(`${key}_name`))[`${key}_name`];
+        let accountName =  (await browser.storage.sync.get(`${key}_name`))[`${key}_name`];
+
+        if(!accountName){
+            return "";
+        }
+        return accountName;
     }
 
     async setName(key, name="") {
