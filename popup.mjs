@@ -147,7 +147,7 @@ const app = new Framework7({
     root: "#app",
     theme: "aurora",
     autoDarkTheme: true,
-    view:{stackPages: true,},
+    view: {stackPages: true,},
     dialog: {
         title: 'TONWallet',
     },
@@ -200,7 +200,7 @@ let walletsObj = (await messenger.rpcCall('main_getAccount', undefined, 'backgro
 // console.log(walletsObj, "<<<<<<");
 // popups.initPage();
 
-if (walletsObj == null){
+if(walletsObj == null) {
     popups.initPage();
 }
 
@@ -225,37 +225,38 @@ $('.sendMoneyButton').click(async () => {
     console.log('Transaction created');
 })
 
-async function updateAccounsInSettings(){
+/**
+ * Update sidebar accounts list
+ * @returns {Promise<void>}
+ */
+async function updateAccountsInSettings() {
     $('#accountList').empty();
 
     let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
 
-    pubKeys.forEach(async function(pubKey)
-        {
-
-            let accHaveName = await messenger.rpcCall('main_getAccountName', [pubKey], 'background');
-            let buttonText = Utils.shortenPubkey(pubKey);
-            if (accHaveName !== ""){
-                buttonText = accHaveName;
-            };
+    for (let pubKey of pubKeys) {
+        let accHaveName = await messenger.rpcCall('main_getAccountName', [pubKey], 'background');
+        let buttonText = Utils.shortenPubkey(pubKey);
+        if(accHaveName !== "") {
+            buttonText = accHaveName;
+        }
 
 
-            let appendStr = `<li><a href="" id="${pubKey}">${buttonText}</a></li>`;
-            $('#accountList').append(appendStr);
-            $(`#${pubKey}`).once('click', () => {
-                popups.accSettings(pubKey);
-                app.panel.close('right',true);
-
-            });
+        let appendStr = `<li><a href="" id="${pubKey}">${buttonText}</a></li>`;
+        $('#accountList').append(appendStr);
+        $(`#${pubKey}`).on('click', () => {
+            popups.accSettings(pubKey);
+            app.panel.close('right', true);
 
         });
+    }
 
 }
 
-window.updateAccounsInSettings = updateAccounsInSettings
+window.updateAccounsInSettings = updateAccountsInSettings
 
-$('#openSettings').once('click', () => {
-    updateAccounsInSettings();
+$('#openSettings').on('click', () => {
+    updateAccountsInSettings();
 })
 
 $('#deleteAccounts').once('click', async () => {
@@ -263,7 +264,7 @@ $('#deleteAccounts').once('click', async () => {
     let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
     console.log([pubKeys[0], "aaaaaa"]);
     console.log(await messenger.rpcCall('main_isKeyInKeyring', [pubKeys[0]], 'background'));
-    
+
     console.log(await messenger.rpcCall('main_getAccountInfo', [pubKeys[0], "aaaaaa"], 'background'))
-    app.panel.close('right',true);
+    app.panel.close('right', true);
 })
