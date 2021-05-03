@@ -27,6 +27,9 @@ import Wallet from "./modules/freeton/contracts/Wallet.mjs";
 import FreetonInstance from "./modules/freeton/FreetonInstance.mjs";
 import FreetonCrypto from "./modules/freeton/FreetonCrypto.mjs";
 import FreetonDeploy from "./modules/freeton/FreetonDeploy.mjs";
+import BroxusTIP3 from "./modules/freeton/contracts/tokens/tip3-fungible/broxus/BroxusTIP3.mjs";
+import TokenManager from "./modules/TokenManager.mjs";
+import Token from "./modules/Token.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -44,6 +47,11 @@ const RPC = {
     'fall': async () => {
         throw EXCEPTIONS.testException;
     },
+
+    /**
+     * Open popup
+     * @returns {Promise<*>}
+     */
     mainOpenPopup: function async() {
 
         if(this.sender !== 'popup') {
@@ -67,6 +75,12 @@ const RPC = {
         return await ton.contracts.run(data);
     },
 
+    /**
+     * Run contract local
+     * @param publicKey
+     * @param data
+     * @returns {Promise<*>}
+     */
     main_runLocal: async (publicKey, data) => {
         console.log(publicKey, data);
         data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'runLocal', data);
@@ -108,12 +122,28 @@ const RPC = {
         return await keyring.isKeyInKeyring(publicKey);
     },
 
+    /**
+     * Get current network
+     * @param name
+     * @returns {Promise<{name: string, network: *}>}
+     */
     main_getNetwork: async (name = undefined) => {
         return await networkManager.getNetwork(name);
     },
+
+    /**
+     * Get existsing networks
+     * @returns {Promise<*>}
+     */
     main_getNetworks: async () => {
         return await networkManager.getNetworks();
     },
+
+    /**
+     * Change current network
+     * @param network
+     * @returns {Promise<*>}
+     */
     main_changeNetwork: async function (network) {
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
@@ -121,6 +151,11 @@ const RPC = {
         return await networkManager.changeNetwork(network);
     },
 
+    /**
+     * Change current account
+     * @param publicKey
+     * @returns {Promise<boolean>}
+     */
     main_changeAccount: async function (publicKey) {
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
@@ -222,6 +257,12 @@ const RPC = {
         return await wallet.transfer(to, amount, payload, keyPair);
     },
 
+    /**
+     * Create or change wallet
+     * @param publicKey
+     * @param type
+     * @returns {Promise<*>}
+     */
     main_createWallet: async function (publicKey, type) {
 
         if(this.sender !== 'popup') {
@@ -233,6 +274,12 @@ const RPC = {
         return await contractDeployer.createWallet(publicKey, type);
     },
 
+    /**
+     * Deploy multisig wallet
+     * @param publicKey
+     * @param type
+     * @returns {Promise<*>}
+     */
     main_deployWallet: async function (publicKey, type) {
 
         if(this.sender !== 'popup') {
@@ -278,7 +325,6 @@ const RPC = {
         }
         return await accountManager.addAccount(publicKey, privateKey, password);
     },
-
     /**
      * Add account to storage
      * @returns {Promise<*>}
@@ -290,9 +336,9 @@ const RPC = {
         if(!password) {
             throw EXCEPTIONS.rejectedByUser;
         }
-    
+
         let keyPair = {};
-    
+
         try {
             keyPair = await keyring.extractKey(publicKey, password);
         } catch (e) {
@@ -312,7 +358,7 @@ const RPC = {
 
         keyPair = await keyring.extractKey(publicKey, password);
 
-        let text = 
+        let text =
             `<ul>
                 <li id="seedPhaseAreaLi" class="item-content item-input item-input-outline">
                 <div class="item-inner">
@@ -348,9 +394,9 @@ const RPC = {
         if(!password) {
             throw EXCEPTIONS.rejectedByUser;
         }
-    
+
         let keyPair = {};
-    
+
         try {
             keyPair = await keyring.extractKey(publicKey, password);
         } catch (e) {
@@ -380,9 +426,9 @@ const RPC = {
         if(!password) {
             throw EXCEPTIONS.rejectedByUser;
         }
-    
+
         let keyPair = {};
-    
+
         try {
             keyPair = await keyring.extractKey(publicKey, password);
         } catch (e) {
@@ -401,6 +447,108 @@ const RPC = {
         await accountManager.removeAccount(publicKey)
         return await keyring.removeKey(publicKey);
     },
+    /**
+     * Get account tokens
+     * @returns {Promise<*>}
+     */
+    main_getAccountTokens: async function (publicKey, network) {
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+
+        const tokenManager = await (new TokenManager()).init()
+        return await tokenManager.getAccountTokens(publicKey, network);
+    },
+
+    /**
+     * Get token info
+     * @param {string} tokenRootAddress
+     * @returns {Promise<{symbol, totalSupply: number, rootAddress: *, decimals: number, name, icon: null|string, fungible: boolean, type: string|{ERC20_TOKENS: {}, TIP3_NONFUNGIBLE_TOKENS: {}, TIP3_FUNGIBLE_TOKENS: {broxus: string}}|*}>}
+     */
+    main_getTokenInfo: async function (tokenRootAddress) {
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+        const token = await (new Token(tokenRootAddress, ton)).init();
+
+        return await token.getInfo();
+    },
+
+    /**
+     * Get token balance
+     * @param tokenRootAddress
+     * @param publicKey
+     * @returns {Promise<*>}
+     */
+    main_getTokenBalance: async function (tokenRootAddress, publicKey) {
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+        const token = await (new Token(tokenRootAddress, ton)).init();
+
+        return await token.getPubkeyBalance(publicKey);
+    },
+
+    /**
+     * Get token wallet address by public key
+     * @param tokenRootAddress
+     * @param publicKey
+     * @returns {Promise<string>}
+     */
+    main_getTokenWalletAddress: async function (tokenRootAddress, publicKey) {
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+        const token = await (new Token(tokenRootAddress, ton)).init();
+
+        return await token.getPubkeyWalletAddress(publicKey);
+    },
+
+    /**
+     * Add token to account
+     * @param publicKey
+     * @param tokenRootAddress
+     * @param network
+     * @returns {Promise<boolean>}
+     */
+    main_addAccountToken: async function (publicKey, tokenRootAddress, network) {
+
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+
+        const tokenManager = await (new TokenManager()).init();
+
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+        const token = await (new Token(tokenRootAddress, ton)).init();
+
+        await tokenManager.addAccountToken(publicKey,network, tokenRootAddress, await token.getInfo());
+
+        return true;
+    },
+
+    /**
+     * Transfer token
+     * @param {string} walletAddress Current wallet
+     * @param {string} publicKey
+     * @param to
+     * @param amount
+     * @returns {Promise<*>}
+     */
+    main_tokenTransfer: async function (walletAddress, publicKey, to, amount) {
+
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+
+        let keyPair = await getKeysFromDeployAcceptence(publicKey, 'token_transfer', {
+            address: walletAddress,
+            additionalMessage: `Ths action sends <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> tokens to <span class="intextWallet">${to}</span> wallet.`,
+        }, undefined, true);
+
+        const token = await (new Token(null, ton)).init();
+
+        await messenger.rpcCall('popup_showToast', ['Token transaction created'], 'popup');
+
+        return await token.transfer(to, amount, keyPair);
+    },
+
 
 }
 
@@ -480,6 +628,9 @@ let messenger, storage, keyring, networkManager, accountManager;
     window.networkManager = networkManager;
 
     window.freetonCrypto = FreetonCrypto;
+
+    let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+    window.tip3 = await (new BroxusTIP3(ton, '0:0c4cad39cf61d92df6ab7c78552441b0524973e282f1e7a6acf5f06773cdc605')).init();
 
     //If network changed, broadcast it to all tabs and popups
     networkManager.on(networkManager.EVENTS.networkChanged, async () => {

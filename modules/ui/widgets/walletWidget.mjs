@@ -16,6 +16,8 @@
 import Utils from "../../utils.mjs";
 import uiUtils from "../uiUtils.mjs";
 import WalletContract from "../../const/WalletContract.mjs";
+import TOKEN_LIST from "../../const/TokenList.mjs";
+import popups from "../popups.mjs";
 
 const UPDATE_INTERVAL = 10000;
 
@@ -185,6 +187,8 @@ class walletWidget {
             $('.ifWalletNotDeployed').hide();
         }
 
+        await this.updateAssetsList();
+
         await this.updateHistoryList();
 
         $('.autoClipboard').click(uiUtils.selfCopyElement());
@@ -202,6 +206,10 @@ class walletWidget {
         })
     }
 
+    /**
+     * Update wallet history list
+     * @returns {Promise<void>}
+     */
     async updateHistoryList() {
 
         let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
@@ -216,7 +224,7 @@ class walletWidget {
                 let html = `<ul>`;
 
                 for (let story of history) {
-                    console.log(story);
+                    // console.log(story);
                     html += ` <li>
                                 <a href="https://${currentNetwork.network.explorer}/messages/messageDetails?id=${story.id}" class="item-link item-content externalHref" target="_blank">
                                     <div class="item-media"><i class="material-icons">${story.src === wallet.address ? 'call_made' : 'call_received'}</i></div>
@@ -243,7 +251,7 @@ class walletWidget {
 
                 $('.historyList').html(html);
 
-                $('.externalHref').click(function ()  {
+                $('.externalHref').click(function () {
                     window.open($(this).attr('href'));
                 })
             } catch (e) {
@@ -254,9 +262,102 @@ class walletWidget {
                     </div>`);
 
             }
-        }else{
+        } else {
             $('.historyList').html(`<div class="block block-strong text-align-center">Empty</div>`);
         }
+    }
+
+    async updateAssetsList() {
+
+        const that = this;
+        let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
+        let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
+
+        let tokens = await this.messenger.rpcCall('main_getAccountTokens', [account.public, currentNetwork.name], 'background');
+
+        let html = `<ul>`;
+
+        for (let tokenAddress of Object.keys(tokens)) {
+
+            let tokenInfo = tokens[tokenAddress];
+            let tokenBalance = null;
+
+            try {
+                tokenBalance = await this.messenger.rpcCall('main_getTokenBalance', [tokenAddress, account.public], 'background');
+            } catch (e) {
+            }
+
+            console.log(tokenInfo);
+
+            html += ` <li>
+                        <a href="#" data-address="${tokenAddress}" class="item-link item-content tokenButton">
+                            <div class="item-media">${tokenInfo.icon}</div>
+                            <div class="item-inner">
+                                <div class="item-title">${tokenInfo.name} (${tokenInfo.symbol})</div>
+                                <div class="item-after">${tokenInfo.fungible ? (tokenBalance !== null ? tokenBalance : 'Not deployed') : 'NFT'}</div>
+                            </div>
+                        </a>
+                    </li>`;
+        }
+
+
+        html += ` <li>
+                    <a href="#" class="item-link item-content addTokenToAccount">
+                        <div class="item-media"><i class="material-icons">add</i></div>
+                        <div class="item-inner">
+                            <div class="item-title"> Add token </div>
+                            <div class="item-after"></div>
+                        </div>
+                    </a>
+                 </li>`
+
+        html += '</ul>';
+
+        $('.assetsList').html(html);
+
+        $('.addTokenToAccount').click(async () => {
+            let tokenClickList = [];
+
+            async function addTokenToAccount(rootTokenAddress) {
+                try {
+                    await that.messenger.rpcCall('main_addAccountToken', [account.public, rootTokenAddress, currentNetwork.name], 'background');
+                } catch (e) {
+                    console.log(e);
+                    app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: 'Token adding error'}).open();
+                }
+
+                await that.updateAssetsList();
+
+            }
+
+            for (let token of TOKEN_LIST.TIP3_FUNGIBLE) {
+                tokenClickList.push({
+                    text: token.name, onClick: async () => {
+                        await addTokenToAccount(token.rootAddress);
+                    }
+                });
+            }
+
+            let addToken = await uiUtils.popupSelector([...tokenClickList, {
+                text: 'Enter custom token address', onClick: async () => {
+
+                    app.dialog.prompt(`Enter root token address:`, 'Entering address', async (rootTokenAddress) => {
+                        let tokenInfo = await this.messenger.rpcCall('main_getTokenInfo', [rootTokenAddress], 'background');
+
+                        console.log('TOKEN INFO', tokenInfo);
+
+                        await addTokenToAccount(rootTokenAddress);
+                    });
+
+
+                }
+            }], 'Select token');
+        });
+
+        $('.tokenButton').click(async function () {
+            let tokenAddress = $(this).data('address');
+            await popups.tokenWallet(tokenAddress, account.public, that.messenger);
+        })
     }
 }
 

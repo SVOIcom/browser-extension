@@ -32,6 +32,10 @@ const ROUTES = [
         path: '/accSettings',
         url: './pages/accSettings.html',
     },
+    {
+        path: '/tokenWallet',
+        url: './pages/tokenWallet.html',
+    },
 ]
 
 export default ROUTES;
