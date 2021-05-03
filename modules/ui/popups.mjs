@@ -339,7 +339,7 @@ class Popups {
 
         });
     }
-    createTokenTransaction(walletAddress, messenger) {
+    createTokenTransaction(walletAddress, rootTokenAddress, messenger) {
         return new Promise((resolve, reject) => {
             window.app.views.main.router.navigate("/createTransaction");
 
@@ -387,6 +387,7 @@ class Popups {
 
                     // try {
                     resolve(await messenger.rpcCall('main_tokenTransfer', [
+                        rootTokenAddress,
                         walletAddress,
                         account.public,
                         address,
@@ -449,7 +450,7 @@ class Popups {
                 $('.sendTokenButton').click(async () => {
 
                     try {
-                        await popups.createTokenTransaction(walletAddress, messenger);
+                        await popups.createTokenTransaction(walletAddress, rootTokenAddress, messenger);
                     } catch (e) {
                         //app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
                     }

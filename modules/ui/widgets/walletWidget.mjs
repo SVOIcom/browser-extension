@@ -267,6 +267,10 @@ class walletWidget {
         }
     }
 
+    /**
+     * Update UI assets list
+     * @returns {Promise<void>}
+     */
     async updateAssetsList() {
 
         const that = this;
@@ -294,7 +298,7 @@ class walletWidget {
                             <div class="item-media">${tokenInfo.icon}</div>
                             <div class="item-inner">
                                 <div class="item-title">${tokenInfo.name} (${tokenInfo.symbol})</div>
-                                <div class="item-after">${tokenInfo.fungible ? (tokenBalance !== null ? tokenBalance : 'Not deployed') : 'NFT'}</div>
+                                <div class="item-after">${tokenInfo.fungible ? (tokenBalance !== null ? Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals)  : 'Not deployed') : 'NFT'}</div>
                             </div>
                         </a>
                     </li>`;

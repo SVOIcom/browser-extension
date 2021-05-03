@@ -106,7 +106,11 @@ class BroxusTIP3 {
      */
     async transfer(dest, amount, keyPair) {
 
+        //console.log('TIP# pretransfer', dest, amount, keyPair)
+
         let walletAddress = await this.getWalletAddress(keyPair.public);
+
+        //console.log('TIP# pretransfer2', walletAddress)
 
         try {
             let params = {
@@ -116,18 +120,23 @@ class BroxusTIP3 {
                 input: {
                     to: dest,
                     tokens: amount,
-                    grams: 0
+                    grams: 2e8
                 },
                 keyPair
             };
 
-            let message = await this.ton.contracts.createRunMessage(params);
-            let transaction = await this.ton.contracts.sendMessage(message.message);
+            //console.log('BROXUS TIP3 RUN PARAMS', params)
 
+            let message = await this.ton.contracts.createRunMessage(params);
+
+            //console.log('BROXUS TIP3 RUN MSG', message)
+
+            let transaction = await this.ton.contracts.sendMessage(message.message);
+            //console.log('BROXUS TIP3 TX', transaction)
 
             let result = await this.ton.contracts.waitForRunTransaction(message, transaction);
 
-            console.log(result);
+            //console.log('BROXUS TIP3 TX RESULT',result);
 
             result.tx = transaction;
 

@@ -516,20 +516,21 @@ const RPC = {
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         const token = await (new Token(tokenRootAddress, ton)).init();
 
-        await tokenManager.addAccountToken(publicKey,network, tokenRootAddress, await token.getInfo());
+        await tokenManager.addAccountToken(publicKey, network, tokenRootAddress, await token.getInfo());
 
         return true;
     },
 
     /**
      * Transfer token
+     * @param {string} rootTokenAddress Token Root address
      * @param {string} walletAddress Current wallet
      * @param {string} publicKey
      * @param to
      * @param amount
      * @returns {Promise<*>}
      */
-    main_tokenTransfer: async function (walletAddress, publicKey, to, amount) {
+    main_tokenTransfer: async function (rootTokenAddress, walletAddress, publicKey, to, amount) {
 
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
@@ -542,11 +543,17 @@ const RPC = {
             additionalMessage: `Ths action sends <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> tokens to <span class="intextWallet">${to}</span> wallet.`,
         }, undefined, true);
 
-        const token = await (new Token(null, ton)).init();
+        const token = await (new Token(rootTokenAddress, ton)).init();
 
         await messenger.rpcCall('popup_showToast', ['Token transaction created'], 'popup');
 
-        return await token.transfer(to, amount, keyPair);
+        let txInfo = await token.transfer(to, amount, keyPair);
+
+        console.log(txInfo);
+
+        await messenger.rpcCall('popup_showToast', ['Token transfer complete'], 'popup');
+
+        return true;
     },
 
 
