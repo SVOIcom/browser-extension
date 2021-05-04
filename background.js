@@ -32,6 +32,7 @@ import TokenManager from "./modules/TokenManager.mjs";
 import Token from "./modules/Token.mjs";
 import MISC from "./modules/const/Misc.mjs";
 import LOCALIZATION from "./modules/Localization.mjs";
+import FreetonDomains from "./modules/freeton/dens/FreetonDomains.mjs";
 
 const _ = LOCALIZATION._;
 
@@ -676,6 +677,11 @@ let messenger, storage, keyring, networkManager, accountManager;
         await messenger.broadcastTabsMessage(MESSAGES.ACCOUNT_CHANGED);
         await messenger.rpcCall('popup_accountChanged', [await accountManager.getAccount()], 'popup');
     })
+
+
+    //DeNs
+
+    //FreetonDomains.url;
 
 
 })()
