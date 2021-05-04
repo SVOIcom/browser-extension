@@ -22,9 +22,22 @@ const LOCALES = {
     "ru_RU": await Utils.fetchJSON('/lang/ru_RU.json')
 }
 
+const SUPPORT_LOCALES = {'en_US': 'English (US)', "ru_RU": 'Russian'}
+
 let currentLang = DETECTED_LANG;
 
 const LOCALIZATION = {
+    SUPPORT_LOCALES,
+    DETECTED_LANG,
+    currentLang,
+    DEFAULT_LANG,
+    LOCALES,
+    /**
+     * Get localized string
+     * @param {string} string
+     * @param {string} locale
+     * @returns {string}
+     */
     _: (string, locale = currentLang) => {
         if(locale === DEFAULT_LANG) {
             return string;
@@ -44,6 +57,9 @@ const LOCALIZATION = {
 
         return LOCALES[currentLang][string];
     },
+    /**
+     * Update plain class localization
+     */
     updateLocalization: () => {
 
         //Localize plain class elements
@@ -58,16 +74,35 @@ const LOCALIZATION = {
 
 
     },
+    /**
+     * Reset plain class localized strings
+     */
     resetPlainLocalization: () => {
         $('.localization-complete').removeClass('localization-complete');
     },
-    startTimer(){
+
+    /**
+     * Autolocalize timer
+     */
+    startTimer() {
         setInterval(() => {
             LOCALIZATION.updateLocalization();
         }, 1000);
+    },
+
+    /**
+     * Change localization language
+     * @param lang
+     */
+    changeLang(lang = DEFAULT_LANG) {
+        localStorage.setItem('language', lang)
+        currentLang = lang;
+        LOCALIZATION.resetPlainLocalization();
+        LOCALIZATION.updateLocalization();
     }
 }
 
+window.LOCALIZATION = LOCALIZATION;
 
 
 export default LOCALIZATION;
