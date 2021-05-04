@@ -16,8 +16,10 @@
 import Utils from "../utils.mjs";
 import EXCEPTIONS from "../const/Exceptions.mjs";
 import uiUtils from "./uiUtils.mjs";
+import LOCALIZATION from "../Localization.mjs";
 
 const $ = Dom7;
+const _ = LOCALIZATION._;
 
 class Popups {
 
@@ -55,7 +57,7 @@ class Popups {
                     $('#acceptRunAddress').text(Utils.shortenPubkey(callingDetails.address));
                     $('#acceptRunAddress').attr('title', callingDetails.address);
                 } else {
-                    $('#acceptRunAddress').text('Error');
+                    $('#acceptRunAddress').text(_('Error'));
                 }
 
 
@@ -76,6 +78,8 @@ class Popups {
 
                     resolve(true);
                 });
+
+                LOCALIZATION.updateLocalization();
 
                 // resolve();
             });
@@ -118,11 +122,11 @@ class Popups {
                     let checker = Utils.numberToUnsignedNumber(amount);
 
                     if(!Utils.validateTONAddress(address)) {
-                        return app.dialog.alert('Invalid address');
+                        return app.dialog.alert(_('Invalid address'));
                     }
 
                     if(!checker) {
-                        return app.dialog.alert('Invalid amount');
+                        return app.dialog.alert(_('Invalid amount'));
                     }
 
                     let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
@@ -154,7 +158,7 @@ class Popups {
                     reject(EXCEPTIONS.rejectedByUser);
                 });
 
-
+                LOCALIZATION.updateLocalization();
             })
         })
     }
@@ -265,6 +269,8 @@ class Popups {
                     Utils.appBack();
                 });
 
+                LOCALIZATION.updateLocalization();
+
             });
 
         });
@@ -320,6 +326,8 @@ class Popups {
                     Utils.appBack();
                 });
 
+                LOCALIZATION.updateLocalization();
+
             });
 
         });
@@ -329,7 +337,7 @@ class Popups {
         return new Promise((resolve, reject) => {
             window.app.views.main.router.navigate("/policy");
 
-            app.once('pageInit', () => {            
+            app.once('pageInit', () => {
 
                 $('#returnButton2').once('click', () => {
                     Utils.appBack();
@@ -339,6 +347,7 @@ class Popups {
 
         });
     }
+
     createTokenTransaction(walletAddress, rootTokenAddress, messenger) {
         return new Promise((resolve, reject) => {
             window.app.views.main.router.navigate("/createTransaction");
@@ -372,11 +381,11 @@ class Popups {
                     let checker = Utils.numberToUnsignedNumber(amount);
 
                     if(!Utils.validateTONAddress(address)) {
-                        return app.dialog.alert('Invalid address');
+                        return app.dialog.alert(_('Invalid address'));
                     }
 
                     if(!checker) {
-                        return app.dialog.alert('Invalid amount');
+                        return app.dialog.alert(_('Invalid amount'));
                     }
 
                     let account = await messenger.rpcCall('main_getAccount', undefined, 'background');
@@ -407,7 +416,7 @@ class Popups {
                     Utils.appBack();
                     reject(EXCEPTIONS.rejectedByUser);
                 });
-
+                LOCALIZATION.updateLocalization();
 
             })
         })
@@ -429,8 +438,8 @@ class Popups {
                 $('.tokenWalletAddress').html(`<a data-clipboard="${walletAddress}" class="autoClipboard" >${Utils.shortenPubkey(walletAddress)}</a>`)
                 $('.tokenWalletTokenIcon').html(tokenInfo.icon);
 
-                $('.getTokenButton').attr('href',tokenInfo.url);
-                $('.getTokenButton').click(function (){
+                $('.getTokenButton').attr('href', tokenInfo.url);
+                $('.getTokenButton').click(function () {
                     window.open($(this).attr('href'));
                 });
 
@@ -458,10 +467,14 @@ class Popups {
                 })
 
                 $('.autoClipboard').click(uiUtils.selfCopyElement());
+
+                LOCALIZATION.updateLocalization();
+
                 resolve();
             });
         });
     }
+
     accSettings(pubKey) {
         let self = this;
 
@@ -470,16 +483,16 @@ class Popups {
             console.log("asdasdasd0");
             app.once('pageInit', () => {
 
-                $("#submit").on( "click", async () => {
+                $("#submit").on("click", async () => {
                     console.log("asdasdasd1");
                     let AccountValid = checkAccountName();
                     let succesNameChange = false
-                    if (AccountValid === 1){
+                    if(AccountValid === 1) {
                         let accountName = $("#accountName").val();
-                        try{
+                        try {
                             console.log("asdasdasd2");
                             succesNameChange = await this.messenger.rpcCall('main_setAccountName', [pubKey, accountName], 'background');
-                        } catch (e){
+                        } catch (e) {
                             console.log(e);
                             return e;
                         }
@@ -487,7 +500,7 @@ class Popups {
                     }
                 });
 
-                $("#forgetAccount").on( "click", async () => {
+                $("#forgetAccount").on("click", async () => {
                     await this.messenger.rpcCall('main_deleteAccount', [pubKey], 'background');
                     location.reload();
                     self.initPage();
@@ -514,12 +527,12 @@ class Popups {
                     // Utils.appBack();
                 });
 
+                LOCALIZATION.updateLocalization();
+
             });
 
         });
     }
-
-
 
 
 }

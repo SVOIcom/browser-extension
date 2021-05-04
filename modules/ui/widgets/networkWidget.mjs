@@ -16,7 +16,10 @@
 import Utils from "../../utils.mjs";
 import uiUtils from "../uiUtils.mjs";
 
+import LOCALIZATION from "../../Localization.mjs";
 
+
+const _ = LOCALIZATION._;
 const $ = Dom7;
 
 
@@ -34,7 +37,7 @@ class networkWidget {
 
             let buttons = [
                 {
-                    text: 'Select network',
+                    text: _('Select network'),
                     label: true
                 },
             ];
@@ -52,11 +55,11 @@ class networkWidget {
             }
 
             buttons.push({
-                text: 'Add network',
+                text: _('Add network'),
                 color: ''
             });
             buttons.push({
-                text: 'Cancel',
+                text: _('Cancel'),
                 color: 'red'
             });
 
@@ -74,7 +77,7 @@ class networkWidget {
 
     async updateNetworkWidget() {
         let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
-        $('#networkChanger').text(`Network: ${currentNetwork.name}`);
+        $('#networkChanger').text(_('Network') + `: ${currentNetwork.name}`);
 
     }
 

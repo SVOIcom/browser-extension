@@ -40,7 +40,7 @@
                     <div class="title"><img class="walletLogoTopLeft" src="./icons/128.png" alt="logo"/></div>
                     <div class="right">
 
-                        <a href="#" id="openSettings" class="button button-small panel-toggle display-flex" data-panel="right">
+                        <a href="#" id="openSettings" class="button button-small  display-flex" data-panel="right">
                             <i class="f7-icons">bars</i>
                           </a>
 
@@ -70,14 +70,14 @@
                                 <div class="navbar-inner">
 
                                     <div style="text-align: center;" class="block-title">
-                                        <h3> Settings </h3>
+                                        <h3 class="localization">Settings</h3>
                                     </div>
 
                                 </div>
                             </div>
 
                             <div class="row">
-                                <p>Toggle darkmode</p>
+                                <p class="localization">Toggle darkmode</p>
                                 <label class="toggle toggle-init" id="toggleDarkmode">
                                     <!-- Toggle input -->
                                     <input type="checkbox">
@@ -86,12 +86,16 @@
                                 </label>
                             </div>
 
-                            <p>Accounts settings</p>
+                            <p class="localization">Accounts settings</p>
 
                             <div class="list links-list">
                                 <ul id="accountList">
+                                    <div class="preloader"></div>
                                 </ul>
                              </div>
+
+
+                            <a style="border: 0px;" class="panel-close localization" href="/policy">Privacy policy</a>
 
                             <!-- <button id="deleteAccounts" class="button button-large button-fill color-red">
                                 <span>Delete all</span>
@@ -123,17 +127,17 @@
                         <div class="row walletButtonsRow ifWalletExists">
                             <a href="#" class="col walletButton  getMoneyButton">
                                 <i class="material-icons buttonIcon">attach_money</i>
-                                <div>Get</div>
+                                <div class="localization">Get</div>
                             </a>
 
                             <a href="#" class="col walletButton sendMoneyButton">
                                 <i class="f7-icons buttonIcon">control</i>
-                                <div>Send</div>
+                                <div class="localization">Send</div>
                             </a>
 
                             <a href="#" class="col walletButton swapMoneyButton disabled">
                                 <i class="f7-icons buttonIcon">repeat</i>
-                                <div>Swap</div>
+                                <div class="localization">Swap</div>
                             </a>
 
                         </div>
@@ -144,17 +148,17 @@
 
                             <a href="#" class="col walletButton  createWalletButton">
                                 <i class="material-icons buttonIcon">done</i>
-                                <div>Create wallet</div>
+                                <div class="localization">Create wallet</div>
                             </a>
 
                             <a href="#" class="col walletButton  deployWalletButton">
                                 <i class="material-icons buttonIcon">done</i>
-                                <div>Deploy wallet</div>
+                                <div class="localization">Deploy wallet</div>
                             </a>
 
                             <a href="#" class="col walletButton enterWalletButton">
                                 <i class="material-icons buttonIcon">edit</i>
-                                <div>Enter address</div>
+                                <div class="localization">Enter address</div>
                             </a>
                         </div>
                     </div>
@@ -166,8 +170,8 @@
 
                     <div class="toolbar tabbar">
                         <div class="toolbar-inner">
-                            <a href="#tabAssets" class="tab-link  tab-link-active">Assets</a>
-                            <a href="#tabHistory" class="tab-link">History</a>
+                            <a href="#tabAssets" class="tab-link  tab-link-active localization">Assets</a>
+                            <a href="#tabHistory" class="tab-link localization">History</a>
                         </div>
                     </div>
                     <!-- Tabs -->

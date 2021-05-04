@@ -23,6 +23,9 @@ import networkWidget from "./modules/ui/widgets/networkWidget.mjs";
 import accountWidget from "./modules/ui/widgets/accountWidget.mjs";
 
 import Utils from "./modules/utils.mjs";
+import LOCALIZATION from "./modules/Localization.mjs";
+
+const _ = LOCALIZATION._;
 
 const RPC = {
     'popup_test': async (a, b) => {
@@ -33,7 +36,7 @@ const RPC = {
     },
     popup_testSign: (message, publicKey) => {
         return new Promise((resolve, reject) => {
-            app.dialog.confirm(`${message} Pubkey: ${publicKey}`, `Action required`, () => {
+            app.dialog.confirm(`${message} Pubkey: ${publicKey}`, _(`Action required`), () => {
                 resolve(true)
             }, () => {
                 resolve(false)
@@ -66,7 +69,8 @@ const RPC = {
      */
     popup_password: (message, publicKey) => {
         return new Promise((resolve, reject) => {
-            app.dialog.password(`${message} \nAction password required for public key: ${publicKey}`, 'Password required', (password) => {
+
+            app.dialog.password(`${message} \n${_('Action password required for public key')}: ${Utils.shortenPubkey(publicKey)}`, _('Password required'), (password) => {
                 resolve(password)
             }, () => {
                 resolve(false)
@@ -204,6 +208,9 @@ if(walletsObj == null) {
     popups.initPage();
 }
 
+LOCALIZATION.updateLocalization();
+
+
 //Glue code
 let account = accountWidget(messenger, app);
 await account.updateAccountWidget();
@@ -213,6 +220,9 @@ await network.updateNetworkWidget();
 
 let wallet = walletWidget(messenger, app);
 await wallet.updateWalletWidget();
+
+LOCALIZATION.updateLocalization();
+LOCALIZATION.startTimer();
 
 
 $('.sendMoneyButton').click(async () => {
@@ -255,8 +265,9 @@ async function updateAccountsInSettings() {
 
 window.updateAccounsInSettings = updateAccountsInSettings
 
-$('#openSettings').on('click', () => {
-    updateAccountsInSettings();
+$('#openSettings').on('click', async () => {
+    await updateAccountsInSettings();
+    app.panel.open($('.panel-right'));
 })
 
 $('#deleteAccounts').once('click', async () => {

@@ -16,8 +16,10 @@
 import Utils from "../../utils.mjs";
 import uiUtils from "../uiUtils.mjs";
 import {default as popups} from "/modules/ui/popups.mjs"
+import LOCALIZATION from "../../Localization.mjs";
 
 
+const _ = LOCALIZATION._;
 const $ = Dom7;
 
 
@@ -36,7 +38,7 @@ class accountWidget {
 
             let buttons = [
                 {
-                    text: 'Change account',
+                    text: _('Change account'),
                     label: true
                 },
             ];
@@ -44,10 +46,10 @@ class accountWidget {
             for (let key of keys) {
                 let accHaveName = await this.messenger.rpcCall('main_getAccountName', [key], 'background');
                 let buttonText = Utils.shortenPubkey(key);
-                if (accHaveName !== ""){
+                if(accHaveName !== "") {
                     buttonText = accHaveName;
-                } 
-                
+                }
+
                 buttons.push({
                     text: buttonText,
                     //bold: key === currentNetwork.name,
@@ -59,17 +61,21 @@ class accountWidget {
             }
 
             buttons.push({
-                text: 'Add existing keypair',
+                text: _('Add existing keypair'),
                 color: '',
-                onClick: async () => {popups.importSeed()}
+                onClick: async () => {
+                    popups.importSeed()
+                }
             });
             buttons.push({
-                text: 'Create keypair',
+                text: _('Create keypair'),
                 color: '',
-                onClick: async () => {popups.getSeed()}
+                onClick: async () => {
+                    popups.getSeed()
+                }
             });
             buttons.push({
-                text: 'Cancel',
+                text: _('Cancel'),
                 color: 'red'
             });
 
@@ -94,13 +100,12 @@ class accountWidget {
 
         let accHaveName = await this.messenger.rpcCall('main_getAccountName', [account.public], 'background');
         let buttonText = Utils.shortenPubkey(account.public)
-        if (accHaveName !== ""){
+        if(accHaveName !== "") {
             buttonText = accHaveName;
-        } 
+        }
 
         $('#accountChanger').text(buttonText);
     }
-
 
 
 }
