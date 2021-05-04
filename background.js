@@ -68,7 +68,6 @@ const RPC = {
      * @returns {Promise<boolean>}
      */
     main_run: async (publicKey, data) => {
-        console.log(publicKey, data);
         data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'run', data);
 
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
@@ -77,12 +76,13 @@ const RPC = {
 
     /**
      * Run contract local
+     * This method can save some ram for FreeTON instance
      * @param publicKey
      * @param data
      * @returns {Promise<*>}
      */
     main_runLocal: async (publicKey, data) => {
-        console.log(publicKey, data);
+
         data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'runLocal', data);
 
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
@@ -97,7 +97,6 @@ const RPC = {
      * @returns {Promise<*>}
      */
     main_createRunMessage: async (publicKey, data) => {
-        console.log(publicKey, data);
         data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'createRunMessage', data)
 
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
@@ -237,7 +236,7 @@ const RPC = {
      */
     main_transfer: async (from, publicKey, to, amount, payload = '') => {
 
-        //TODO Check sender
+        //Want to check sender or not? Need TODO disscused
 
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         let wallet = await (new Wallet(from, ton)).init();
@@ -330,7 +329,9 @@ const RPC = {
      * @returns {Promise<*>}
      */
     main_getAccountInfo: async function (publicKey) {
-
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
 
         let password = await messenger.rpcCall('popup_password', ['', publicKey], 'popup');
         if(!password) {
@@ -380,7 +381,9 @@ const RPC = {
      * @returns {Promise<*>}
      */
     main_getAccountName: async function (publicKey) {
-
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
         return await keyring.getAccountName(publicKey);
     },
 
@@ -389,6 +392,10 @@ const RPC = {
      * @returns {Promise<*>}
      */
     main_setAccountName: async function (publicKey, name) {
+
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
 
         let password = await messenger.rpcCall('popup_password', ['', publicKey], 'popup');
         if(!password) {
@@ -421,6 +428,10 @@ const RPC = {
      * @returns {Promise<*>}
      */
     main_deleteAccount: async function (publicKey) {
+
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
 
         let password = await messenger.rpcCall('popup_password', ['', publicKey], 'popup');
         if(!password) {

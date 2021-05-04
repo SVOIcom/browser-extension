@@ -66,7 +66,7 @@ const RPC = {
      */
     popup_password: (message, publicKey) => {
         return new Promise((resolve, reject) => {
-            app.dialog.password(`${message} \nAction password required for public key: ${publicKey}`, 'Password required', (password) => {
+            app.dialog.password(`${message} \nAction password required for public key: ${Utils.shortenPubkey(publicKey)}`, 'Password required', (password) => {
                 resolve(password)
             }, () => {
                 resolve(false)
@@ -255,8 +255,9 @@ async function updateAccountsInSettings() {
 
 window.updateAccounsInSettings = updateAccountsInSettings
 
-$('#openSettings').on('click', () => {
-    updateAccountsInSettings();
+$('#openSettings').on('click', async () => {
+    await updateAccountsInSettings();
+    app.panel.open($('.panel-right'));
 })
 
 $('#deleteAccounts').once('click', async () => {

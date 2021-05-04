@@ -142,6 +142,26 @@ class walletWidget {
         let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
         let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
 
+        console.log('CURRENT NETWORK', currentNetwork)
+
+        if(currentNetwork.network.faucet ) {
+            if(currentNetwork.network.faucet.type === 'url') {
+                $('.getMoneyButton').show();
+                $('.getMoneyButton').click(function () {
+                    window.open(currentNetwork.network.faucet.address);
+                });
+            }
+
+            if(currentNetwork.network.faucet.type === 'url') {
+                $('.getMoneyButton').show();
+                $('.getMoneyButton').click(function () {
+                    window.open(currentNetwork.network.faucet.address);
+                });
+            }
+
+        } else {
+            $('.getMoneyButton').hide();
+        }
 
         //console.log(account);
         $('.walletTokenIcon').html(currentNetwork.network.tokenIcon);
@@ -298,7 +318,7 @@ class walletWidget {
                             <div class="item-media">${tokenInfo.icon}</div>
                             <div class="item-inner">
                                 <div class="item-title">${tokenInfo.name} (${tokenInfo.symbol})</div>
-                                <div class="item-after">${tokenInfo.fungible ? (tokenBalance !== null ? Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals)  : 'Not deployed') : 'NFT'}</div>
+                                <div class="item-after">${tokenInfo.fungible ? (tokenBalance !== null ? Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals) : 'Not deployed') : 'NFT'}</div>
                             </div>
                         </a>
                     </li>`;
