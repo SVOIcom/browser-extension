@@ -175,3 +175,25 @@ function validatePassword() {
     return validFlag;
 
 }
+
+/**
+ * validate policy checkbox field
+ * @returns {Boolean}
+ */
+ function checkAccountName() {
+
+    let accountNameLabel = $("#accountNameLabel");
+    let accountNameAreaLi = $("#accountNameAreaLi");
+    let accountName = $("#accountName");
+
+    if (accountName.val() === ""){
+        accountNameAreaLi.addClass('item-input-invalid');
+        accountName.addClass("input-invalid");
+        accountNameLabel.text("Please enter new account name");
+        return 0
+    } else {
+        accountNameAreaLi.removeClass('item-input-invalid');
+        accountName.removeClass("input-invalid");
+        return 1
+    }
+}

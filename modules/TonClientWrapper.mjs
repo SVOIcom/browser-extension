@@ -6,8 +6,6 @@
    |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
 
  */
-import MESSAGES from "./const/Messages.mjs";
-
 /**
  * @name FreeTON browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
@@ -15,6 +13,8 @@ import MESSAGES from "./const/Messages.mjs";
  * @version 1.0
  */
 
+import MESSAGES from "./const/Messages.mjs";
+import Utils from "./utils.mjs";
 
 class TonClientWrapper extends EventEmitter3 {
 
@@ -36,6 +36,7 @@ class TonClientWrapper extends EventEmitter3 {
 
         this._setupAccounts();
         this._setupNetwork();
+        this._setupMisc();
     }
 
     /**
@@ -241,21 +242,123 @@ class TonClientWrapper extends EventEmitter3 {
     _setupAccounts() {
 
         let that = this;
+        /**
+         * Accounts functionality
+         * @type {{getPublicKeys: (function(): *), isKeyInKeyring: (function(*): *), getAccount: (function(): *), getWalletHistory: (function(*, *=): *), getWalletBalance: (function(*): *), getWalletInfo: (function(): *|null)}}
+         */
         this.accounts = {
+            /**
+             * Get all public keys
+             * @returns {Promise<*>}
+             */
             getPublicKeys: async () => {
                 return await that._extensionRPCCall('main_getPublicKeys');
             },
+
+            /**
+             * Is public key exists in keyring
+             * @param {string} publicKey
+             * @returns {Promise<*>}
+             */
             isKeyInKeyring: async (publicKey) => {
                 return await that._extensionRPCCall('main_isKeyInKeyring', [publicKey]);
             },
+
+            /**
+             * Returns current account object
+             * @returns {Promise<*>}
+             */
             getAccount: async () => {
                 return await that._extensionRPCCall('main_getAccount');
             },
+            /**
+             * Returns current wallet object
+             * @returns {Promise<*|null>}
+             */
             getWalletInfo: async () => {
                 let networkName = (await that.network.get()).name;
                 let wallets = (await that.accounts.getAccount()).wallets;
                 return wallets[networkName] ? wallets[networkName] : null;
-            }
+            },
+            /**
+             * Returns wallet history
+             * @param {string} address
+             * @param {number} amount
+             * @returns {Promise<[]>}
+             */
+            getWalletHistory: async (address, amount = 20) => {
+                return await that._extensionRPCCall('main_getWalletHistory', [address, amount]);
+            },
+            /**
+             * Returns current wallet balance
+             * @param address
+             * @returns {Promise<*>}
+             */
+            getWalletBalance: async (address) => {
+                return await that._extensionRPCCall('main_getWalletBalance', [address]);
+            },
+        }
+    }
+
+    /**
+     * Extension objects
+     * @private
+     */
+    _setupMisc() {
+
+        let that = this;
+        /**
+         * Extension methods
+         * @type {{getVerision: (function(): *)}}
+         */
+        this.extension = {
+            /**
+             * Returns extension version
+             * @returns {Promise<*>}
+             */
+            getVerision: async () => {
+                return await that._extensionRPCCall('main_getMiscConstant', ['VERSION']);
+            },
+        }
+
+        /**
+         * Extended crypto
+         * @type {{generateSeedPhrase: (function(): *), getKeysFromSeedPhrase: (function(*): *)}}
+         */
+        this.extCrypto = {
+            /**
+             * Returns random seed phrase
+             * @returns {Promise<string>}
+             */
+            generateSeedPhrase: async () => {
+                return await that._extensionRPCCall('main_generateSeedPhrase');
+            },
+            /**
+             * Returns keypair object
+             * @param {string} seed
+             * @returns {Promise<*>}
+             */
+            getKeysFromSeedPhrase: async (seed) => {
+                return await that._extensionRPCCall('main_getKeysFromSeedPhrase', [seed]);
+            },
+        }
+
+        /**
+         * Utilities methods
+         * @type {{unsignedNumberToSigned: ((function(*=, *=): number)|*), numberToUnsignedNumber: ((function(*=, *=): number)|*), extractTxId: ((function(*): (null|*))|*), asyncWait: ((function(*=): Promise<unknown>)|*), shortenPubkey: ((function(*=, *=): *)|*), hexString2DecString: ((function(string): string)|*), fetchJSON: ((function(string): Promise<*>)|*), hexToBase64: ((function(*): string)|*), hex2String: ((function(*=): *)|*), validateTONAddress: ((function(string): boolean)|*)}}
+         */
+        this.utils = {
+            unsignedNumberToSigned: Utils.unsignedNumberToSigned,
+            numberToUnsignedNumber: Utils.numberToUnsignedNumber,
+            asyncWait: Utils.wait,
+            shortenPubkey: Utils.shortenPubkey,
+            hexString2DecString: Utils.hexString2DecString,
+            extractTxId: Utils.getTxId,
+            hexToBase64: Utils.hexToBase64,
+            fetchJSON: Utils.fetchJSON,
+            validateTONAddress: Utils.validateTONAddress,
+            hex2String: Utils.hex2String
+
         }
     }
 
@@ -266,10 +369,23 @@ class TonClientWrapper extends EventEmitter3 {
     _setupNetwork() {
 
         let that = this;
+        /**
+         * Network objects
+         * @type {{get: (function(*=): *), getNetworks: (function(): *)}}
+         */
         this.network = {
+            /**
+             * Get current network or network by name
+             * @param {string} name
+             * @returns {Promise<*>}
+             */
             get: async (name = undefined) => {
                 return await that._extensionRPCCall('main_getNetwork', [name]);
             },
+            /**
+             * Get all networks
+             * @returns {Promise<*>}
+             */
             getNetworks: async () => {
                 return await that._extensionRPCCall('main_getNetworks');
             },

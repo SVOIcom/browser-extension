@@ -104,10 +104,10 @@
 
 .selectNetworkActions .actions-button {
     height: auto;
-    line-height: 25px;
+    line-height: 20px;
 }
 
-.userWalletHolder {
+.userWalletHolder, .tokenWalletHolder {
     text-align: center;
     line-height: 20px;
 }
@@ -127,7 +127,7 @@
     color: white;
 }
 
-.walletButton:hover .buttonIcon{
+.walletButton:hover .buttonIcon {
     background: #8dc5ea;
 }
 
@@ -157,11 +157,11 @@
     height: 35px;
 }
 
-.walletTabs{
+.walletTabs {
     margin-top: -15px;
 }
 
-.tab-link-active{
+.tab-link-active {
     border-bottom: 2px solid;
 }
 
@@ -180,31 +180,31 @@
     background: #464545;
 }
 
-.walletTokenIcon{
+.walletTokenIcon {
     font-size: 30px;
 }
 
-#acceptMessageFromCaller{
+#acceptMessageFromCaller {
     word-break: break-word;
 }
 
-.intextWallet{
+.intextWallet, #seedPhrase {
     word-break: break-word;
     -webkit-user-select: all;
     user-select: all;
-    
+
 }
 
-.addressEditButton{
+.addressEditButton {
     cursor: pointer;
     color: black;
 }
 
-.addressEditButton:hover{
+.addressEditButton:hover {
     color: #707070;
 }
 
-.theme-dark  .addressEditButton{
+.theme-dark .addressEditButton {
     color: white;
 }
 
@@ -229,4 +229,17 @@
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: #676767;
+}
+
+.assetsList .tokenIcon {
+    max-height: 20px;
+}
+
+.tokenWalletHolder .tokenIcon {
+    max-height: 48px;
+}
+
+#accountList {
+    margin-right: -15px;
+    margin-left: -15px;
 }

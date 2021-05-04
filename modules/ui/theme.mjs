@@ -89,6 +89,7 @@ class Theme {
         let $html = $('html');
         window.globalTheme = theme;
         $html.removeClass('theme-dark theme-light').addClass('theme-' + globalTheme);
+        $('.panel').removeClass('theme-dark theme-light').addClass('theme-' + globalTheme);
         this.toggleElement.checked = this.isDark();
         await this.saveState();
         //this.app.$setState({theme: globalTheme});

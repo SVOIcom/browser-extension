@@ -14,13 +14,15 @@
  */
 
 import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
-import {default as theme} from "./modules/ui/theme.mjs"
-import {default as popups} from "./modules/ui/popups.mjs"
+import {default as theme} from "./modules/ui/theme.mjs";
+import {default as popups} from "./modules/ui/popups.mjs";
 import ROUTES from "./modules/ui/routes.mjs";
 import EXCEPTIONS from "./modules/const/Exceptions.mjs";
 import walletWidget from "./modules/ui/widgets/walletWidget.mjs";
 import networkWidget from "./modules/ui/widgets/networkWidget.mjs";
 import accountWidget from "./modules/ui/widgets/accountWidget.mjs";
+
+import Utils from "./modules/utils.mjs";
 
 const RPC = {
     'popup_test': async (a, b) => {
@@ -64,7 +66,7 @@ const RPC = {
      */
     popup_password: (message, publicKey) => {
         return new Promise((resolve, reject) => {
-            app.dialog.password(`${message} \nAction password required for public key: ${publicKey}`, 'Password required', (password) => {
+            app.dialog.password(`${message} \nAction password required for public key: ${Utils.shortenPubkey(publicKey)}`, 'Password required', (password) => {
                 resolve(password)
             }, () => {
                 resolve(false)
@@ -145,7 +147,7 @@ const app = new Framework7({
     root: "#app",
     theme: "aurora",
     autoDarkTheme: true,
-    view:{stackPages: true,},
+    view: {stackPages: true,},
     dialog: {
         title: 'TONWallet',
     },
@@ -198,7 +200,7 @@ let walletsObj = (await messenger.rpcCall('main_getAccount', undefined, 'backgro
 // console.log(walletsObj, "<<<<<<");
 // popups.initPage();
 
-if (walletsObj == null){
+if(walletsObj == null) {
     popups.initPage();
 }
 
@@ -214,11 +216,56 @@ await wallet.updateWalletWidget();
 
 
 $('.sendMoneyButton').click(async () => {
-    console.log('aaaa');
+
     try {
         await popups.createTransaction();
     } catch (e) {
         //app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
     }
     console.log('Transaction created');
+})
+
+/**
+ * Update sidebar accounts list
+ * @returns {Promise<void>}
+ */
+async function updateAccountsInSettings() {
+    $('#accountList').empty();
+
+    let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
+
+    for (let pubKey of pubKeys) {
+        let accHaveName = await messenger.rpcCall('main_getAccountName', [pubKey], 'background');
+        let buttonText = Utils.shortenPubkey(pubKey);
+        if(accHaveName !== "") {
+            buttonText = accHaveName;
+        }
+
+
+        let appendStr = `<li><a href="" id="${pubKey}">${buttonText}</a></li>`;
+        $('#accountList').append(appendStr);
+        $(`#${pubKey}`).on('click', () => {
+            popups.accSettings(pubKey);
+            app.panel.close('right', true);
+
+        });
+    }
+
+}
+
+window.updateAccounsInSettings = updateAccountsInSettings
+
+$('#openSettings').on('click', async () => {
+    await updateAccountsInSettings();
+    app.panel.open($('.panel-right'));
+})
+
+$('#deleteAccounts').once('click', async () => {
+    // popups.accSettings();
+    let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
+    console.log([pubKeys[0], "aaaaaa"]);
+    console.log(await messenger.rpcCall('main_isKeyInKeyring', [pubKeys[0]], 'background'));
+
+    console.log(await messenger.rpcCall('main_getAccountInfo', [pubKeys[0], "aaaaaa"], 'background'))
+    app.panel.close('right', true);
 })

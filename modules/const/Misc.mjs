@@ -14,10 +14,8 @@
  */
 
 
-const MESSAGES = {
-    TEST: 'test',
-    NETWORK_CHANGED: 'networkChanged',
-    ACCOUNT_CHANGED: 'accountChanged',
+const MISC = {
+    VERSION: '0.0.1'
 };
 
-export default MESSAGES;
+export default MISC;
