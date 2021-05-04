@@ -31,6 +31,9 @@ import BroxusTIP3 from "./modules/freeton/contracts/tokens/tip3-fungible/broxus/
 import TokenManager from "./modules/TokenManager.mjs";
 import Token from "./modules/Token.mjs";
 import MISC from "./modules/const/Misc.mjs";
+import LOCALIZATION from "./modules/Localization.mjs";
+
+const _ = LOCALIZATION._;
 
 console.log('IM BACKGROUND');
 
@@ -161,7 +164,7 @@ const RPC = {
             throw EXCEPTIONS.invalidInvoker;
         }
         if(!await keyring.isKeyInKeyring(publicKey)) {
-            await messenger.rpcCall('popup_alert', ['Public key not found'], 'popup');
+            await messenger.rpcCall('popup_alert', [_('Public key not found')], 'popup');
             throw EXCEPTIONS.publicKeyNotFound
         }
         await accountManager.changeAccount(publicKey);
@@ -248,10 +251,10 @@ const RPC = {
 
         let keyPair = await getKeysFromDeployAcceptence(publicKey, 'transfer', {
             address: from,
-            additionalMessage: `Ths action sends <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> ${network.network.tokenIcon} to <span class="intextWallet">${to}</span> wallet.`,
+            additionalMessage: `${_('This action sends')} <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> ${network.network.tokenIcon} ${_('to')} <span class="intextWallet">${to}</span> ${_('wallet')}.`,
         }, undefined, true);
 
-        await messenger.rpcCall('popup_showToast', ['Transaction created'], 'popup');
+        await messenger.rpcCall('popup_showToast', [_('Transaction created')], 'popup');
 
 
         return await wallet.transfer(to, amount, payload, keyPair);
@@ -288,9 +291,9 @@ const RPC = {
 
         let network = await networkManager.getNetwork();
 
-        let keyPair = await getKeysFromDeployAcceptence(publicKey, 'Deploy contract', {
+        let keyPair = await getKeysFromDeployAcceptence(publicKey, _('Deploy contract'), {
             //address: from,
-            additionalMessage: `Ths action deploys ${type} wallet contract.`,
+            additionalMessage: `${_('Ths action deploys')} ${type} ${_('wallet contract')}.`,
         }, undefined, true);
 
         let contractDeployer = new FreetonDeploy(network.network.url);
@@ -345,7 +348,7 @@ const RPC = {
             keyPair = await keyring.extractKey(publicKey, password);
         } catch (e) {
             //Retry password
-            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">Invalid password</span><br>', publicKey], 'popup');
+            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') +'</span><br>', publicKey], 'popup');
             if(!password) {
                 throw EXCEPTIONS.rejectedByUser;
             }
@@ -364,7 +367,7 @@ const RPC = {
             `<ul>
                 <li id="seedPhaseAreaLi" class="item-content item-input item-input-outline">
                 <div class="item-inner">
-                    <div id="seedPhaseAreaLabel" class="item-title item-floating-label">Seed phrase</div>
+                    <div id="seedPhaseAreaLabel" class="item-title item-floating-label">${_('Seed phrase')}</div>
                     <div class="item-input-wrap">
                         <textarea id="seedPhaseArea" style="--f7-textarea-height: 80px; --f7-textarea-padding-vertical: 10px;"></textarea>
                     </div>
@@ -372,7 +375,7 @@ const RPC = {
                 </li>
             </ul>`
 
-        messenger.rpcCall('popup_alert', [`<span >Private key for ${keyPair.public} account is "${keyPair.secret}"</span>`, publicKey], 'popup');
+        messenger.rpcCall('popup_alert', [`<span > ${_('Private key for')} ${keyPair.public} - "${keyPair.secret}"</span>`, publicKey], 'popup');
 
         return keyPair;
     },
@@ -409,7 +412,7 @@ const RPC = {
             keyPair = await keyring.extractKey(publicKey, password);
         } catch (e) {
             //Retry password
-            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">Invalid password</span><br>', publicKey], 'popup');
+            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') +'</span><br>', publicKey], 'popup');
             if(!password) {
                 throw EXCEPTIONS.rejectedByUser;
             }
@@ -445,7 +448,7 @@ const RPC = {
             keyPair = await keyring.extractKey(publicKey, password);
         } catch (e) {
             //Retry password
-            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">Invalid password</span><br>', publicKey], 'popup');
+            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') +'</span><br>', publicKey], 'popup');
             if(!password) {
                 throw EXCEPTIONS.rejectedByUser;
             }
@@ -552,18 +555,18 @@ const RPC = {
 
         let keyPair = await getKeysFromDeployAcceptence(publicKey, 'token_transfer', {
             address: walletAddress,
-            additionalMessage: `Ths action sends <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> tokens to <span class="intextWallet">${to}</span> wallet.`,
+            additionalMessage: `${_('This action sends')} <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> ${_('tokens to')} <span class="intextWallet">${to}</span> ${_('wallet.')}`,
         }, undefined, true);
 
         const token = await (new Token(rootTokenAddress, ton)).init();
 
-        await messenger.rpcCall('popup_showToast', ['Token transaction created'], 'popup');
+        await messenger.rpcCall('popup_showToast', [_('Token transaction created')], 'popup');
 
         let txInfo = await token.transfer(to, amount, keyPair);
 
         console.log(txInfo);
 
-        await messenger.rpcCall('popup_showToast', ['Token transfer complete'], 'popup');
+        await messenger.rpcCall('popup_showToast', [_('Token transfer complete')], 'popup');
 
         return true;
     },
@@ -619,7 +622,7 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
         keyPair = await keyring.extractKey(publicKey, password);
     } catch (e) {
         //Retry password
-        let password = await messenger.rpcCall('popup_password', ['<span style="color: red">Invalid password</span><br>', publicKey], 'popup');
+        let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') +'</span><br>', publicKey], 'popup');
         if(!password) {
             throw EXCEPTIONS.rejectedByUser;
         }

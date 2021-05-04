@@ -18,9 +18,12 @@ import uiUtils from "../uiUtils.mjs";
 import WalletContract from "../../const/WalletContract.mjs";
 import TOKEN_LIST from "../../const/TokenList.mjs";
 import popups from "../popups.mjs";
-
+import LOCALIZATION from "../../Localization.mjs";
 const UPDATE_INTERVAL = 10000;
 
+
+
+const _ = LOCALIZATION._;
 const $ = Dom7;
 
 /**
@@ -43,7 +46,7 @@ class walletWidget {
                 return;
             }
 
-            let walletType = await uiUtils.popupSelector(WalletContract.WALLET_TYPES_LIST, 'Wallet type');
+            let walletType = await uiUtils.popupSelector(WalletContract.WALLET_TYPES_LIST, _('Wallet type'));
 
             if(!walletType) {
                 return;
@@ -66,10 +69,10 @@ class walletWidget {
 
         $('.createWalletButton, .editWalletButton').click(async () => {
             let walletType = await uiUtils.popupSelector([...WalletContract.WALLET_TYPES_LIST, {
-                text: 'Enter custom address', onClick: async () => {
+                text: _('Enter custom address'), onClick: async () => {
                     $('.enterWalletButton').click();
                 }
-            }], 'Wallet type');
+            }],  _('Wallet type'));
 
             if(!walletType) {
                 return;
@@ -109,7 +112,7 @@ class walletWidget {
                 }
 
                 if(balance === 0) {
-                    app.dialog.alert(`The balance of the current wallet is empty. To create a wallet contract, you need to top up the balance by at least 1 TON`);
+                    app.dialog.alert(_(`The balance of the current wallet is empty. To create a wallet contract, you need to top up the balance by at least 1 TON`));
                     await this.updateWalletWidget();
                     return;
                 }
@@ -117,12 +120,12 @@ class walletWidget {
                 try {
                     await this.messenger.rpcCall('main_deployWallet', [account.public, wallet.type], 'background');
                 } catch (e) {
-                    app.dialog.alert(`Wallet deploy error: ${JSON.stringify(e)}`);
+                    app.dialog.alert(_('Wallet deploy error')+`: ${JSON.stringify(e)}`);
                 }
 
                 await this.updateWalletWidget();
 
-                app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: 'Wallet deployed'}).open();
+                app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: _('Wallet deployed')}).open();
 
             }
 
@@ -220,7 +223,7 @@ class walletWidget {
      */
     promptWalletAddress() {
         return new Promise((resolve, reject) => {
-            app.dialog.prompt(`Enter wallet address:`, 'Entering address', (address) => {
+            app.dialog.prompt(_(`Enter wallet address:`), _('Entering address'), (address) => {
                 resolve(address)
             }, reject);
         })
@@ -250,7 +253,7 @@ class walletWidget {
                                     <div class="item-media"><i class="material-icons">${story.src === wallet.address ? 'call_made' : 'call_received'}</i></div>
                                     <div class="item-inner">
                                         <div class="item-title"> ${currentNetwork.network.tokenIcon}  <span>${Utils.shortenPubkey(story.id)}</span> </div>
-                                        <div class="item-after">${story.value === null ? 'ext' : Utils.unsignedNumberToSigned(story.value)}</div>
+                                        <div class="item-after">${story.value === null ? _('ext') : Utils.unsignedNumberToSigned(story.value)}</div>
                                     </div>
                                 </a>
                              </li>`
@@ -261,7 +264,7 @@ class walletWidget {
                                 <a href="https://${currentNetwork.network.explorer}/accounts/accountDetails?id=${wallet.address}" class="item-link item-content externalHref" target="_blank">
                                     <div class="item-media"><i class="material-icons">visibility</i></div>
                                     <div class="item-inner">
-                                        <div class="item-title"> View all in explorer </div>
+                                        <div class="item-title">${_('View all in explorer')}</div>
                                         <div class="item-after"></div>
                                     </div>
                                 </a>
@@ -277,13 +280,13 @@ class walletWidget {
             } catch (e) {
 
                 $('.historyList').html(`<div class="block block-strong text-align-center">
-                        Empty
+                        ${_('Empty')}
                            <a class="button externalHref" href="https://${currentNetwork.network.explorer}/accounts/accountDetails?id=${wallet.address}" target="_blank">View in explorer</a>
                     </div>`);
 
             }
         } else {
-            $('.historyList').html(`<div class="block block-strong text-align-center">Empty</div>`);
+            $('.historyList').html(`<div class="block block-strong text-align-center">${_('Empty')}</div>`);
         }
     }
 
@@ -329,7 +332,7 @@ class walletWidget {
                     <a href="#" class="item-link item-content addTokenToAccount">
                         <div class="item-media"><i class="material-icons">add</i></div>
                         <div class="item-inner">
-                            <div class="item-title"> Add token </div>
+                            <div class="item-title">${_('Add token')}</div>
                             <div class="item-after"></div>
                         </div>
                     </a>
@@ -347,7 +350,7 @@ class walletWidget {
                     await that.messenger.rpcCall('main_addAccountToken', [account.public, rootTokenAddress, currentNetwork.name], 'background');
                 } catch (e) {
                     console.log(e);
-                    app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: 'Token adding error'}).open();
+                    app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: _('Token adding error')}).open();
                 }
 
                 await that.updateAssetsList();
@@ -363,9 +366,9 @@ class walletWidget {
             }
 
             let addToken = await uiUtils.popupSelector([...tokenClickList, {
-                text: 'Enter custom token address', onClick: async () => {
+                text: _('Enter custom token address'), onClick: async () => {
 
-                    app.dialog.prompt(`Enter root token address:`, 'Entering address', async (rootTokenAddress) => {
+                    app.dialog.prompt(_(`Enter root token address:`), _('Entering address'), async (rootTokenAddress) => {
                         let tokenInfo = await this.messenger.rpcCall('main_getTokenInfo', [rootTokenAddress], 'background');
 
                         console.log('TOKEN INFO', tokenInfo);
@@ -375,7 +378,7 @@ class walletWidget {
 
 
                 }
-            }], 'Select token');
+            }], _('Select token'));
         });
 
         $('.tokenButton').click(async function () {
