@@ -30,6 +30,7 @@ import FreetonDeploy from "./modules/freeton/FreetonDeploy.mjs";
 import BroxusTIP3 from "./modules/freeton/contracts/tokens/tip3-fungible/broxus/BroxusTIP3.mjs";
 import TokenManager from "./modules/TokenManager.mjs";
 import Token from "./modules/Token.mjs";
+import MISC from "./modules/const/Misc.mjs";
 
 console.log('IM BACKGROUND');
 
@@ -567,6 +568,15 @@ const RPC = {
         return true;
     },
 
+
+    /**
+     * Get constant from MISC constants
+     * @param {string} constant
+     * @returns {Promise<string>}
+     */
+    main_getMiscConstant: async function (constant = 'VERSION') {
+        return MISC[constant]
+    },
 
 }
 

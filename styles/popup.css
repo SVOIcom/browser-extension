@@ -104,7 +104,7 @@
 
 .selectNetworkActions .actions-button {
     height: auto;
-    line-height: 25px;
+    line-height: 20px;
 }
 
 .userWalletHolder, .tokenWalletHolder {
@@ -188,7 +188,7 @@
     word-break: break-word;
 }
 
-.intextWallet {
+.intextWallet, #seedPhrase {
     word-break: break-word;
     -webkit-user-select: all;
     user-select: all;
