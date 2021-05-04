@@ -13,6 +13,8 @@
  * @version 1.0
  */
 
+import LOCALIZATION from "../Localization.mjs";
+
 
 
 const uiUtils = {
@@ -38,7 +40,7 @@ const uiUtils = {
      * @param caption
      * @returns {Promise<unknown>}
      */
-    popupSelector: (items = [], caption = 'Select item') => {
+    popupSelector: (items = [], caption = LOCALIZATION._('Select item')) => {
         return new Promise((resolve, reject) => {
             let buttons = [
                 {
@@ -64,7 +66,7 @@ const uiUtils = {
             }
 
             buttons.push({
-                text: 'Cancel',
+                text: LOCALIZATION._('Cancel'),
                 color: 'red',
                 onClick: async function () {
                     resolve();
@@ -88,7 +90,7 @@ const uiUtils = {
      */
     copyToClipboard: async (text) => {
         await navigator.clipboard.writeText(text);
-        app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: 'Copied!'}).open();
+        app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: LOCALIZATION._('Copied!')}).open();
     },
 
     /**
