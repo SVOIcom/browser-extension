@@ -358,20 +358,6 @@ const RPC = {
 
         keyPair = await keyring.extractKey(publicKey, password);
 
-        let text =
-            `<ul>
-                <li id="seedPhaseAreaLi" class="item-content item-input item-input-outline">
-                <div class="item-inner">
-                    <div id="seedPhaseAreaLabel" class="item-title item-floating-label">Seed phrase</div>
-                    <div class="item-input-wrap">
-                        <textarea id="seedPhaseArea" style="--f7-textarea-height: 80px; --f7-textarea-padding-vertical: 10px;"></textarea>
-                    </div>
-                </div>
-                </li>
-            </ul>`
-
-        messenger.rpcCall('popup_alert', [`<span >Private key for ${keyPair.public} account is "${keyPair.secret}"</span>`, publicKey], 'popup');
-
         return keyPair;
     },
 

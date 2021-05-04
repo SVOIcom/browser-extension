@@ -494,8 +494,19 @@ class Popups {
                 });
 
                 $("#getAccountInfo").on( "click", async () => {
-                    let test = await this.messenger.rpcCall('main_getAccountInfo', [pubKey], 'background');
-                    console.log(test);
+                    let keyPair = await this.messenger.rpcCall('main_getAccountInfo', [pubKey], 'background');
+
+                    let message =
+                    `Private key for 
+                        <span class="walletAddress"> <a data-clipboard="${pubKey}" class="autoClipboard">${Utils.shortenPubkey(pubKey)}</a> account is 
+                        <span class="walletAddress"> <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a></span>`
+        
+                    // messenger.rpcCall('popup_alert', [text, publicKey], 'popup');
+
+                    app.dialog.alert(message, () => {});
+                    $('.autoClipboard').click(uiUtils.selfCopyElement());
+
+
                 });
 
                 $('#returnButton').once('click', () => {
