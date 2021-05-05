@@ -156,6 +156,24 @@ const RPC = {
         return await networkManager.changeNetwork(network);
     },
 
+
+    /**
+     * Add custom network to list
+     * @param networkName
+     * @param url
+     * @param description
+     * @returns {Promise<void>}
+     */
+    main_addCustomNetwork: async function (networkName, url, description) {
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+
+        await networkManager.addNetwork(networkName,url,description);
+
+        return await networkManager.changeNetwork(networkName);
+    },
+
     /**
      * Change current account
      * @param publicKey

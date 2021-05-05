@@ -89,7 +89,10 @@ class Popups {
 
     }
 
-
+    /**
+     * Create transaction popup
+     * @returns {Promise<unknown>}
+     */
     createTransaction() {
         return new Promise((resolve, reject) => {
             window.app.views.main.router.navigate("/createTransaction");
@@ -163,6 +166,10 @@ class Popups {
         })
     }
 
+    /**
+     * Initial page
+     * @returns {Promise<unknown>}
+     */
     initPage() {
         let self = this;
 
@@ -188,6 +195,10 @@ class Popups {
         });
     }
 
+    /**
+     * Import seed popup
+     * @returns {Promise<unknown>}
+     */
     importSeed() {
         return new Promise((resolve, reject) => {
             let self = this;
@@ -245,7 +256,7 @@ class Popups {
 
                             }
 
-                            if(seedPhraseCheck == 1) {
+                            if(seedPhraseCheck === 1) {
                                 location.reload();
                             }
 
@@ -272,6 +283,10 @@ class Popups {
         });
     }
 
+    /**
+     * Generate seed popup
+     * @returns {Promise<unknown>}
+     */
     getSeed() {
         return new Promise(async (resolve, reject) => {
             let self = this;
@@ -326,6 +341,10 @@ class Popups {
         });
     }
 
+    /**
+     * Policy popup
+     * @returns {Promise<unknown>}
+     */
     goToPolicy() {
         return new Promise((resolve, reject) => {
             window.app.views.main.router.navigate("/policy");
@@ -341,6 +360,13 @@ class Popups {
         });
     }
 
+    /**
+     * Token transaction popup
+     * @param {string} walletAddress
+     * @param {string} rootTokenAddress
+     * @param {ExtensionMessenger} messenger
+     * @returns {Promise<unknown>}
+     */
     createTokenTransaction(walletAddress, rootTokenAddress, messenger) {
         return new Promise((resolve, reject) => {
             window.app.views.main.router.navigate("/createTransaction");
@@ -415,6 +441,13 @@ class Popups {
         })
     }
 
+    /**
+     * Token wallet popup
+     * @param {string} rootTokenAddress
+     * @param {string} publicKey
+     * @param {ExtensionMessenger} messenger
+     * @returns {Promise<unknown>}
+     */
     tokenWallet(rootTokenAddress, publicKey, messenger) {
         return new Promise((resolve, reject) => {
             window.app.views.main.router.navigate("/tokenWallet");
@@ -468,6 +501,11 @@ class Popups {
         });
     }
 
+    /**
+     * Account settings popup
+     * @param {string} pubKey
+     * @returns {Promise<unknown>}
+     */
     accSettings(pubKey) {
         let self = this;
 
@@ -496,17 +534,18 @@ class Popups {
                     self.initPage();
                 });
 
-                $("#getAccountInfo").on( "click", async () => {
+                $("#getAccountInfo").on("click", async () => {
                     let keyPair = await this.messenger.rpcCall('main_getAccountInfo', [pubKey], 'background');
 
                     let message =
-                    `Private key for 
+                        `Private key for 
                         <span class="walletAddress"> <a data-clipboard="${pubKey}" class="autoClipboard">${Utils.shortenPubkey(pubKey)}</a> account is 
                         <span class="walletAddress"> <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a></span>`
-        
+
                     // messenger.rpcCall('popup_alert', [text, publicKey], 'popup');
 
-                    app.dialog.alert(message, () => {});
+                    app.dialog.alert(message, () => {
+                    });
                     $('.autoClipboard').click(uiUtils.selfCopyElement());
 
 
@@ -565,21 +604,56 @@ class Popups {
                             tokenName,
                             tokenTicker,
                             initialMint: Utils.numberToUnsignedNumber(initialMint),
-                            randomNonce: 4 //+new Date()
+                            randomNonce: +new Date()
                         },
                         account.wallets[currentNetwork.name].address,
                         account.public
 
                     ], 'background');
 
+                });
 
-                    /*setTimeout(() => {
-                        app.toast.create({
-                            closeTimeout: 3000,
-                            destroyOnClose: true,
-                            text: 'Transaction created'
-                        }).open();
-                    }, 500);*/
+                LOCALIZATION.updateLocalization();
+
+                resolve();
+            });
+
+        })
+
+
+    }
+
+    /**
+     * Add custom network popup
+     * @returns {Promise<unknown>}
+     */
+    customNetwork() {
+        return new Promise((resolve, reject) => {
+            window.app.views.main.router.navigate("/customNetwork");
+
+            app.once('pageInit', () => {
+
+
+                $('#tokenConstructorCreate').on('click', async () => {
+
+                    let networkName = $('#networkName').val();
+                    let networkUrl = $('#networkUrl').val();
+                    let networkDescription = $('#networkDescription').val();
+
+                    if(!networkName.trim()) {
+                        return app.dialog.alert(_('Invalid network name'));
+                    }
+
+                    if(!networkUrl.trim()) {
+                        return app.dialog.alert(_('Invalid network URL'));
+                    }
+
+
+                    Utils.appBack();
+
+
+                    await this.messenger.rpcCall('main_addCustomNetwork', [networkName, networkUrl, networkDescription], 'background');
+
 
                 });
 

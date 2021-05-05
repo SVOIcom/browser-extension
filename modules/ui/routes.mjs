@@ -40,6 +40,10 @@ const ROUTES = [
         path: '/tip3Constructor',
         url: './pages/tip3Constructor.html',
     },
+    {
+        path: '/customNetwork',
+        url: './pages/customNetwork.html',
+    },
 ]
 
 export default ROUTES;

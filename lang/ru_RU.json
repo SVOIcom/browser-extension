@@ -103,6 +103,13 @@
   "Invalid token name": "Некорректное имя токена",
   "Invalid ticker name": "Некорректное сокращение токена",
   "This action deploy new TIP3 token contract": "Это действие развертывает новый контракт токена TIP3",
+  "Add": "Добавить",
+  "Network details": "Данные сети",
+  "Network URL": "Адрес сети",
+  "Description": "Описание",
+  "Invalid network name": "Некорректное имя сети",
+  "Invalid network URL": "Некорректный адрес сети",
+  "": "",
   "": "",
   "Select network": "Выбор сети"
 }
