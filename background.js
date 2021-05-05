@@ -16,6 +16,7 @@
 import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
 import TonClientWrapper from "./modules/TonClientWrapper.mjs";
 import PrivateStorage from "./modules/PrivateStorage.mjs";
+import NameStorage from "./modules/NameStorage.mjs";
 import Keyring from "./modules/Keyring.mjs";
 import Utils from "./modules/utils.mjs";
 import EXCEPTIONS from "./modules/const/Exceptions.mjs";
@@ -328,6 +329,7 @@ const RPC = {
         }
         return await accountManager.addAccount(publicKey, privateKey, password);
     },
+
     /**
      * Add account to storage
      * @returns {Promise<*>}
@@ -360,39 +362,22 @@ const RPC = {
             }
         }
 
-
-        keyPair = await keyring.extractKey(publicKey, password);
-
-        let text =
-            `<ul>
-                <li id="seedPhaseAreaLi" class="item-content item-input item-input-outline">
-                <div class="item-inner">
-                    <div id="seedPhaseAreaLabel" class="item-title item-floating-label">${_('Seed phrase')}</div>
-                    <div class="item-input-wrap">
-                        <textarea id="seedPhaseArea" style="--f7-textarea-height: 80px; --f7-textarea-padding-vertical: 10px;"></textarea>
-                    </div>
-                </div>
-                </li>
-            </ul>`
-
-        messenger.rpcCall('popup_alert', [`<span > ${_('Private key for')} ${keyPair.public} - "${keyPair.secret}"</span>`, publicKey], 'popup');
-
         return keyPair;
     },
 
     /**
-     * Add account to storage
+     * Get account name from storage
      * @returns {Promise<*>}
      */
     main_getAccountName: async function (publicKey) {
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
         }
-        return await keyring.getAccountName(publicKey);
+        return await NameStorage.get(publicKey);
     },
 
     /**
-     * Add account to storage
+     * Add account name to storage
      * @returns {Promise<*>}
      */
     main_setAccountName: async function (publicKey, name) {
@@ -424,11 +409,11 @@ const RPC = {
             }
         }
 
-        return await keyring.setAccountName(publicKey, name);
+        return await NameStorage.set(publicKey, name);
     },
 
     /**
-     * Add account to storage
+     * Delete account from storage
      * @returns {Promise<*>}
      */
     main_deleteAccount: async function (publicKey) {
@@ -462,6 +447,7 @@ const RPC = {
         await accountManager.removeAccount(publicKey)
         return await keyring.removeKey(publicKey);
     },
+
     /**
      * Get account tokens
      * @returns {Promise<*>}

@@ -269,13 +269,3 @@ $('#openSettings').on('click', async () => {
     await updateAccountsInSettings();
     app.panel.open($('.panel-right'));
 })
-
-$('#deleteAccounts').once('click', async () => {
-    // popups.accSettings();
-    let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
-    console.log([pubKeys[0], "aaaaaa"]);
-    console.log(await messenger.rpcCall('main_isKeyInKeyring', [pubKeys[0]], 'background'));
-
-    console.log(await messenger.rpcCall('main_getAccountInfo', [pubKeys[0], "aaaaaa"], 'background'))
-    app.panel.close('right', true);
-})

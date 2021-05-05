@@ -222,7 +222,6 @@ class Popups {
                                 keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
                                 seedPhraseCheck = 1;
                             } catch (e) {
-                                console.log("error1");
                                 seedPhraseCheck = seedPhraseInvalid(e.code);
                                 return false;
                             }
@@ -241,15 +240,12 @@ class Popups {
                                 seedPhraseCheck = 1;
 
                             } catch (e) {
-                                console.log("error2");
                                 seedPhraseCheck = seedPhraseInvalid(e.code);
                                 return false;
 
                             }
 
-                            console.log(seedPhraseCheck, "<<<<<<<<<");
                             if(seedPhraseCheck == 1) {
-                                console.log(seedPhraseCheck);
                                 location.reload();
                             }
 
@@ -307,15 +303,12 @@ class Popups {
                         let privateKey = keyPair.secret;
                         let password = $("#password").val();
 
-                        console.log(publicKey, privateKey);
 
                         await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
                         await this.messenger.rpcCall('main_changeAccount', [publicKey,], 'background');
 
                         location.reload();
                     }
-                    console.log(passwordCheck)
-                    console.log(policyCheck)
                 });
 
                 $("#policyCheckbox").on("change", () => {
@@ -480,17 +473,14 @@ class Popups {
 
         return new Promise((resolve, reject) => {
             window.app.views.main.router.navigate("/accSettings", {animate: false});
-            console.log("asdasdasd0");
             app.once('pageInit', () => {
 
                 $("#submit").on("click", async () => {
-                    console.log("asdasdasd1");
                     let AccountValid = checkAccountName();
                     let succesNameChange = false
                     if(AccountValid === 1) {
                         let accountName = $("#accountName").val();
                         try {
-                            console.log("asdasdasd2");
                             succesNameChange = await this.messenger.rpcCall('main_setAccountName', [pubKey, accountName], 'background');
                         } catch (e) {
                             console.log(e);
@@ -506,9 +496,20 @@ class Popups {
                     self.initPage();
                 });
 
-                $("#getAccountInfo").on("click", async () => {
-                    let test = await this.messenger.rpcCall('main_getAccountInfo', [pubKey], 'background');
-                    console.log(test);
+                $("#getAccountInfo").on( "click", async () => {
+                    let keyPair = await this.messenger.rpcCall('main_getAccountInfo', [pubKey], 'background');
+
+                    let message =
+                    `Private key for 
+                        <span class="walletAddress"> <a data-clipboard="${pubKey}" class="autoClipboard">${Utils.shortenPubkey(pubKey)}</a> account is 
+                        <span class="walletAddress"> <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a></span>`
+        
+                    // messenger.rpcCall('popup_alert', [text, publicKey], 'popup');
+
+                    app.dialog.alert(message, () => {});
+                    $('.autoClipboard').click(uiUtils.selfCopyElement());
+
+
                 });
 
                 $('#returnButton').once('click', () => {
