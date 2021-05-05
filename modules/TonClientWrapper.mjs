@@ -357,7 +357,8 @@ class TonClientWrapper extends EventEmitter3 {
             hexToBase64: Utils.hexToBase64,
             fetchJSON: Utils.fetchJSON,
             validateTONAddress: Utils.validateTONAddress,
-            hex2String: Utils.hex2String
+            hex2String: Utils.hex2String,
+            string2Hex: Utils.string2Hex
 
         }
     }

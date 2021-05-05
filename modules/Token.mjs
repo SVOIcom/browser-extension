@@ -86,7 +86,7 @@ class Token {
      * @param publicKey
      * @returns {Promise<string>}
      */
-    async getPubkeyWalletAddress(publicKey){
+    async getPubkeyWalletAddress(publicKey) {
         return await this.tokenContract.getWalletAddress(publicKey);
     }
 
@@ -106,8 +106,18 @@ class Token {
      * @param keyPair
      * @returns {Promise<*>}
      */
-    async transfer(dest, amount, keyPair){
+    async transfer(dest, amount, keyPair) {
         return await this.tokenContract.transfer(dest, amount, keyPair)
+    }
+
+    /**
+     * Deploy token wallet
+     * @param {number} amount
+     * @param {object} keyPair
+     * @returns {Promise<*>}
+     */
+    async deployWallet(amount = 0, keyPair) {
+        return await this.tokenContract.deployWallet(amount, keyPair);
     }
 
 }

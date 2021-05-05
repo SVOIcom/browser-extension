@@ -44,6 +44,8 @@ class TokenManager {
         console.log('ADD TOKN', tokenInfo);
 
         await this._storage.set(publicKey + '_' + network + '_tokens', accountTokens);
+
+        return true;
     }
 
     /**
@@ -59,6 +61,8 @@ class TokenManager {
         delete accountTokens[tokenRootAddress]
 
         await this._storage.set(publicKey + '_' + network + '_tokens', accountTokens);
+
+        return true;
     }
 
     /**

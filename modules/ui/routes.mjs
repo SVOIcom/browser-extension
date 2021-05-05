@@ -36,6 +36,10 @@ const ROUTES = [
         path: '/tokenWallet',
         url: './pages/tokenWallet.html',
     },
+    {
+        path: '/tip3Constructor',
+        url: './pages/tip3Constructor.html',
+    },
 ]
 
 export default ROUTES;

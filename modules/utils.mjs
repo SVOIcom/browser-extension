@@ -25,7 +25,7 @@ const Utils = {
             setTimeout(resolve, timeout)
         })
     },
-    appBack: (url =  "", options= {}) => {
+    appBack: (url = "", options = {}) => {
         app.views.main.router.back(url, options);
     },
     reloadPage: () => {
@@ -168,6 +168,23 @@ const Utils = {
         }).join(""));
     },
 
+    /**
+     * Base64 string to hex string
+     * @param str
+     * @returns {string}
+     */
+    base64ToHex(str) {
+        const raw = atob(str);
+        let result = '';
+        for (let i = 0; i < raw.length; i++) {
+            const hex = raw.charCodeAt(i).toString(16);
+            result += (hex.length === 2 ? hex : '0' + hex);
+        }
+        return result.toLowerCase();
+    },
+
+//console.log(base64ToHex("oAAABTUAAg=="));
+
 
     /**
      * Create tvm cell payload with public key
@@ -184,7 +201,7 @@ const Utils = {
      * @param {string} url
      * @returns {Promise<any>}
      */
-    async fetchJSON(url){
+    async fetchJSON(url) {
         return await ((await fetch(url))).json();
     },
 
@@ -193,7 +210,7 @@ const Utils = {
      * @param {string} address
      * @returns {boolean}
      */
-    validateTONAddress(address){
+    validateTONAddress(address) {
         const regex = /^-?[0-9a-fA-F]?[0-9a-fA-F]:[a-fA-F0-9]{64}/gm;
 
         return (regex.exec(address)) !== null;
@@ -201,11 +218,20 @@ const Utils = {
 
     /**
      * Hex encoded string to string
-     * @param hexString
-     * @returns {*}
+     * @param {string} hexString
+     * @returns {string}
      */
-    hex2String(hexString){
+    hex2String(hexString) {
         return Buffer.from(hexString, 'hex').toString();
+    },
+
+    /**
+     * String to hex string
+     * @param {string} str
+     * @returns {string}
+     */
+    string2Hex(str) {
+        return Buffer.from(str, 'utf8').toString('hex');
     }
 };
 

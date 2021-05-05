@@ -1,9 +1,6 @@
 {
   "ABI version": 2,
-  "header": [
-    "time",
-    "expire"
-  ],
+  "header": ["pubkey", "time", "expire"],
   "functions": [
     {
       "name": "constructor",
@@ -13,45 +10,36 @@
       ]
     },
     {
-      "name": "getDetails",
+      "name": "getVersion",
       "inputs": [
+        {"name":"_answer_id","type":"uint32"}
       ],
       "outputs": [
-        {
-          "components": [
-            {
-              "name": "root_address",
-              "type": "address"
-            },
-            {
-              "name": "code",
-              "type": "cell"
-            },
-            {
-              "name": "wallet_public_key",
-              "type": "uint256"
-            },
-            {
-              "name": "owner_address",
-              "type": "address"
-            },
-            {
-              "name": "balance",
-              "type": "uint128"
-            }
-          ],
-          "name": "value0",
-          "type": "tuple"
-        }
+        {"name":"value0","type":"uint32"}
+      ]
+    },
+    {
+      "name": "balance",
+      "inputs": [
+        {"name":"_answer_id","type":"uint32"}
+      ],
+      "outputs": [
+        {"name":"value0","type":"uint128"}
+      ]
+    },
+    {
+      "name": "getDetails",
+      "inputs": [
+        {"name":"_answer_id","type":"uint32"}
+      ],
+      "outputs": [
+        {"components":[{"name":"root_address","type":"address"},{"name":"code","type":"cell"},{"name":"wallet_public_key","type":"uint256"},{"name":"owner_address","type":"address"},{"name":"balance","type":"uint128"},{"name":"receive_callback","type":"address"},{"name":"bounced_callback","type":"address"},{"name":"allow_non_notifiable","type":"bool"}],"name":"value0","type":"tuple"}
       ]
     },
     {
       "name": "accept",
       "inputs": [
-        {
-          "name": "tokens",
-          "type": "uint128"
-        }
+        {"name":"tokens","type":"uint128"}
       ],
       "outputs": [
       ]
@@ -59,39 +47,18 @@
     {
       "name": "allowance",
       "inputs": [
+        {"name":"_answer_id","type":"uint32"}
       ],
       "outputs": [
-        {
-          "components": [
-            {
-              "name": "remaining_tokens",
-              "type": "uint128"
-            },
-            {
-              "name": "spender",
-              "type": "address"
-            }
-          ],
-          "name": "value0",
-          "type": "tuple"
-        }
+        {"components":[{"name":"remaining_tokens","type":"uint128"},{"name":"spender","type":"address"}],"name":"value0","type":"tuple"}
       ]
     },
     {
       "name": "approve",
       "inputs": [
-        {
-          "name": "spender",
-          "type": "address"
-        },
-        {
-          "name": "remaining_tokens",
-          "type": "uint128"
-        },
-        {
-          "name": "tokens",
-          "type": "uint128"
-        }
+        {"name":"spender","type":"address"},
+        {"name":"remaining_tokens","type":"uint128"},
+        {"name":"tokens","type":"uint128"}
       ],
       "outputs": [
       ]
@@ -106,57 +73,14 @@
     {
       "name": "transferToRecipient",
       "inputs": [
-        {
-          "name": "recipient_public_key",
-          "type": "uint256"
-        },
-        {
-          "name": "recipient_address",
-          "type": "address"
-        },
-        {
-          "name": "tokens",
-          "type": "uint128"
-        },
-        {
-          "name": "deploy_grams",
-          "type": "uint128"
-        },
-        {
-          "name": "transfer_grams",
-          "type": "uint128"
-        }
-      ],
-      "outputs": [
-      ]
-    },
-    {
-      "name": "transferToRecipientWithNotify",
-      "inputs": [
-        {
-          "name": "recipient_public_key",
-          "type": "uint256"
-        },
-        {
-          "name": "recipient_address",
-          "type": "address"
-        },
-        {
-          "name": "tokens",
-          "type": "uint128"
-        },
-        {
-          "name": "deploy_grams",
-          "type": "uint128"
-        },
-        {
-          "name": "transfer_grams",
-          "type": "uint128"
-        },
-        {
-          "name": "payload",
-          "type": "cell"
-        }
+        {"name":"recipient_public_key","type":"uint256"},
+        {"name":"recipient_address","type":"address"},
+        {"name":"tokens","type":"uint128"},
+        {"name":"deploy_grams","type":"uint128"},
+        {"name":"transfer_grams","type":"uint128"},
+        {"name":"send_gas_to","type":"address"},
+        {"name":"notify_receiver","type":"bool"},
+        {"name":"payload","type":"cell"}
       ],
       "outputs": [
       ]
@@ -164,41 +88,12 @@
     {
       "name": "transfer",
       "inputs": [
-        {
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "name": "tokens",
-          "type": "uint128"
-        },
-        {
-          "name": "grams",
-          "type": "uint128"
-        }
-      ],
-      "outputs": [
-      ]
-    },
-    {
-      "name": "transferWithNotify",
-      "inputs": [
-        {
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "name": "tokens",
-          "type": "uint128"
-        },
-        {
-          "name": "grams",
-          "type": "uint128"
-        },
-        {
-          "name": "payload",
-          "type": "cell"
-        }
+        {"name":"to","type":"address"},
+        {"name":"tokens","type":"uint128"},
+        {"name":"grams","type":"uint128"},
+        {"name":"send_gas_to","type":"address"},
+        {"name":"notify_receiver","type":"bool"},
+        {"name":"payload","type":"cell"}
       ],
       "outputs": [
       ]
@@ -206,49 +101,13 @@
     {
       "name": "transferFrom",
       "inputs": [
-        {
-          "name": "from",
-          "type": "address"
-        },
-        {
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "name": "tokens",
-          "type": "uint128"
-        },
-        {
-          "name": "grams",
-          "type": "uint128"
-        }
-      ],
-      "outputs": [
-      ]
-    },
-    {
-      "name": "transferFromWithNotify",
-      "inputs": [
-        {
-          "name": "from",
-          "type": "address"
-        },
-        {
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "name": "tokens",
-          "type": "uint128"
-        },
-        {
-          "name": "grams",
-          "type": "uint128"
-        },
-        {
-          "name": "payload",
-          "type": "cell"
-        }
+        {"name":"from","type":"address"},
+        {"name":"to","type":"address"},
+        {"name":"tokens","type":"uint128"},
+        {"name":"grams","type":"uint128"},
+        {"name":"send_gas_to","type":"address"},
+        {"name":"notify_receiver","type":"bool"},
+        {"name":"payload","type":"cell"}
       ],
       "outputs": [
       ]
@@ -256,30 +115,12 @@
     {
       "name": "internalTransfer",
       "inputs": [
-        {
-          "name": "tokens",
-          "type": "uint128"
-        },
-        {
-          "name": "sender_public_key",
-          "type": "uint256"
-        },
-        {
-          "name": "sender_address",
-          "type": "address"
-        },
-        {
-          "name": "send_gas_to",
-          "type": "address"
-        },
-        {
-          "name": "notify_receiver",
-          "type": "bool"
-        },
-        {
-          "name": "payload",
-          "type": "cell"
-        }
+        {"name":"tokens","type":"uint128"},
+        {"name":"sender_public_key","type":"uint256"},
+        {"name":"sender_address","type":"address"},
+        {"name":"send_gas_to","type":"address"},
+        {"name":"notify_receiver","type":"bool"},
+        {"name":"payload","type":"cell"}
       ],
       "outputs": [
       ]
@@ -287,26 +128,11 @@
     {
       "name": "internalTransferFrom",
       "inputs": [
-        {
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "name": "tokens",
-          "type": "uint128"
-        },
-        {
-          "name": "send_gas_to",
-          "type": "address"
-        },
-        {
-          "name": "notify_receiver",
-          "type": "bool"
-        },
-        {
-          "name": "payload",
-          "type": "cell"
-        }
+        {"name":"to","type":"address"},
+        {"name":"tokens","type":"uint128"},
+        {"name":"send_gas_to","type":"address"},
+        {"name":"notify_receiver","type":"bool"},
+        {"name":"payload","type":"cell"}
       ],
       "outputs": [
       ]
@@ -314,22 +140,11 @@
     {
       "name": "burnByOwner",
       "inputs": [
-        {
-          "name": "tokens",
-          "type": "uint128"
-        },
-        {
-          "name": "grams",
-          "type": "uint128"
-        },
-        {
-          "name": "callback_address",
-          "type": "address"
-        },
-        {
-          "name": "callback_payload",
-          "type": "cell"
-        }
+        {"name":"tokens","type":"uint128"},
+        {"name":"grams","type":"uint128"},
+        {"name":"send_gas_to","type":"address"},
+        {"name":"callback_address","type":"address"},
+        {"name":"callback_payload","type":"cell"}
       ],
       "outputs": [
       ]
@@ -337,18 +152,10 @@
     {
       "name": "burnByRoot",
       "inputs": [
-        {
-          "name": "tokens",
-          "type": "uint128"
-        },
-        {
-          "name": "callback_address",
-          "type": "address"
-        },
-        {
-          "name": "callback_payload",
-          "type": "cell"
-        }
+        {"name":"tokens","type":"uint128"},
+        {"name":"send_gas_to","type":"address"},
+        {"name":"callback_address","type":"address"},
+        {"name":"callback_payload","type":"cell"}
       ],
       "outputs": [
       ]
@@ -356,10 +163,16 @@
     {
       "name": "setReceiveCallback",
       "inputs": [
-        {
-          "name": "receive_callback_",
-          "type": "address"
-        }
+        {"name":"receive_callback_","type":"address"},
+        {"name":"allow_non_notifiable_","type":"bool"}
+      ],
+      "outputs": [
+      ]
+    },
+    {
+      "name": "setBouncedCallback",
+      "inputs": [
+        {"name":"bounced_callback_","type":"address"}
       ],
       "outputs": [
       ]
@@ -367,69 +180,17 @@
     {
       "name": "destroy",
       "inputs": [
-        {
-          "name": "gas_dest",
-          "type": "address"
-        }
+        {"name":"gas_dest","type":"address"}
       ],
       "outputs": [
-      ]
-    },
-    {
-      "name": "balance",
-      "inputs": [
-      ],
-      "outputs": [
-        {
-          "name": "balance",
-          "type": "uint128"
-        }
-      ]
-    },
-    {
-      "name": "receive_callback",
-      "inputs": [
-      ],
-      "outputs": [
-        {
-          "name": "receive_callback",
-          "type": "address"
-        }
-      ]
-    },
-    {
-      "name": "target_gas_balance",
-      "inputs": [
-      ],
-      "outputs": [
-        {
-          "name": "target_gas_balance",
-          "type": "uint128"
-        }
       ]
     }
   ],
   "data": [
-    {
-      "key": 1,
-      "name": "root_address",
-      "type": "address"
-    },
-    {
-      "key": 2,
-      "name": "code",
-      "type": "cell"
-    },
-    {
-      "key": 3,
-      "name": "wallet_public_key",
-      "type": "uint256"
-    },
-    {
-      "key": 4,
-      "name": "owner_address",
-      "type": "address"
-    }
+    {"key":1,"name":"root_address","type":"address"},
+    {"key":2,"name":"code","type":"cell"},
+    {"key":3,"name":"wallet_public_key","type":"uint256"},
+    {"key":4,"name":"owner_address","type":"address"}
   ],
   "events": [
   ]

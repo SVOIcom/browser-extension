@@ -14,9 +14,10 @@
  */
 
 
-
 import FreetonInstance from "./FreetonInstance.mjs";
 import WalletContract from "../const/WalletContract.mjs";
+import TIP3Contract from "../const/TIP3Contract.mjs";
+import Utils from "../utils.mjs";
 
 class FreetonDeploy {
 
@@ -125,6 +126,51 @@ class FreetonDeploy {
         };
 
         return await this.getPreDeployContractAddress(walletContractData, constructorParams, {}, publicKey);
+    }
+
+    async predictTIP3RootAddress(type = TIP3Contract.ROOT_TYPES.BroxusTIP3, options, publicKey) {
+        let rootContractData = await TIP3Contract.getTIP3RootData(type);
+        let rootWalletData = await TIP3Contract.getTIP3WalletData(type);
+
+        const constructorParams = {
+            root_public_key_:  `0x${publicKey}`,
+            root_owner_address_: '0:0000000000000000000000000000000000000000000000000000000000000000',
+        };
+
+        const initParams = {
+            name: Utils.string2Hex(options.tokenName),
+            symbol: Utils.string2Hex(options.tokenTicker),
+            decimals: 9,
+            wallet_code: rootWalletData.compiled,
+            _randomNonce: options.randomNonce
+        }
+
+        return await this.getPreDeployContractAddress(rootContractData, constructorParams, initParams, publicKey);
+
+    }
+
+    async deployTIP3Root(type = TIP3Contract.ROOT_TYPES.BroxusTIP3, options, keyPair) {
+        let rootContractData = await TIP3Contract.getTIP3RootData(type);
+        let rootWalletData = await TIP3Contract.getTIP3WalletData(type);
+
+        let publicKey = keyPair.public;
+
+        const constructorParams = {
+            root_public_key_:  `0x${publicKey}`,
+            root_owner_address_: '0:0000000000000000000000000000000000000000000000000000000000000000',
+        };
+
+
+        const initParams = {
+            name: Utils.string2Hex(options.tokenName),
+            symbol: Utils.string2Hex(options.tokenTicker),
+            decimals: 9,
+            wallet_code: rootWalletData.compiled,
+            _randomNonce: options.randomNonce
+        }
+
+        return await this.deployContract(rootContractData, constructorParams, initParams, keyPair);
+
     }
 }
 
