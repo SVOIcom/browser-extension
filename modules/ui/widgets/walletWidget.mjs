@@ -174,7 +174,7 @@ class walletWidget {
         if(account.wallets[currentNetwork.name]) {
             let wallet = account.wallets[currentNetwork.name];
             this.wallet = wallet;
-            $('.walletAddress').html(`<a data-clipboard="${wallet.address}" class="autoClipboard" title="${wallet.type}">${Utils.shortenPubkey(wallet.address)}</a>`)
+            $('.walletAddress').html(`<a data-clipboard="${wallet.address}" class="autoClipboard" title="${wallet.type}"><i class="material-icons buttonIcon">content_copy</i>${Utils.shortenPubkey(wallet.address)}</a>`)
 
             let deployed = await this.messenger.rpcCall('main_getWalletDeployed', [wallet.address], 'background');
 
