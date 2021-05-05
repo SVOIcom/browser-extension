@@ -524,6 +524,75 @@ class Popups {
         });
     }
 
+    /**
+     * TIP3 constructor popup
+     * @returns {Promise<undefined>}
+     */
+    tip3Constructor() {
+        return new Promise((resolve, reject) => {
+            window.app.views.main.router.navigate("/tip3Constructor");
+
+            app.once('pageInit', () => {
+
+
+                $('#tokenConstructorCreate').on('click', async () => {
+
+                    let tokenName = $('#tokenName').val();
+                    let tokenTicker = $('#tokenTicker').val();
+                    let initialMint = $('#initialMint').val();
+
+                    if(!tokenName.trim()) {
+                        return app.dialog.alert(_('Invalid token name'));
+                    }
+
+                    if(!tokenTicker.trim()) {
+                        return app.dialog.alert(_('Invalid ticker name'));
+                    }
+
+                    if(!Utils.numberToUnsignedNumber(initialMint)) {
+                        return app.dialog.alert(_('Invalid amount'));
+                    }
+
+
+                    Utils.appBack();
+
+                    let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
+                    let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
+
+
+                    await this.messenger.rpcCall('main_createTip3Token', [undefined,
+                        {
+                            tokenName,
+                            tokenTicker,
+                            initialMint: Utils.numberToUnsignedNumber(initialMint),
+                            randomNonce: 4 //+new Date()
+                        },
+                        account.wallets[currentNetwork.name].address,
+                        account.public
+
+                    ], 'background');
+
+
+                    /*setTimeout(() => {
+                        app.toast.create({
+                            closeTimeout: 3000,
+                            destroyOnClose: true,
+                            text: 'Transaction created'
+                        }).open();
+                    }, 500);*/
+
+                });
+
+                LOCALIZATION.updateLocalization();
+
+                resolve();
+            });
+
+        })
+
+
+    }
+
 
 }
 

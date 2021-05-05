@@ -19,8 +19,8 @@ import WalletContract from "../../const/WalletContract.mjs";
 import TOKEN_LIST from "../../const/TokenList.mjs";
 import popups from "../popups.mjs";
 import LOCALIZATION from "../../Localization.mjs";
-const UPDATE_INTERVAL = 10000;
 
+const UPDATE_INTERVAL = 10000;
 
 
 const _ = LOCALIZATION._;
@@ -72,7 +72,7 @@ class walletWidget {
                 text: _('Enter custom address'), onClick: async () => {
                     $('.enterWalletButton').click();
                 }
-            }],  _('Wallet type'));
+            }], _('Wallet type'));
 
             if(!walletType) {
                 return;
@@ -120,7 +120,7 @@ class walletWidget {
                 try {
                     await this.messenger.rpcCall('main_deployWallet', [account.public, wallet.type], 'background');
                 } catch (e) {
-                    app.dialog.alert(_('Wallet deploy error')+`: ${JSON.stringify(e)}`);
+                    app.dialog.alert(_('Wallet deploy error') + `: ${JSON.stringify(e)}`);
                 }
 
                 await this.updateWalletWidget();
@@ -147,7 +147,7 @@ class walletWidget {
 
         console.log('CURRENT NETWORK', currentNetwork)
 
-        if(currentNetwork.network.faucet ) {
+        if(currentNetwork.network.faucet) {
             if(currentNetwork.network.faucet.type === 'url') {
                 $('.getMoneyButton').show();
                 $('.getMoneyButton').click(function () {
@@ -365,20 +365,32 @@ class walletWidget {
                 });
             }
 
-            let addToken = await uiUtils.popupSelector([...tokenClickList, {
-                text: _('Enter custom token address'), onClick: async () => {
+            let addToken = await uiUtils.popupSelector([...tokenClickList,
+                {
+                    text: _('Enter custom token address'),
+                    onClick: async () => {
 
-                    app.dialog.prompt(_(`Enter root token address:`), _('Entering address'), async (rootTokenAddress) => {
-                        let tokenInfo = await this.messenger.rpcCall('main_getTokenInfo', [rootTokenAddress], 'background');
+                        app.dialog.prompt(_(`Enter root token address:`), _('Entering address'), async (rootTokenAddress) => {
+                            let tokenInfo = await this.messenger.rpcCall('main_getTokenInfo', [rootTokenAddress], 'background');
 
-                        console.log('TOKEN INFO', tokenInfo);
+                            console.log('TOKEN INFO', tokenInfo);
 
-                        await addTokenToAccount(rootTokenAddress);
-                    });
+                            await addTokenToAccount(rootTokenAddress);
+                        });
 
 
+                    }
+                },
+                {
+                    text: _('Create TIP3 token'),
+                    onClick: async () => {
+
+                        await popups.tip3Constructor();
+
+
+                    }
                 }
-            }], _('Select token'));
+            ], _('Select token'));
         });
 
         $('.tokenButton').click(async function () {

@@ -33,6 +33,7 @@ import TokenManager from "./modules/TokenManager.mjs";
 import Token from "./modules/Token.mjs";
 import MISC from "./modules/const/Misc.mjs";
 import LOCALIZATION from "./modules/Localization.mjs";
+import TIP3Contract from "./modules/const/TIP3Contract.mjs";
 
 const _ = LOCALIZATION._;
 
@@ -350,7 +351,7 @@ const RPC = {
             keyPair = await keyring.extractKey(publicKey, password);
         } catch (e) {
             //Retry password
-            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') +'</span><br>', publicKey], 'popup');
+            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') + '</span><br>', publicKey], 'popup');
             if(!password) {
                 throw EXCEPTIONS.rejectedByUser;
             }
@@ -397,7 +398,7 @@ const RPC = {
             keyPair = await keyring.extractKey(publicKey, password);
         } catch (e) {
             //Retry password
-            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') +'</span><br>', publicKey], 'popup');
+            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') + '</span><br>', publicKey], 'popup');
             if(!password) {
                 throw EXCEPTIONS.rejectedByUser;
             }
@@ -433,7 +434,7 @@ const RPC = {
             keyPair = await keyring.extractKey(publicKey, password);
         } catch (e) {
             //Retry password
-            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') +'</span><br>', publicKey], 'popup');
+            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') + '</span><br>', publicKey], 'popup');
             if(!password) {
                 throw EXCEPTIONS.rejectedByUser;
             }
@@ -567,6 +568,64 @@ const RPC = {
         return MISC[constant]
     },
 
+    main_createTip3Token: async function (type = TIP3Contract.ROOT_TYPES.BroxusTIP3, options, fromWallet, publicKey) {
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+
+        try {
+
+            let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+
+
+            console.log('CREATE TIP3', type, options);
+
+            let network = await networkManager.getNetwork();
+            let contractDeployer = new FreetonDeploy(network.network.url);
+
+            let newRootAddress = await contractDeployer.predictTIP3RootAddress(type, options, publicKey);
+            console.log('ROOT ADDRESS', newRootAddress);
+
+            let keyPair = await getKeysFromDeployAcceptence(publicKey, 'create_token', {
+                address: newRootAddress,
+                additionalMessage: `${_('This action deploy new TIP3 token contract')} 1 TON`,
+            }, undefined, true);
+
+
+            //Transfer tokens for contact deploy
+            let transferResult = await wallet.transfer(newRootAddress, 1e9, '', keyPair);
+
+            console.log('TIP3 deploy transfer result', transferResult);
+
+
+            let deployResult = await contractDeployer.deployTIP3Root(type, options, keyPair);
+
+            console.log('TIP3 deploy ROOT result', deployResult);
+
+            const token = await (new Token(newRootAddress, ton)).init();
+
+            let deployWalletResult = await token.deployWallet(options.initialMint, keyPair);
+
+            console.log('TIP3 deploy WALLET result', deployWalletResult);
+
+
+            const tokenManager = await (new TokenManager()).init();
+
+
+            await tokenManager.addAccountToken(publicKey, network.name, newRootAddress, await token.getInfo());
+
+            console.log('TOKEN ADDED');
+
+            console.log(await tokenManager.getAccountTokens(publicKey, network.name))
+
+
+        } catch (e) {
+            console.error(e);
+        }
+
+        return true;
+    }
+
 }
 
 
@@ -608,7 +667,7 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
         keyPair = await keyring.extractKey(publicKey, password);
     } catch (e) {
         //Retry password
-        let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') +'</span><br>', publicKey], 'popup');
+        let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') + '</span><br>', publicKey], 'popup');
         if(!password) {
             throw EXCEPTIONS.rejectedByUser;
         }
