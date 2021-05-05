@@ -328,6 +328,7 @@ const RPC = {
         }
         return await accountManager.addAccount(publicKey, privateKey, password);
     },
+
     /**
      * Add account to storage
      * @returns {Promise<*>}
@@ -359,9 +360,6 @@ const RPC = {
                 throw EXCEPTIONS.invalidPassword;
             }
         }
-
-
-        keyPair = await keyring.extractKey(publicKey, password);
 
         return keyPair;
     },
@@ -448,6 +446,7 @@ const RPC = {
         await accountManager.removeAccount(publicKey)
         return await keyring.removeKey(publicKey);
     },
+
     /**
      * Get account tokens
      * @returns {Promise<*>}

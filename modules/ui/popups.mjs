@@ -508,6 +508,7 @@ class Popups {
 
                 $("#getAccountInfo").on( "click", async () => {
                     let keyPair = await this.messenger.rpcCall('main_getAccountInfo', [pubKey], 'background');
+                    console.log(keyPair, "<><>");
 
                     let message =
                     `Private key for 
