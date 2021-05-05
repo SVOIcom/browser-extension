@@ -54,10 +54,10 @@ class networkWidget {
                 })
             }
 
-            buttons.push({
+            /*buttons.push({
                 text: _('Add network'),
                 color: ''
-            });
+            });*/
             buttons.push({
                 text: _('Cancel'),
                 color: 'red'
