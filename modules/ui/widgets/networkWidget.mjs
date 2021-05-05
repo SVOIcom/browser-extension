@@ -17,6 +17,7 @@ import Utils from "../../utils.mjs";
 import uiUtils from "../uiUtils.mjs";
 
 import LOCALIZATION from "../../Localization.mjs";
+import popups from "../popups.mjs";
 
 
 const _ = LOCALIZATION._;
@@ -54,10 +55,13 @@ class networkWidget {
                 })
             }
 
-            /*buttons.push({
+            buttons.push({
                 text: _('Add network'),
-                color: ''
-            });*/
+                onClick: async function () {
+                    await popups.customNetwork();
+
+                }
+            });
             buttons.push({
                 text: _('Cancel'),
                 color: 'red'
