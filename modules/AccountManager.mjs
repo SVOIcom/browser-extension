@@ -16,6 +16,7 @@
 import LocalStorage from "./LocalStorage.mjs";
 import NETWORKS from "./const/Networks.mjs";
 import EXCEPTIONS from "./const/Exceptions.mjs";
+import NameStorage from "./NameStorage.mjs";
 
 
 class AccountManager extends EventEmitter3 {
@@ -103,6 +104,7 @@ class AccountManager extends EventEmitter3 {
         }
 
         await this.keyring.removeKey(publicKey);
+        await NameStorage.del(publicKey);
 
         //Reinitialize
         await this.initialize();

@@ -16,6 +16,7 @@
 import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
 import TonClientWrapper from "./modules/TonClientWrapper.mjs";
 import PrivateStorage from "./modules/PrivateStorage.mjs";
+import NameStorage from "./modules/NameStorage.mjs";
 import Keyring from "./modules/Keyring.mjs";
 import Utils from "./modules/utils.mjs";
 import EXCEPTIONS from "./modules/const/Exceptions.mjs";
@@ -365,18 +366,18 @@ const RPC = {
     },
 
     /**
-     * Add account to storage
+     * Get account name from storage
      * @returns {Promise<*>}
      */
     main_getAccountName: async function (publicKey) {
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
         }
-        return await keyring.getAccountName(publicKey);
+        return await NameStorage.get(publicKey);
     },
 
     /**
-     * Add account to storage
+     * Add account name to storage
      * @returns {Promise<*>}
      */
     main_setAccountName: async function (publicKey, name) {
@@ -408,11 +409,11 @@ const RPC = {
             }
         }
 
-        return await keyring.setAccountName(publicKey, name);
+        return await NameStorage.set(publicKey, name);
     },
 
     /**
-     * Add account to storage
+     * Delete account from storage
      * @returns {Promise<*>}
      */
     main_deleteAccount: async function (publicKey) {
