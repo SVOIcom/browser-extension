@@ -1,11 +1,8 @@
 {
-  "name": "browser-extension",
-  "version": "1.0.0",
-  "description": "",
+  "name": "tonwallet",
+  "version": "0.0.1",
+  "description": "FreeTON network wallet and dapps connectivity provider",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lailune/browser-extension.git"

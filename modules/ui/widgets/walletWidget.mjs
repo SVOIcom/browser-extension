@@ -140,6 +140,11 @@ class walletWidget {
         setInterval(async () => {
             await this.updateActiveActionsWidget();
 
+            $('.autoClipboard:not(.action-hooked)').click(uiUtils.selfCopyElement()).addClass('action-hooked');
+            $('.externalHref:not(.action-hooked)').click(function () {
+                window.open($(this).attr('href'));
+            }).addClass('action-hooked');
+
         }, 1000)
 
 
@@ -239,7 +244,7 @@ class walletWidget {
 
         await this.updateHistoryList();
 
-        $('.autoClipboard').click(uiUtils.selfCopyElement());
+
     }
 
     /**

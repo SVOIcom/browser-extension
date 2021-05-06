@@ -44,6 +44,10 @@ const ROUTES = [
         path: '/customNetwork',
         url: './pages/customNetwork.html',
     },
+    {
+        path: '/about',
+        url: './pages/about.html',
+    },
 ]
 
 export default ROUTES;
