@@ -34,6 +34,7 @@ import Token from "./modules/Token.mjs";
 import MISC from "./modules/const/Misc.mjs";
 import LOCALIZATION from "./modules/Localization.mjs";
 import TIP3Contract from "./modules/const/TIP3Contract.mjs";
+import ActionProgressManager from "./modules/ActionProgressManager.mjs";
 
 const _ = LOCALIZATION._;
 
@@ -76,8 +77,19 @@ const RPC = {
     main_run: async (publicKey, data) => {
         data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'run', data);
 
-        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
-        return await ton.contracts.run(data);
+        actionManager.startActionOnce('main_run');
+
+        try {
+            let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+
+            let runResult = await ton.contracts.run(data);
+
+            actionManager.endAction('main_run');
+            return runResult;
+        } catch (e) {
+            actionManager.endAction('main_run');
+            throw e;
+        }
     },
 
     /**
@@ -91,8 +103,20 @@ const RPC = {
 
         data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'runLocal', data);
 
-        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
-        return await ton.contracts.runLocal(data);
+        actionManager.startActionOnce('main_runLocal');
+
+        try {
+            let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+
+            let runResult = await ton.contracts.runLocal(data);
+
+            actionManager.endAction('main_runLocal');
+
+            return runResult;
+        } catch (e) {
+            actionManager.endAction('main_runLocal');
+            throw e;
+        }
     },
 
 
@@ -169,7 +193,7 @@ const RPC = {
             throw EXCEPTIONS.invalidInvoker;
         }
 
-        await networkManager.addNetwork(networkName,url,description);
+        await networkManager.addNetwork(networkName, url, description);
 
         return await networkManager.changeNetwork(networkName);
     },
@@ -262,22 +286,32 @@ const RPC = {
 
         //Want to check sender or not? Need TODO disscused
 
-        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
-        let wallet = await (new Wallet(from, ton)).init();
+        actionManager.startActionOnce('main_transfer');
 
-        let network = await networkManager.getNetwork();
+        try {
+            let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+            let wallet = await (new Wallet(from, ton)).init();
 
-        console.log(amount);
+            let network = await networkManager.getNetwork();
 
-        let keyPair = await getKeysFromDeployAcceptence(publicKey, 'transfer', {
-            address: from,
-            additionalMessage: `${_('This action sends')} <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> ${network.network.tokenIcon} ${_('to')} <span class="intextWallet">${to}</span> ${_('wallet')}.`,
-        }, undefined, true);
+            console.log(amount);
 
-        await messenger.rpcCall('popup_showToast', [_('Transaction created')], 'popup');
+            let keyPair = await getKeysFromDeployAcceptence(publicKey, 'transfer', {
+                address: from,
+                additionalMessage: `${_('This action sends')} <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> ${network.network.tokenIcon} ${_('to')} <span class="intextWallet">${to}</span> ${_('wallet')}.`,
+            }, undefined, true);
 
+            await messenger.rpcCall('popup_showToast', [_('Transaction created')], 'popup');
 
-        return await wallet.transfer(to, amount, payload, keyPair);
+            let transferResult = await wallet.transfer(to, amount, payload, keyPair);
+
+            actionManager.endAction('main_transfer');
+
+            return transferResult
+        } catch (e) {
+            actionManager.endAction('main_transfer');
+            throw e;
+        }
     },
 
     /**
@@ -309,16 +343,27 @@ const RPC = {
             throw EXCEPTIONS.invalidInvoker;
         }
 
-        let network = await networkManager.getNetwork();
+        actionManager.startActionOnce('main_deployWallet');
 
-        let keyPair = await getKeysFromDeployAcceptence(publicKey, _('Deploy contract'), {
-            //address: from,
-            additionalMessage: `${_('Ths action deploys')} ${type} ${_('wallet contract')}.`,
-        }, undefined, true);
+        try {
+            let network = await networkManager.getNetwork();
 
-        let contractDeployer = new FreetonDeploy(network.network.url);
+            let keyPair = await getKeysFromDeployAcceptence(publicKey, _('Deploy contract'), {
+                //address: from,
+                additionalMessage: `${_('Ths action deploys')} ${type} ${_('wallet contract')}.`,
+            }, undefined, true);
 
-        return await contractDeployer.deployWallet(keyPair, type);
+            let contractDeployer = new FreetonDeploy(network.network.url);
+            let deployResult = await contractDeployer.deployWallet(keyPair, type);
+
+
+            actionManager.endAction('main_deployWallet');
+
+            return deployResult;
+        } catch (e) {
+            actionManager.endAction('main_deployWallet');
+            throw e;
+        }
 
     },
 
@@ -556,22 +601,31 @@ const RPC = {
             throw EXCEPTIONS.invalidInvoker;
         }
 
-        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+        actionManager.startActionOnce('main_tokenTransfer');
 
-        let keyPair = await getKeysFromDeployAcceptence(publicKey, 'token_transfer', {
-            address: walletAddress,
-            additionalMessage: `${_('This action sends')} <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> ${_('tokens to')} <span class="intextWallet">${to}</span> ${_('wallet.')}`,
-        }, undefined, true);
+        try {
+            let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
 
-        const token = await (new Token(rootTokenAddress, ton)).init();
+            let keyPair = await getKeysFromDeployAcceptence(publicKey, 'token_transfer', {
+                address: walletAddress,
+                additionalMessage: `${_('This action sends')} <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> ${_('tokens to')} <span class="intextWallet">${to}</span> ${_('wallet.')}`,
+            }, undefined, true);
 
-        await messenger.rpcCall('popup_showToast', [_('Token transaction created')], 'popup');
+            const token = await (new Token(rootTokenAddress, ton)).init();
 
-        let txInfo = await token.transfer(to, amount, keyPair);
+            await messenger.rpcCall('popup_showToast', [_('Token transaction created')], 'popup');
 
-        console.log(txInfo);
+            let txInfo = await token.transfer(to, amount, keyPair);
 
-        await messenger.rpcCall('popup_showToast', [_('Token transfer complete')], 'popup');
+            console.log(txInfo);
+
+            await messenger.rpcCall('popup_showToast', [_('Token transfer complete')], 'popup');
+
+            actionManager.endAction('main_tokenTransfer');
+        } catch (e) {
+            actionManager.endAction('main_tokenTransfer');
+            throw e;
+        }
 
         return true;
     },
@@ -586,10 +640,20 @@ const RPC = {
         return MISC[constant]
     },
 
+    /**
+     * Create TIP3 token
+     * @param type
+     * @param options
+     * @param fromWallet
+     * @param publicKey
+     * @returns {Promise<boolean>}
+     */
     main_createTip3Token: async function (type = TIP3Contract.ROOT_TYPES.BroxusTIP3, options, fromWallet, publicKey) {
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
         }
+
+        actionManager.startActionOnce('main_createTip3Token');
 
         try {
 
@@ -636,13 +700,23 @@ const RPC = {
 
             console.log(await tokenManager.getAccountTokens(publicKey, network.name))
 
-
+            actionManager.endAction('main_createTip3Token');
         } catch (e) {
+            actionManager.endAction('main_createTip3Token');
             console.error(e);
+            throw e;
         }
 
         return true;
-    }
+    },
+
+    /**
+     * Get any active actions
+     * @returns {Promise<*[]>}
+     */
+    main_getActiveActions: async function () {
+        return actionManager.getActiveActions();
+    },
 
 }
 
@@ -704,7 +778,7 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
     return keyPair;
 }
 
-let messenger, storage, keyring, networkManager, accountManager;
+let messenger, storage, keyring, networkManager, accountManager, actionManager;
 
 (async () => {
 //Messenger channel
@@ -720,6 +794,9 @@ let messenger, storage, keyring, networkManager, accountManager;
 
     networkManager = await (new NetworkManager()).initialize();
     window.networkManager = networkManager;
+
+    window.actionManager = actionManager = ActionProgressManager;
+
 
     window.freetonCrypto = FreetonCrypto;
 
