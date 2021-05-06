@@ -135,6 +135,28 @@ class walletWidget {
             await this.updateWalletWidget();
 
         }, UPDATE_INTERVAL)
+
+
+        setInterval(async () => {
+            await this.updateActiveActionsWidget();
+
+        }, 1000)
+
+
+    }
+
+    /**
+     * Update active actions widget
+     * @returns {Promise<void>}
+     */
+    async updateActiveActionsWidget() {
+        let activeActions = await this.messenger.rpcCall('main_getActiveActions', undefined, 'background');
+
+        if(activeActions.length !== 0) {
+            app.progressbar.show('multi')
+        } else {
+            app.progressbar.hide();
+        }
     }
 
     /**
@@ -142,6 +164,8 @@ class walletWidget {
      * @returns {Promise<void>}
      */
     async updateWalletWidget() {
+
+
         let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
         let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
 
@@ -209,6 +233,7 @@ class walletWidget {
             $('.deployWalletButton').hide();
             $('.ifWalletNotDeployed').hide();
         }
+
 
         await this.updateAssetsList();
 
