@@ -123,7 +123,7 @@ const RPC = {
     /**
      * createRunMessage mock
      * @param {string} publicKey
-     * @param {array} data
+     * @param {object} data
      * @returns {Promise<*>}
      */
     main_createRunMessage: async (publicKey, data) => {
@@ -133,6 +133,21 @@ const RPC = {
         return await ton.contracts.createRunMessage(data);
 
     },
+
+    /**
+     * createDeployMessage mock
+     * @param {string} publicKey
+     * @param {object} data
+     * @returns {Promise<*>}
+     */
+    main_createDeployMessage: async (publicKey, data) => {
+        data.keyPair = await getKeysFromDeployAcceptence(publicKey, 'createDeployMessage', data)
+
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+        return await ton.contracts.createDeployMessage(data);
+
+    },
+
 
     /**
      * Returns keys in keyring
@@ -282,7 +297,7 @@ const RPC = {
      * @param payload
      * @returns {Promise<void>}
      */
-    main_transfer: async (from, publicKey, to, amount, payload = '') => {
+    main_transfer: async (from, publicKey, to, amount, payload = '', openPopup = true) => {
 
         //Want to check sender or not? Need TODO disscused
 
@@ -299,7 +314,7 @@ const RPC = {
             let keyPair = await getKeysFromDeployAcceptence(publicKey, 'transfer', {
                 address: from,
                 additionalMessage: `${_('This action sends')} <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> ${network.network.tokenIcon} ${_('to')} <span class="intextWallet">${to}</span> ${_('wallet')}.`,
-            }, undefined, true);
+            }, undefined, !openPopup);
 
             await messenger.rpcCall('popup_showToast', [_('Transaction created')], 'popup');
 
@@ -307,7 +322,7 @@ const RPC = {
 
             actionManager.endAction('main_transfer');
 
-            return transferResult
+            return transferResult;
         } catch (e) {
             actionManager.endAction('main_transfer');
             throw e;

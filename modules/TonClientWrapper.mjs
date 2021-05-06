@@ -171,6 +171,24 @@ class TonClientWrapper extends EventEmitter3 {
             return await mockedMethod.apply(this, callParams);
         });
 
+        //createDeployMessage
+        this._mockTonMethod('contracts', 'createDeployMessage', async function (mockedMethod, callParams) {
+            if(callParams[0]) {
+                //If keypair defined
+                if(callParams[0].keyPair) {
+                    //And no private key provided, but public provided
+                    if(!callParams[0].keyPair.secret) {
+                        let publicKey = callParams[0].keyPair.public ? callParams[0].keyPair.public : null;
+                        if(await that.accounts.isKeyInKeyring(publicKey)) {
+                            //Run external sign
+                            return await that._extensionRPCCall('main_createDeployMessage', [publicKey, ...callParams]);
+                        }
+                    }
+                }
+            }
+            return await mockedMethod.apply(this, callParams);
+        });
+
         //Mock contracts runLocal
         this._mockTonMethod('contracts', 'runLocal', async function (mockedMethod, callParams) {
             if(callParams[0]) {
@@ -297,6 +315,19 @@ class TonClientWrapper extends EventEmitter3 {
             getWalletBalance: async (address) => {
                 return await that._extensionRPCCall('main_getWalletBalance', [address]);
             },
+
+            /**
+             * Request tokens transfer
+             * @param publicKey
+             * @param from
+             * @param to
+             * @param amount
+             * @param payload
+             * @returns {Promise<void>}
+             */
+            walletTransfer: async (publicKey, from, to, amount, payload = '') => {
+                return await that._extensionRPCCall('main_transfer', [from, publicKey, to, amount, payload]);
+            }
         }
     }
 

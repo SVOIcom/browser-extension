@@ -146,7 +146,8 @@ class Popups {
                             account.public,
                             address,
                             checker,
-                            payload
+                            payload,
+                            false
                         ], 'background'));
                     } catch (e) {
                         reject(e);
