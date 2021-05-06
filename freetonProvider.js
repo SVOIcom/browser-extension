@@ -13,6 +13,16 @@
  * @version 1.0
  */
 
+
+//TODO TEMP
+/*setTimeout(()=>{
+    console.log('MODIFY FREETON');
+    let _ = window.freeton.request;
+    window.freeton.request = async function(t,e){console.log(t,e); let result = await _(t,e); console.log('RESULT',result); return result; }
+
+}, 4)*/
+
+
 window._tonClient = null;
 
 /**
@@ -20,7 +30,7 @@ window._tonClient = null;
  * @returns {Promise<null|TonClientWrapper|*>}
  */
 async function getTON() {
-   const TonClientWrapper =  (await import("./modules/TonClientWrapper.mjs")).default;
+    const TonClientWrapper = (await import("./modules/TonClientWrapper.mjs")).default;
     if(window._tonClient) {
         return window._tonClient;
     }
@@ -44,5 +54,34 @@ window.addEventListener('load', async () => {
     if(typeof window.getTON === 'undefined') {
         window.getTON = getTON;
     }
+
+
 });
+
+window._emulateExtratonAccepted = null;
+if(typeof window.freeton === 'undefined') {
+    window.freeton = {
+        request: async (method, params) => {
+            let accept;
+            if(!window._emulateExtratonAccepted) {
+                accept = confirm('TONWallet detects requests to extraTON extension. TONWallet can emulate extraTON for some cases. \n \nAllow emulation?');
+            }
+
+            if(accept || window._emulateExtratonAccepted) {
+                window._emulateExtratonAccepted = true;
+                const ExtraTONEmulationProxy = (await import("./modules/ExtraTONEmulationProxy.mjs")).default;
+
+                await ExtraTONEmulationProxy.init();
+
+                window.freeton = ExtraTONEmulationProxy;
+                return await ExtraTONEmulationProxy.request(method, params);
+
+            } else {
+                window._emulateExtratonAccepted = false;
+
+                window.freeton = undefined;
+            }
+        }
+    };
+}
 

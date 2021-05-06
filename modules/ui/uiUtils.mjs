@@ -24,6 +24,8 @@ const uiUtils = {
      * @returns {Promise<*>}
      */
     openPopup: async () => {
+        console.log('OPEN POPUP');
+
         return browser.windows.create({
             url: 'popup.html',
             type: 'popup',
