@@ -125,6 +125,7 @@ class Contract {
             console.log(result);
 
             result.tx = transaction;
+            result.message = message;
 
             return result;
         } catch (e) {

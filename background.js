@@ -752,7 +752,7 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
     }
 
     //Simple timeout for initialization
-    await Utils.wait(1000)
+    await Utils.wait(2000)
 
     let allowSign = await messenger.rpcCall('popup_acceptSignMessage', [publicKey, type, callingData, acceptMessage], 'popup');
 

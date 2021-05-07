@@ -50,7 +50,13 @@ class ExtraTONEmulationProxy {
             case 'waitDeploy':
             case 'waitRun':
                 return await this._waitMessage(params);
+            case'getPublicKey':
+                return (await this.ton.accounts.getAccount()).public;
 
+            case'getAddress':
+                return (await this.ton.accounts.getWalletInfo()).address;
+            case 'transfer':
+                return this._transfer(params);
 
         }
 
@@ -147,6 +153,15 @@ class ExtraTONEmulationProxy {
      */
     async _waitMessage(params) {
         return await this.ton.contracts.waitForRunTransaction(params.message, params.processingState);
+    }
+
+
+    async _transfer(params) {
+        let transferResult = await this.ton.accounts.walletTransfer((await this.ton.accounts.getAccount()).public, params.walletAddress ? params.walletAddress : (await this.ton.accounts.getWalletInfo()).address, params.address, params.amount, params.payload ? params.payload : '');
+
+        console.log('TRANSFER RESULT', transferResult);
+
+        return {message: transferResult.message, processingState: transferResult.tx};
     }
 }
 
