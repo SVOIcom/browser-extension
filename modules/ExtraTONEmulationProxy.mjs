@@ -155,7 +155,12 @@ class ExtraTONEmulationProxy {
         return await this.ton.contracts.waitForRunTransaction(params.message, params.processingState);
     }
 
-
+    /**
+     * Transfer method mockup
+     * @param params
+     * @returns {Promise<{processingState: *, message: *}>}
+     * @private
+     */
     async _transfer(params) {
         let transferResult = await this.ton.accounts.walletTransfer((await this.ton.accounts.getAccount()).public, params.walletAddress ? params.walletAddress : (await this.ton.accounts.getWalletInfo()).address, params.address, params.amount, params.payload ? params.payload : '');
 
