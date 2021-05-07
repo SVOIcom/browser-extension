@@ -540,13 +540,12 @@ class Popups {
 
                     let message =
                         `Private key for 
-                        <span class="walletAddress"> <a data-clipboard="${pubKey}" class="autoClipboard">${Utils.shortenPubkey(pubKey)}</a> account is 
-                        <span class="walletAddress"> <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a></span>`
+                         <a data-clipboard="${pubKey}" class="autoClipboard">${Utils.shortenPubkey(pubKey)}</a> account is 
+                        <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a> (click for copy)`
 
                     // messenger.rpcCall('popup_alert', [text, publicKey], 'popup');
 
-                    app.dialog.alert(message, () => {
-                    });
+                    app.dialog.alert(message);
                     $('.autoClipboard').click(uiUtils.selfCopyElement());
 
 
