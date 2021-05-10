@@ -14,7 +14,6 @@
  */
 
 
-
 /*setTimeout(()=>{
     console.log('MODIFY FREETON');
     let _ = window.freeton.request;
@@ -27,9 +26,19 @@ window._tonClient = null;
 
 /**
  * Get FreeTON provider
+ * @deprecated
  * @returns {Promise<null|TonClientWrapper|*>}
  */
 async function getTON() {
+    console.log('Deprecated: Direct invoke getTON method is deprecated and will be removed in future versions. Use getTONWeb or getTONClient')
+    return await getTONWeb();
+}
+
+/**
+ * Get FreeTON provider
+ * @returns {Promise<null|TonClientWrapper|*>}
+ */
+async function getTONWeb() {
     const TonClientWrapper = (await import("./modules/TonClientWrapper.mjs")).default;
     if(window._tonClient) {
         return window._tonClient;
@@ -46,13 +55,50 @@ async function getTON() {
     return freeton;
 }
 
+/**
+ * Get TON client instance
+ * @returns {Promise<TonClientWrapper>}
+ */
+async function getTONClient() {
+    const NewTonClientWrapper = (await import("./modules/NewTonClientWrapper.mjs")).default;
+    if(window._tonNewClient) {
+        return window._tonNewClient;
+    }
+    if(window.tonNewWasmUrl) {
+        //Setup new FreeTON library
+        tonclientWeb.libWebSetup({
+            binaryURL: window.tonNewWasmUrl,
+        });
+        tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
+    }
+    let freeton = await (new NewTonClientWrapper()).create();
+
+    window._tonNewClient = freeton;
+
+    return freeton;
+}
+
 window.addEventListener('load', async () => {
 
     //Trying setup TON WASM client
     window.TONClient.setWasmOptions({binaryURL: window.tonWasmUrl});
 
+    //Setup new FreeTON library
+    tonclientWeb.libWebSetup({
+        binaryURL: window.tonNewWasmUrl,
+    });
+    tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
+
     if(typeof window.getTON === 'undefined') {
         window.getTON = getTON;
+    }
+
+    if(typeof window.getTONWeb === 'undefined') {
+        window.getTONWeb = getTONWeb;
+    }
+
+    if(typeof window.getTONClient === 'undefined') {
+        window.getTONClient = getTONClient;
     }
 
 

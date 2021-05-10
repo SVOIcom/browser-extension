@@ -92,8 +92,14 @@ function evalScript(source) {
 //Inject TONCLient
 injectScriptUrl(browser.extension.getURL("ton-client/main.js"));
 
+//Inject new TON lib
+injectScriptUrl(browser.extension.getURL("ton-client-js/main.js"));
+
 //Set FreeTON binary url
 evalScript(`window.tonWasmUrl = "${browser.extension.getURL("ton-client/tonclient.wasm")}"`);
+
+//Set new FreeTON binary url
+evalScript(`window.tonNewWasmUrl = "${browser.extension.getURL("ton-client-js/tonclient.wasm")}"`);
 
 //Thridrparty modules
 injectModuleUrl(browser.extension.getURL("modules/thirdparty/eventemitter3.min.js"));
