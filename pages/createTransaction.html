@@ -33,19 +33,30 @@
                     </div>
                 </li>
 
-                <li  class="item-content item-input item-input-outline">
+                <li class="item-content item-input item-input-outline  item-input-with-value" id="resolvedAddressHolder" style="display: none">
                     <div class="item-inner">
-                        <div  class="item-title item-floating-label localization">Amount *</div>
+                        <div class="item-title item-floating-label localization">Resolved domain address</div>
                         <div class="item-input-wrap">
-                            <input id="transferAmount" type="text" />
+                            <input id="resolvedAddress" readonly value="0:0" type="text"/>
+
+                        </div>
+                    </div>
+                </li>
+
+
+                <li class="item-content item-input item-input-outline">
+                    <div class="item-inner">
+                        <div class="item-title item-floating-label localization">Amount *</div>
+                        <div class="item-input-wrap">
+                            <input id="transferAmount" type="text"/>
                             <span class="input-clear-button"></span>
                         </div>
                     </div>
                 </li>
 
-                <li  class="item-content item-input item-input-outline transferCommentField">
+                <li class="item-content item-input item-input-outline transferCommentField">
                     <div class="item-inner">
-                        <div  class="item-title item-floating-label localization">Comment</div>
+                        <div class="item-title item-floating-label localization">Comment</div>
                         <div class="item-input-wrap">
                             <input id="transferComment" type="text" maxlength="120"/>
                             <span class="input-clear-button"></span>
@@ -55,8 +66,6 @@
 
             </ul>
         </div>
-
-
 
 
     </div>
