@@ -38,13 +38,6 @@
       "all_frames": true
     }
   ],
-  "externally_connectable": {
-    "matches": [
-      "file://*/*",
-      "http://*/*",
-      "https://*/*"
-    ]
-  },
   "web_accessible_resources": [
     "browser-polyfill.js",
     "ton-client/main.js",
