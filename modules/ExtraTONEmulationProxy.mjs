@@ -26,7 +26,7 @@ class ExtraTONEmulationProxy {
      * @returns {Promise<ExtraTONEmulationProxy>}
      */
     async init() {
-        this.ton = await getTON();
+        this.ton = await getTONWeb();
         return this;
     }
 

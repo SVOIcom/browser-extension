@@ -19,7 +19,8 @@ import Utils from "./utils.mjs";
 const DEFAULT_LANG = 'en_US';
 const DETECTED_LANG = (localStorage.getItem('language') || (window.navigator.language || 'en_US')).replace(/-/g, "_");
 const LOCALES = {
-    "ru_RU": await Utils.fetchJSON('/lang/ru_RU.json')
+    "ru_RU": await Utils.fetchJSON('/lang/ru_RU.json'),
+    "ru": await Utils.fetchJSON('/lang/ru_RU.json'),
 }
 
 const SUPPORT_LOCALES = {'en_US': 'English (US)', "ru_RU": 'Russian'}
