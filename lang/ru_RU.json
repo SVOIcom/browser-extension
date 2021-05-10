@@ -110,6 +110,9 @@
   "Invalid network name": "Некорректное имя сети",
   "Invalid network URL": "Некорректный адрес сети",
   "Decimals": "Количество чисел после точки",
+  "Resolved domain address": "Адрес домена",
+  "Transaction error": "Ошибка транзакции",
+  "Rejected by user": "Отклонено пользователем",
   "": "",
   "Select network": "Выбор сети"
 }

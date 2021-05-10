@@ -232,7 +232,33 @@ const Utils = {
      */
     string2Hex(str) {
         return Buffer.from(str, 'utf8').toString('hex');
+    },
+
+    /**
+     * Async JSONP
+     * @async
+     * @param url
+     * @param callback
+     * @returns {Promise<unknown>}
+     */
+    jsonp(url, callback = "jsonpCallback_" + String(Math.round(Math.random() * 100000))) {
+        return new Promise((resolve, reject) => {
+            try {
+                let script = document.createElement("script");
+
+                window[callback] = function (data) {
+                    window[callback] = undefined;
+                    resolve(data);
+                };
+                script.src = `${url}?callback=${callback}`;
+                document.body.appendChild(script);
+            } catch (e) {
+                reject(e);
+            }
+        });
     }
 };
+
+window._utils = Utils;
 
 export default Utils;
