@@ -42,6 +42,8 @@
     "browser-polyfill.js",
     "ton-client/main.js",
     "ton-client/tonclient.wasm",
+    "ton-client-js/tonclient.wasm",
+    "ton-client-js/main.js",
     "freetonProvider.js",
     "modules/*",
     "packages/*"
