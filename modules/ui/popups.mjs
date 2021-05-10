@@ -17,6 +17,7 @@ import Utils from "../utils.mjs";
 import EXCEPTIONS from "../const/Exceptions.mjs";
 import uiUtils from "./uiUtils.mjs";
 import LOCALIZATION from "../Localization.mjs";
+import DeNsResolver from "../partners/agual/DeNs/DeNsResolver.mjs";
 
 const $ = Dom7;
 const _ = LOCALIZATION._;
@@ -109,8 +110,29 @@ class Popups {
                     }
                 });
 
-                $('#transferAddress').on('keyup', () => {
+                $('#transferAddress').on('keyup', async () => {
                     let address = $('#transferAddress').val();
+
+                    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
+
+                    const resolver = new DeNsResolver(!(currentNetwork.name === 'main'));
+
+                    if(!Utils.validateTONAddress(address)) {
+                        try {
+                            address = await resolver.resolveAddress(address);
+                            $('#resolvedAddressHolder').show();
+                        } catch (e) {
+                            console.log(e);
+                            $('#resolvedAddressHolder').hide();
+                        }
+                    }
+
+                    $('#resolvedAddress').val(address);
+
+                    $('#transferAddress').parent().find('.input-clear-button').click(() => {
+                        $('#resolvedAddressHolder').hide();
+                    })
+
                     if(!Utils.validateTONAddress(address)) {
                         $('#transferAddress').parent().parent().parent().addClass('item-input-invalid');
                     } else {
@@ -120,7 +142,7 @@ class Popups {
 
                 $('#txTransfer').once('click', async () => {
                     let amount = $('#transferAmount').val();
-                    let address = $('#transferAddress').val();
+                    let address = $('#resolvedAddress').val();
                     let payload = $('#transferComment').val();
                     let checker = Utils.numberToUnsignedNumber(amount);
 
@@ -151,7 +173,9 @@ class Popups {
                         ], 'background'));
                     } catch (e) {
                         reject(e);
-                        app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
+                        console.error(e);
+                        app.dialog.alert(`${_('Transaction error')}: ${_(e.message)}`);
+                        // app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
                     }
 
 
@@ -386,18 +410,38 @@ class Popups {
                     }
                 });
 
-                $('#transferAddress').on('keyup', () => {
+                $('#transferAddress').on('keyup', async () => {
                     let address = $('#transferAddress').val();
+
+                    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
+
+                    const resolver = new DeNsResolver(!(currentNetwork.name === 'main'));
+
+                    if(!Utils.validateTONAddress(address)) {
+                        try {
+                            address = await resolver.resolveAddress(address);
+                            $('#resolvedAddressHolder').show();
+
+                        } catch (e) {
+                            $('#resolvedAddressHolder').hide();
+                        }
+                    }
+
+                    $('#resolvedAddress').val(address);
+
                     if(!Utils.validateTONAddress(address)) {
                         $('#transferAddress').parent().parent().parent().addClass('item-input-invalid');
                     } else {
                         $('#transferAddress').parent().parent().parent().removeClass('item-input-invalid');
                     }
                 });
+                $('#transferAddress').parent().find('.input-clear-button').click(() => {
+                    $('#resolvedAddressHolder').hide();
+                })
 
                 $('#txTransfer').once('click', async () => {
                     let amount = $('#transferAmount').val();
-                    let address = $('#transferAddress').val();
+                    let address = $('#resolvedAddress').val();
                     let checker = Utils.numberToUnsignedNumber(amount);
 
                     if(!Utils.validateTONAddress(address)) {

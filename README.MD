@@ -15,6 +15,8 @@ FreeTON network wallet and dapps connectivity provider
 * Create and transfer TIP3 fungible tokens (most advanced version of TIP3 fungible token contracts)
 * Work with the main and test FreeTON network, and add your custom one 
 * Select useful name for public key
+* ton-client-web-js and ton-client-js (partial) injection support
+* [Agual.TEAM freeton.domains DeNs](https://github.com/laugual) resolver
 
 And more
 
