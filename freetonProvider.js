@@ -14,13 +14,13 @@
  */
 
 
-//TODO TEMP
-setTimeout(()=>{
+
+/*setTimeout(()=>{
     console.log('MODIFY FREETON');
     let _ = window.freeton.request;
     window.freeton.request = async function(t,e){console.log(t,e); let result = await _(t,e); console.log('RESULT',result); return result; }
 
-}, 4)
+}, 4)*/
 
 
 window._tonClient = null;
