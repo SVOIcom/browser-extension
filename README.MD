@@ -17,6 +17,7 @@ FreeTON network wallet and dapps connectivity provider
 * Select useful name for public key
 * ton-client-web-js and ton-client-js (partial) injection support
 * [Agual.TEAM freeton.domains DeNs](https://github.com/laugual) resolver
+* Chromium-based browser support: Google Chrome, Opera, Brevity, Microsoft Edge and etc.
 
 And more
 
