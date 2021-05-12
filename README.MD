@@ -22,7 +22,17 @@ FreeTON network wallet and dapps connectivity provider
 And more
 
 
-## Usage
+## Installation
+
+1. Clone repo to any new folder on your computer.
+
+2. Go to browser > Main menu > More tools > Extensions
+
+3. Enable Developer mode
+
+4. Click "Load unpacked" and select extension folder
+
+OR
 
 You can install extension directly from Chrome Web Store.
 
