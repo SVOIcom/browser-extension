@@ -9,7 +9,7 @@ FreeTON network wallet and dapps connectivity provider
 ## Features
 
 * Darkmode support
-* Multilanguage (English and Russian for now)
+* Multilanguage (English, Russian and Spanish)
 * Create new seed phrase and keypair
 * Import existing seed phrase
 * Deploy SafeMultisig and SURF contract wallets

@@ -21,6 +21,8 @@ const DETECTED_LANG = (localStorage.getItem('language') || (window.navigator.lan
 const LOCALES = {
     "ru_RU": await Utils.fetchJSON('/lang/ru_RU.json'),
     "ru": await Utils.fetchJSON('/lang/ru_RU.json'),
+    "es_ES": await Utils.fetchJSON('/lang/es_ES.json'),
+    "es": await Utils.fetchJSON('/lang/es_ES.json'),
 }
 
 const SUPPORT_LOCALES = {'en_US': 'English (US)', "ru_RU": 'Russian'}
