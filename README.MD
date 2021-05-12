@@ -1,3 +1,5 @@
+![TONWallet](icons/128.png?raw=true)
+
 # TONWallet
 
 FreeTON network wallet and dapps connectivity provider
