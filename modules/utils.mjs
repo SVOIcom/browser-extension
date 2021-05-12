@@ -211,7 +211,7 @@ const Utils = {
      * @returns {boolean}
      */
     validateTONAddress(address) {
-        const regex = /^-?[0-9a-fA-F]?[0-9a-fA-F]:[a-fA-F0-9]{64}/gm;
+        const regex = /^-?[0-9a-fA-F]?[0-9a-fA-F]:[a-fA-F0-9]{64}$/gm;
 
         return (regex.exec(address)) !== null;
     },
