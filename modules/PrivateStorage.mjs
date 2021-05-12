@@ -15,6 +15,7 @@
 
 
 import {default as Crypto} from "./Crypto.mjs";
+import LocalStorage from "./LocalStorage.mjs";
 
 class PrivateStorage {
     constructor() {
@@ -23,6 +24,8 @@ class PrivateStorage {
     }
 
     async initialize(asEmpty = false) {
+
+        this._storage = await (new LocalStorage()).initialize();
 
         /**
          *
@@ -49,10 +52,7 @@ class PrivateStorage {
         value = JSON.stringify(value);
         let encryptedData = await this.crypto.encrypt(value, password);
 
-        let field = {};
-        field[key] = encryptedData;
-
-        return await browser.storage.sync.set(field);
+        return await this._storage.set(key, encryptedData.toString());
     }
 
     /**
@@ -62,12 +62,12 @@ class PrivateStorage {
      * @returns {Promise<*>}
      */
     async get(key, password) {
-        let encryptedData = await browser.storage.sync.get(key);
-        if(!encryptedData[key]) {
+        let encryptedData = await this._storage.get(key);
+        if(!encryptedData) {
             return null;
         }
 
-        return JSON.parse(await this.crypto.decrypt(encryptedData[key], password));
+        return JSON.parse(await this.crypto.decrypt(encryptedData, password));
     }
 
     /**
@@ -85,7 +85,7 @@ class PrivateStorage {
      * @returns {Promise<*>}
      */
     async del(key) {
-        await browser.storage.sync.remove(key);
+        await this._storage.del(key);
         return true;
     }
 
