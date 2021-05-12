@@ -6,6 +6,8 @@
    |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
 
  */
+import LocalStorage from "./LocalStorage.mjs";
+
 /**
  * @name FreeTON browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
@@ -14,47 +16,50 @@
  */
 
 
- class NameStorage {
- 
+class NameStorage {
+
+    constructor() {
+        this._storage = new LocalStorage();
+    }
+
     /**
      * Delete key from storage
      * @param key
      * @returns {Promise<*>}
      */
-     async get(key) {
-         let accountName =  (await browser.storage.sync.get(`${key}_name`))[`${key}_name`];
- 
-         if(!accountName){
-             return "";
-         }
-         return accountName;
-     }
- 
+    async get(key) {
+
+        let accountName = await this._storage.get(`${key}_name`);
+
+        if(!accountName) {
+            return "";
+        }
+        return accountName;
+    }
+
     /**
      * Delete key from storage
      * @param key
      * @param name
      * @returns {Promise<*>}
      */
-     async set(key, name="") {
-         let field = {};
-         field[`${key}_name`] = name;
-         await browser.storage.sync.set(field);
-         return true
-     }
- 
- 
-     /**
-      * Delete key from storage
-      * @param key
-      * @returns {Promise<*>}
-      */
-     async del(key) {
-         await browser.storage.sync.remove(`${key}_name`);
-         return true;
-     }
- 
- 
- }
- 
- export default new NameStorage();
+    async set(key, name = "") {
+        await this._storage.set(`${key}_name`, name);
+        return true
+    }
+
+
+    /**
+     * Delete key from storage
+     * @param key
+     * @returns {Promise<*>}
+     */
+    async del(key) {
+        await this._storage.del(`${key}_name`);
+        return true;
+    }
+
+
+}
+
+export default new NameStorage();
