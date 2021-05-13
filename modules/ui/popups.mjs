@@ -494,9 +494,10 @@ class Popups {
      * @param {string} rootTokenAddress
      * @param {string} publicKey
      * @param {ExtensionMessenger} messenger
+     * @param {string} userWalletAddress
      * @returns {Promise<unknown>}
      */
-    tokenWallet(rootTokenAddress, publicKey, messenger) {
+    tokenWallet(rootTokenAddress, publicKey, messenger, userWalletAddress) {
         return new Promise((resolve, reject) => {
             window.app.views.main.router.navigate("/tokenWallet");
 
@@ -541,7 +542,7 @@ class Popups {
                 });
 
                 $('.deployTokenWalletButton').click(async () => {
-                    let deployTokenWallet = await messenger.rpcCall('main_deployTokenWallet', [publicKey, rootTokenAddress, ], 'background');
+                    let deployTokenWallet = await messenger.rpcCall('main_deployTokenWallet', [publicKey, userWalletAddress, rootTokenAddress], 'background');
 
                 });
 

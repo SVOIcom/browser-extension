@@ -701,7 +701,7 @@ const RPC = {
 
             const token = await (new Token(newRootAddress, ton)).init();
 
-            let deployWalletResult = await token.deployWallet(options.initialMint, keyPair);
+            let deployWalletResult = await token.deployWallet(options.initialMint, null, keyPair);
 
             console.log('TIP3 deploy WALLET result', deployWalletResult);
 
@@ -733,7 +733,7 @@ const RPC = {
         return actionManager.getActiveActions();
     },
 
-    main_deployTokenWallet: async function (publicKey, tokenRootAddress) {
+    main_deployTokenWallet: async function (publicKey, walletAddress, tokenRootAddress) {
 
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
@@ -756,9 +756,18 @@ const RPC = {
             }, undefined, true);
 
 
-            let wallet = await (new Wallet(tokenWalletAddress, ton)).init();
+            let tokenWallet = await (new Wallet(tokenWalletAddress, ton)).init();
+            let wallet = await (new Wallet(walletAddress, ton)).init();
 
-            if(await wallet.getBalance() >= 1e9) {
+            let tokenWaletTONBalance = 0;
+            try {
+                tokenWaletTONBalance = await tokenWallet.getBalance();
+            } catch (e) {
+            }
+
+            if(tokenWaletTONBalance < 1e9) {
+
+                console.log('Transfering from', walletAddress, 'to',tokenWalletAddress );
 
                 //Transfer tokens for contact deploy
                 let transferResult = await wallet.transfer(tokenWalletAddress, 1e9, '', keyPair);
@@ -769,7 +778,7 @@ const RPC = {
             }
 
 
-            let deployWalletResult = await token.deployWallet(0, keyPair);
+            let deployWalletResult = await token.deployWallet(0, await (new Wallet(walletAddress, ton)).init(), keyPair);
 
             console.log('TIP3 deploy WALLET result', deployWalletResult);
 
@@ -844,6 +853,13 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
     return keyPair;
 }
 
+
+//Setup new TON libriary
+tonclientWeb.libWebSetup({
+    binaryURL: 'ton-client-js/tonclient.wasm',
+});
+tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
+
 let messenger, storage, keyring, networkManager, accountManager, actionManager;
 
 (async () => {
@@ -867,7 +883,7 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
     window.freetonCrypto = FreetonCrypto;
 
     let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
-    window.tip3 = await (new BroxusTIP3(ton, '0:0c4cad39cf61d92df6ab7c78552441b0524973e282f1e7a6acf5f06773cdc605')).init();
+    //window.tip3 = await (new BroxusTIP3(ton, '0:0c4cad39cf61d92df6ab7c78552441b0524973e282f1e7a6acf5f06773cdc605')).init();
 
     //If network changed, broadcast it to all tabs and popups
     networkManager.on(networkManager.EVENTS.networkChanged, async () => {
