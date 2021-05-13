@@ -17,18 +17,18 @@ const TOKEN_LIST = {
     TIP3_FUNGIBLE: [
         {
             classType: 'BroxusTIP3',
-            name: 'Test',
-            symbol: 'TT',
-            rootAddress: '0:0c4cad39cf61d92df6ab7c78552441b0524973e282f1e7a6acf5f06773cdc605',
-            icon: '<img src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2ecB13A8c458c379c4d9a7259e202De03c8F3D19/logo.png" class="tokenIcon">',
+            name: 'Wrapped TON',
+            symbol: 'WTON',
+            rootAddress: '0:eed3f331634d49a5da2b546f4652dd4889487a187c2ef9dd2203cff17b584e3d',
+            icon: '<img src="https://raw.githubusercontent.com/broxus/ton-assets/master/icons/WTONv3/logo.svg" class="tokenIcon">',
             url: '',
         },
         {
             classType: 'BroxusTIP3',
-            name: 'Wrapped Ruby',
-            symbol: 'WRUBY',
-            rootAddress: '0:e5863ff972464c4200dba9ed764d3a57533adb2bd4e88b9230859d1953b4b1d4',
-            icon: '<span style="color: red">♦️</span>',
+            name: 'Tether',
+            symbol: 'USDT',
+            rootAddress: '0:5b325f4f364366d9b3fe46cc77f622b013da7a7edf99a3d5d25e5510dca50d13',
+            icon: '<img src="https://raw.githubusercontent.com/broxus/ton-assets/master/icons/USDTv3/logo.svg" class="tokenIcon">',
             url: '',
         },
     ]

@@ -733,6 +733,57 @@ const RPC = {
         return actionManager.getActiveActions();
     },
 
+    main_deployTokenWallet: async function (publicKey, tokenRootAddress) {
+
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+
+        actionManager.startActionOnce('main_deployTokenWallet');
+
+        try {
+            let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+
+
+            const token = await (new Token(tokenRootAddress, ton)).init();
+
+            let tokenWalletAddress = await token.getPubkeyWalletAddress(publicKey);
+
+
+            let keyPair = await getKeysFromDeployAcceptence(publicKey, 'create_token', {
+                address: tokenWalletAddress,
+                additionalMessage: `${_('This action deploy new TIP3 token wallet')} 1 TON`,
+            }, undefined, true);
+
+
+            let wallet = await (new Wallet(tokenWalletAddress, ton)).init();
+
+            if(await wallet.getBalance() >= 1e9) {
+
+                //Transfer tokens for contact deploy
+                let transferResult = await wallet.transfer(tokenWalletAddress, 1e9, '', keyPair);
+
+                console.log('TIP3 wallet deploy transfer result', transferResult);
+            } else {
+                console.log('Wallet balance more than 1 TON, no pretransfer needed', tokenWalletAddress);
+            }
+
+
+            let deployWalletResult = await token.deployWallet(0, keyPair);
+
+            console.log('TIP3 deploy WALLET result', deployWalletResult);
+
+
+            actionManager.endAction('main_deployTokenWallet');
+
+            return deployResult;
+        } catch (e) {
+            actionManager.endAction('main_deployTokenWallet');
+            throw e;
+        }
+
+    },
+
 }
 
 
