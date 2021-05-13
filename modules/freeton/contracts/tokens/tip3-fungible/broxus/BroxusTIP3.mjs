@@ -155,29 +155,19 @@ class BroxusTIP3 {
     /**
      * Deploy token wallet
      * @param tokens
+     * @param {Wallet} userWallet
      * @param keyPair
      * @returns {Promise<*>}
      */
-    async deployWallet(tokens = 0, keyPair) {
+    async deployWallet(tokens = 0, userWallet = null, keyPair) {
         let publicKey = keyPair.public;
 
         try {
-            let params = {
-                address: this.rootAddress,
-                abi: this.RootABI,
-                functionName: 'deployWallet',
-                input: {
-                    tokens: tokens,
-                    wallet_public_key_: `0x${publicKey}`,
-                    deploy_grams: 2e8,
-                    gas_back_address: '0:0000000000000000000000000000000000000000000000000000000000000000',
-                    owner_address_: '0:0000000000000000000000000000000000000000000000000000000000000000',
-                },
-                keyPair
-            };
 
-            if(tokens === 0){
-                params = {
+
+            if(tokens === 0) {
+
+                let params = {
                     address: this.rootAddress,
                     abi: this.RootABI,
                     functionName: 'deployEmptyWallet',
@@ -187,26 +177,74 @@ class BroxusTIP3 {
                         gas_back_address: '0:0000000000000000000000000000000000000000000000000000000000000000',
                         owner_address_: '0:0000000000000000000000000000000000000000000000000000000000000000',
                     },
+                    // keyPair
+                };
+
+                console.log('Deploy TIP3 empty wallet params', params)
+                // let message = await this.ton.contracts.createRunMessage(params);
+
+                let tton = new tonclientWeb.TonClient()
+
+                let message = await tton.abi.encode_message_body({
+                    abi: {
+                        type: 'Json',
+                        value: JSON.stringify(this.RootABI)
+                    },
+                    call_set: {
+                        function_name: 'deployEmptyWallet',
+                        input: {
+                            wallet_public_key_: `0x${publicKey}`,
+                            deploy_grams: 2e8,
+                            gas_back_address: '0:0000000000000000000000000000000000000000000000000000000000000000',
+                            owner_address_: '0:0000000000000000000000000000000000000000000000000000000000000000',
+                        },
+                    },
+                    is_internal: true,
+                    signer: {type: 'None'}
+                });
+
+                console.log('DEPLOY MESSAGE ', message);
+
+                // throw 'ttt';
+
+                let transferResult = await userWallet.transfer(this.rootAddress, 3e8, message.body, keyPair);
+
+                console.log('DEPLOY TRANSFER RSULT ', transferResult);
+
+                tton.close();
+
+                return transferResult;
+            } else {
+                let params = {
+                    address: this.rootAddress,
+                    abi: this.RootABI,
+                    functionName: 'deployWallet',
+                    input: {
+                        tokens: tokens,
+                        wallet_public_key_: `0x${publicKey}`,
+                        deploy_grams: 2e8,
+                        gas_back_address: '0:0000000000000000000000000000000000000000000000000000000000000000',
+                        owner_address_: '0:0000000000000000000000000000000000000000000000000000000000000000',
+                    },
                     keyPair
                 };
+                console.log('BROXUS TIP3 RUN PARAMS', params)
+
+                let message = await this.ton.contracts.createRunMessage(params);
+
+                //console.log('BROXUS TIP3 RUN MSG', message)
+
+                let transaction = await this.ton.contracts.sendMessage(message.message);
+                //console.log('BROXUS TIP3 TX', transaction)
+
+                let result = await this.ton.contracts.waitForRunTransaction(message, transaction);
+
+                //console.log('BROXUS TIP3 TX RESULT',result);
+
+                result.tx = transaction;
+
+                return result;
             }
-
-            //console.log('BROXUS TIP3 RUN PARAMS', params)
-
-            let message = await this.ton.contracts.createRunMessage(params);
-
-            //console.log('BROXUS TIP3 RUN MSG', message)
-
-            let transaction = await this.ton.contracts.sendMessage(message.message);
-            //console.log('BROXUS TIP3 TX', transaction)
-
-            let result = await this.ton.contracts.waitForRunTransaction(message, transaction);
-
-            //console.log('BROXUS TIP3 TX RESULT',result);
-
-            result.tx = transaction;
-
-            return result;
         } catch (e) {
             console.log('DEPLOY ERROR', e);
             throw e;

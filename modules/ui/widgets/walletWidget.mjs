@@ -425,7 +425,13 @@ class walletWidget {
 
         $('.tokenButton').click(async function () {
             let tokenAddress = $(this).data('address');
-            await popups.tokenWallet(tokenAddress, account.public, that.messenger);
+            let account = await that.messenger.rpcCall('main_getAccount', undefined, 'background');
+            if(account.wallets[currentNetwork.name]) {
+                let wallet = account.wallets[currentNetwork.name];
+                await popups.tokenWallet(tokenAddress, account.public, that.messenger, wallet.address);
+            }else{
+
+            }
         })
     }
 }

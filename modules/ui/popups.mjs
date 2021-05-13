@@ -440,9 +440,12 @@ class Popups {
                 })
 
                 $('#txTransfer').once('click', async () => {
+
+                    let tokenInfo = await messenger.rpcCall('main_getTokenInfo', [rootTokenAddress], 'background');
+
                     let amount = $('#transferAmount').val();
                     let address = $('#resolvedAddress').val();
-                    let checker = Utils.numberToUnsignedNumber(amount);
+                    let checker = Utils.numberToUnsignedNumber(amount, tokenInfo.decimals);
 
                     if(!Utils.validateTONAddress(address)) {
                         return app.dialog.alert(_('Invalid address'));
@@ -491,9 +494,10 @@ class Popups {
      * @param {string} rootTokenAddress
      * @param {string} publicKey
      * @param {ExtensionMessenger} messenger
+     * @param {string} userWalletAddress
      * @returns {Promise<unknown>}
      */
-    tokenWallet(rootTokenAddress, publicKey, messenger) {
+    tokenWallet(rootTokenAddress, publicKey, messenger, userWalletAddress) {
         return new Promise((resolve, reject) => {
             window.app.views.main.router.navigate("/tokenWallet");
 
@@ -518,7 +522,7 @@ class Popups {
                 try {
                     tokenBalance = await messenger.rpcCall('main_getTokenBalance', [rootTokenAddress, publicKey], 'background');
 
-                    $('.tokenWalletBalance').text(Utils.unsignedNumberToSigned(tokenBalance));
+                    $('.tokenWalletBalance').text(Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals));
 
                     $('.ifTokenWalletNotExists').hide();
                     $('.ifTokenWalletExists').show();
@@ -535,7 +539,13 @@ class Popups {
                         //app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
                     }
                     console.log('Transaction created');
-                })
+                });
+
+                $('.deployTokenWalletButton').click(async () => {
+                    let deployTokenWallet = await messenger.rpcCall('main_deployTokenWallet', [publicKey, userWalletAddress, rootTokenAddress], 'background');
+
+                });
+
 
                 $('.autoClipboard').click(uiUtils.selfCopyElement());
 
