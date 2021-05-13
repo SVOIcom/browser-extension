@@ -111,7 +111,7 @@ class Theme {
      * @returns {boolean}
      */
     isDark() {
-        return window.globalTheme === 'dark' && app.darkTheme;
+        return window.globalTheme === 'dark' /*&& app.darkTheme*/;
     }
 }
 
