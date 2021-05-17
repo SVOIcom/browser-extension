@@ -30,7 +30,7 @@ class Wallet {
      * @returns {Promise<Wallet>}
      */
     async init() {
-        this.abi = await Utils.fetchJSON('/abi/SafeMultisigWallet.abi.json');
+        this.abi = await Utils.fetchJSON('/abi/SafeMultisigWallet.abi.json', true);
         this.contract = new Contract(this.abi, this.address, this.ton);
 
         return this;

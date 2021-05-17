@@ -30,8 +30,8 @@ class BroxusTIP3 {
     }
 
     async init() {
-        this.RootABI = await Utils.fetchJSON('/modules/freeton/contracts/tokens/tip3-fungible/broxus/RootTokenContract.abi.json');//1d0bafcaa5a39a39f7567bcd5ddaa556eaa12a4eecc87ea142bd0a991e9cf749
-        this.WalletABI = await Utils.fetchJSON('/modules/freeton/contracts/tokens/tip3-fungible/broxus/TONTokenWallet.abi.json');
+        this.RootABI = await Utils.fetchJSON('/modules/freeton/contracts/tokens/tip3-fungible/broxus/RootTokenContract.abi.json', true);//1d0bafcaa5a39a39f7567bcd5ddaa556eaa12a4eecc87ea142bd0a991e9cf749
+        this.WalletABI = await Utils.fetchJSON('/modules/freeton/contracts/tokens/tip3-fungible/broxus/TONTokenWallet.abi.json', true);
         return this;
     }
 

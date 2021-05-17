@@ -21,10 +21,12 @@ class ExtensionMessenger {
         this._externalRequests = {};
 
         //Listen new messages
-        browser.runtime.onMessage.addListener((msg, sender) => {
+
+        const eventsHandler = (msg, sender) => {
 
             //RPC call
             (async () => {
+                //console.log('EVENT HANDLER', msg, sender, this.reciver);
                 if(msg.rpc && (msg.target === this.reciver || msg.target === '*')) {
                     this.RPC.sender = msg.sender;
                     if(this.RPC[msg.method]) {
@@ -60,7 +62,19 @@ class ExtensionMessenger {
                             await browser.tabs.sendMessage(sender.tab.id, resultMsg)
                         } else {
                             resultMsg.target = msg.sender;
-                            await browser.runtime.sendMessage(resultMsg);
+                            if(window._isApp) {
+                                let postingObject = window.top;
+                                if(window._isTop) {
+                                    postingObject = document.querySelector('iframe').contentWindow;
+                                }
+
+                                postingObject.postMessage(resultMsg, '*');
+
+                            } else {
+                                await browser.runtime.sendMessage(resultMsg);
+                            }
+
+
                         }
 
 
@@ -76,7 +90,16 @@ class ExtensionMessenger {
                     delete this._externalRequests[msg.requestId];
                 }
             }
-        });
+        }
+
+        if(window._isApp) {
+            window.addEventListener('message', (event) => {
+                //console.log('INCOME EVENT', event);
+                eventsHandler(event.data, event.data.sender)
+            })
+        } else {
+            browser.runtime.onMessage.addListener(eventsHandler);
+        }
     }
 
     /**
@@ -105,15 +128,34 @@ class ExtensionMessenger {
                 return resolve(data.result);
             }
 
-            browser.runtime.sendMessage({
-                method: method,
-                rpc: true,
-                fromPage: true,
-                requestId,
-                params,
-                target,
-                sender: this.reciver
-            });
+            if(window._isApp) {
+                //console.log('SEND MESSAGE', this.reciver, method)
+
+                let postingObject = window.top;
+                if(window._isTop) {
+                    postingObject = document.querySelector('iframe').contentWindow;
+                }
+
+                postingObject.postMessage({
+                    method: method,
+                    rpc: true,
+                    //fromPage: true,
+                    requestId,
+                    params,
+                    target,
+                    sender: this.reciver
+                }, '*');
+            } else {
+                browser.runtime.sendMessage({
+                    method: method,
+                    rpc: true,
+                    fromPage: true,
+                    requestId,
+                    params,
+                    target,
+                    sender: this.reciver
+                });
+            }
         })
     }
 
@@ -140,6 +182,9 @@ class ExtensionMessenger {
      * @returns {Promise<void>}
      */
     async broadcastTabsMessage(type, data = {}) {
+        if(window._isApp) {
+            return;
+        }
         await this._broadcastTabsMessage({broadcastMessage: type, data, target: '*'})
     }
 

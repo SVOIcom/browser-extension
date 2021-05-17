@@ -102,7 +102,7 @@
     color: #9f9f9f;
 }
 
-.selectNetworkActions .actions-button {
+.aurora .selectNetworkActions .actions-button {
     height: auto;
     line-height: 20px;
 }
@@ -242,4 +242,8 @@
 #accountList {
     margin-right: -15px;
     margin-left: -15px;
+}
+
+.md .tab-link-highlight {
+    display: none;
 }
