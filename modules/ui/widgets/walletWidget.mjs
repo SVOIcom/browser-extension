@@ -120,7 +120,7 @@ class walletWidget {
                 try {
                     await this.messenger.rpcCall('main_deployWallet', [account.public, wallet.type], 'background');
                 } catch (e) {
-                    app.dialog.alert(_('Wallet deploy error') + `: ${JSON.stringify(e)}`);
+                    app.dialog.alert(_('Wallet deploy error') + ':' + e.message);
                 }
 
                 await this.updateWalletWidget();
@@ -429,7 +429,7 @@ class walletWidget {
             if(account.wallets[currentNetwork.name]) {
                 let wallet = account.wallets[currentNetwork.name];
                 await popups.tokenWallet(tokenAddress, account.public, that.messenger, wallet.address);
-            }else{
+            } else {
 
             }
         })
