@@ -196,12 +196,34 @@ const Utils = {
         return this.hexToBase64(data);
     },
 
+    fetchLocal(url) {
+        return new Promise(function (resolve, reject) {
+            var xhr = new XMLHttpRequest
+            xhr.onload = function () {
+                resolve(new Response(xhr.response, {status: xhr.status}))
+            }
+            xhr.onerror = function () {
+                reject(new TypeError('Local request failed'))
+            }
+            xhr.open('GET', url)
+            xhr.responseType = "arraybuffer";
+            xhr.send(null)
+        })
+    },
+
     /**
      * Get JSON file
      * @param {string} url
+     * @param {boolean} local
      * @returns {Promise<any>}
      */
-    async fetchJSON(url) {
+    async fetchJSON(url, local = false) {
+        if(url.includes('file:') || local) {
+            if(!url.includes('file:') && window._isApp) {
+                url = 'file:///android_asset/www' + url;
+            }
+            return await (await this.fetchLocal(url)).json();
+        }
         return await ((await fetch(url))).json();
     },
 

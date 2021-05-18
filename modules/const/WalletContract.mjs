@@ -35,15 +35,15 @@ class WalletContract {
      */
     static async SafeMultisig() {
         return {
-            abi: await Utils.fetchJSON('/abi/SafeMultisigWallet.abi.json'),
-            imageBase64: await Utils.fetchJSON('/abi/contracts/SafeMultisigWallet.base64.json')
+            abi: await Utils.fetchJSON('/abi/SafeMultisigWallet.abi.json', true),
+            imageBase64: await Utils.fetchJSON('/abi/contracts/SafeMultisigWallet.base64.json', true)
         }
     }
 
     static async SurfMultisig() {
         return {
-            abi: await Utils.fetchJSON('/abi/SurfMultisigWallet.abi.json'),
-            imageBase64: await Utils.fetchJSON('/abi/contracts/SurfMultisigWallet.base64.json')
+            abi: await Utils.fetchJSON('/abi/SurfMultisigWallet.abi.json', true),
+            imageBase64: await Utils.fetchJSON('/abi/contracts/SurfMultisigWallet.base64.json', true)
         }
     }
 

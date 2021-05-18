@@ -15,7 +15,7 @@
 
 import Utils from "../../utils.mjs";
 import uiUtils from "../uiUtils.mjs";
-import {default as popups} from "/modules/ui/popups.mjs"
+import {default as popups} from "../popups.mjs"
 import LOCALIZATION from "../../Localization.mjs";
 
 

@@ -25,247 +25,266 @@ import accountWidget from "./modules/ui/widgets/accountWidget.mjs";
 import Utils from "./modules/utils.mjs";
 import LOCALIZATION from "./modules/Localization.mjs";
 
-const _ = LOCALIZATION._;
+async function startPopup() {
+    const _ = LOCALIZATION._;
 
-const RPC = {
-    'popup_test': async (a, b) => {
-        return a * b;
-    },
-    'popup_fall': async () => {
-        throw EXCEPTIONS.testException;
-    },
-    popup_testSign: (message, publicKey) => {
-        return new Promise((resolve, reject) => {
-            app.dialog.confirm(`${message} Pubkey: ${publicKey}`, _(`Action required`), () => {
-                resolve(true)
-            }, () => {
-                resolve(false)
-            });
-        })
-    },
-
-    /**
-     * Show toast message
-     * @param message
-     * @returns {Toast.Toast}
-     */
-    popup_showToast: (message) => {
-        return new Promise((resolve, reject) => {
-            app.toast.create({
-                closeTimeout: 3000,
-                destroyOnClose: true,
-                text: message
-            }).open();
-            resolve(true);
-        });
-
-    },
-
-    /**
-     * Show password input window
-     * @param message
-     * @param publicKey
-     * @returns {Promise<unknown>}
-     */
-    popup_password: (message, publicKey) => {
-        return new Promise((resolve, reject) => {
-
-            app.dialog.password(`${message} \n${_('Action password required for public key')}: ${Utils.shortenPubkey(publicKey)}`, _('Password required'), (password) => {
-                resolve(password)
-            }, () => {
-                resolve(false)
-            });
-        })
-    },
-
-    /**
-     * Show alert
-     * @param message
-     * @returns {Promise<unknown>}
-     */
-    popup_alert: (message) => {
-        return new Promise((resolve, reject) => {
-            return app.dialog.alert(message, () => {
-                resolve()
+    const RPC = {
+        'popup_test': async (a, b) => {
+            return a * b;
+        },
+        'popup_fall': async () => {
+            throw EXCEPTIONS.testException;
+        },
+        popup_testSign: (message, publicKey) => {
+            return new Promise((resolve, reject) => {
+                app.dialog.confirm(`${message} Pubkey: ${publicKey}`, _(`Action required`), () => {
+                    resolve(true)
+                }, () => {
+                    resolve(false)
+                });
             })
-        });
-    },
+        },
 
-    /**
-     * Close current window
-     * @returns {Promise<boolean>}
-     */
-    popup_close: async () => {
-        setTimeout(() => {
-            window.close();
-        }, 10);
-        return true;
-    },
+        /**
+         * Show toast message
+         * @param message
+         * @returns {Toast.Toast}
+         */
+        popup_showToast: (message) => {
+            return new Promise((resolve, reject) => {
+                app.toast.create({
+                    closeTimeout: 3000,
+                    destroyOnClose: true,
+                    text: message
+                }).open();
+                resolve(true);
+            });
 
-    /**
-     * Network changed event
-     * @returns {Promise<boolean>}
-     */
-    popup_networkChanged: async () => {
-        console.log('NETWORK CHANGED');
-        await network.updateNetworkWidget();
-        await wallet.updateWalletWidget();
-        return true;
-    },
+        },
 
-    /**
-     * Account changed event
-     * @returns {Promise<boolean>}
-     */
-    popup_accountChanged: async () => {
-        console.log('ACCOUNT CHANGED');
-        await account.updateAccountWidget();
-        await wallet.updateWalletWidget();
-        return true;
-    },
+        /**
+         * Show password input window
+         * @param message
+         * @param publicKey
+         * @returns {Promise<unknown>}
+         */
+        popup_password: (message, publicKey) => {
+            return new Promise((resolve, reject) => {
 
-    /**
-     * Show accept signing window
-     * @param publicKey
-     * @param type
-     * @param callingData
-     * @param acceptMessage
-     * @returns {Promise<*>}
-     */
-    popup_acceptSignMessage: async (publicKey, type = 'run', callingData, acceptMessage) => {
-        callingData.additionalMessage = !callingData.additionalMessage ? acceptMessage : callingData.additionalMessage;
-        return popups.acceptTransaction(publicKey, type, callingData);
+                app.dialog.password(`${message} \n${_('Action password required for public key')}: ${Utils.shortenPubkey(publicKey)}`, _('Password required'), (password) => {
+                    resolve(password)
+                }, () => {
+                    resolve(false)
+                });
+            })
+        },
+
+        /**
+         * Show alert
+         * @param message
+         * @returns {Promise<unknown>}
+         */
+        popup_alert: (message) => {
+            return new Promise((resolve, reject) => {
+                return app.dialog.alert(message, () => {
+                    resolve()
+                })
+            });
+        },
+
+        /**
+         * Close current window
+         * @returns {Promise<boolean>}
+         */
+        popup_close: async () => {
+            setTimeout(() => {
+                window.close();
+            }, 10);
+            return true;
+        },
+
+        /**
+         * Network changed event
+         * @returns {Promise<boolean>}
+         */
+        popup_networkChanged: async () => {
+            console.log('NETWORK CHANGED');
+            await network.updateNetworkWidget();
+            await wallet.updateWalletWidget();
+            return true;
+        },
+
+        /**
+         * Account changed event
+         * @returns {Promise<boolean>}
+         */
+        popup_accountChanged: async () => {
+            console.log('ACCOUNT CHANGED');
+            await account.updateAccountWidget();
+            await wallet.updateWalletWidget();
+            return true;
+        },
+
+        /**
+         * Show accept signing window
+         * @param publicKey
+         * @param type
+         * @param callingData
+         * @param acceptMessage
+         * @returns {Promise<*>}
+         */
+        popup_acceptSignMessage: async (publicKey, type = 'run', callingData, acceptMessage) => {
+            callingData.additionalMessage = !callingData.additionalMessage ? acceptMessage : callingData.additionalMessage;
+            return popups.acceptTransaction(publicKey, type, callingData);
+        }
     }
-}
-let messenger = new ExtensionMessenger('popup', RPC);
-popups.messenger = messenger;
-window.messenger = messenger;
+    let messenger = new ExtensionMessenger('popup', RPC);
+    popups.messenger = messenger;
+    window.messenger = messenger;
 
 // Dom7
-const $ = Dom7;
+    const $ = Dom7;
 
+
+    let appTheme = "aurora";
+    if(window._isApp){
+        if(navigator.userAgent.toLowerCase().includes('android')){
+            appTheme = 'md';
+        }
+
+        if(navigator.platform.toLowerCase().includes('ios')){
+            appTheme = 'ios';
+        }
+    }
 
 // Init App
-const app = new Framework7({
-    id: "tonwallet",
-    root: "#app",
-    theme: "aurora",
-    autoDarkTheme: true,
-    view: {stackPages: true,},
-    dialog: {
-        title: 'TONWallet',
-    },
-    data: function () {
-        return {
-            user: {
-                firstName: "John",
-                lastName: "Doe",
+    const app = new Framework7({
+        id: "tonwallet",
+        root: "#app",
+        theme: appTheme,
+        autoDarkTheme: true,
+        view: {stackPages: true,},
+        dialog: {
+            title: 'TONWallet',
+        },
+        data: function () {
+            return {
+                user: {
+                    firstName: "John",
+                    lastName: "Doe",
+                },
+            };
+        },
+        methods: {
+            helloWorld: function () {
+                app.dialog.alert("Hello World!");
             },
-        };
-    },
-    methods: {
-        helloWorld: function () {
-            app.dialog.alert("Hello World!");
         },
-    },
-    on: {
-        pageAfterIn: async function (event, page) {
-            await theme.updateState();
+        on: {
+            pageAfterIn: async function (event, page) {
+                await theme.updateState();
+            },
+            pageInit: async function (event, page) {
+
+            },
         },
-        pageInit: async function (event, page) {
-
+        routes: ROUTES,
+        popup: {
+            closeOnEscape: true,
         },
-    },
-    routes: ROUTES,
-    popup: {
-        closeOnEscape: true,
-    },
-    sheet: {
-        closeOnEscape: true,
-    },
-    popover: {
-        closeOnEscape: true,
-    },
-    actions: {
-        closeOnEscape: true,
-    },
-});
-window.app = app;
+        sheet: {
+            closeOnEscape: true,
+        },
+        popover: {
+            closeOnEscape: true,
+        },
+        actions: {
+            closeOnEscape: true,
+        },
+    });
+    window.app = app;
 
-await theme.updateState();
-await theme.loadState();
+    await theme.updateState();
+    await theme.loadState();
 
 
-window.theme = theme;
+    window.theme = theme;
 
-window.popups = popups;
+    window.popups = popups;
 
-let walletsObj = (await messenger.rpcCall('main_getAccount', undefined, 'background')).public;
+    let walletsObj = (await messenger.rpcCall('main_getAccount', undefined, 'background')).public;
 // console.log(walletsObj, "<<<<<<");
 // popups.initPage();
 
-if(walletsObj == null) {
-    popups.initPage();
-}
+    if(walletsObj == null) {
+        popups.initPage();
+    }
 
-LOCALIZATION.updateLocalization();
+    LOCALIZATION.updateLocalization();
 
 
 //Glue code
-let account = accountWidget(messenger, app);
-await account.updateAccountWidget();
+    let account = accountWidget(messenger, app);
+    await account.updateAccountWidget();
 
-let network = networkWidget(messenger, app);
-await network.updateNetworkWidget();
+    let network = networkWidget(messenger, app);
+    await network.updateNetworkWidget();
 
-let wallet = walletWidget(messenger, app);
-await wallet.updateWalletWidget();
+    let wallet = walletWidget(messenger, app);
+    await wallet.updateWalletWidget();
 
-LOCALIZATION.updateLocalization();
-LOCALIZATION.startTimer();
+    LOCALIZATION.updateLocalization();
+    LOCALIZATION.startTimer();
 
 
-$('.sendMoneyButton').click(async () => {
+    $('.sendMoneyButton').click(async () => {
 
-    try {
-        await popups.createTransaction();
-    } catch (e) {
-        //app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
-    }
-    console.log('Transaction created');
-})
+        try {
+            await popups.createTransaction();
+        } catch (e) {
+            //app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
+        }
+        console.log('Transaction created');
+    })
 
-/**
- * Update sidebar accounts list
- * @returns {Promise<void>}
- */
-async function updateAccountsInSettings() {
-    $('#accountList').empty();
+    /**
+     * Update sidebar accounts list
+     * @returns {Promise<void>}
+     */
+    async function updateAccountsInSettings() {
+        $('#accountList').empty();
 
-    let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
+        let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
 
-    for (let pubKey of pubKeys) {
-        let accHaveName = await messenger.rpcCall('main_getAccountName', [pubKey], 'background');
-        let buttonText = Utils.shortenPubkey(pubKey);
-        if(accHaveName !== "") {
-            buttonText = accHaveName;
+        for (let pubKey of pubKeys) {
+            let accHaveName = await messenger.rpcCall('main_getAccountName', [pubKey], 'background');
+            let buttonText = Utils.shortenPubkey(pubKey);
+            if(accHaveName !== "") {
+                buttonText = accHaveName;
+            }
+
+
+            let appendStr = `<li><a href="" id="${pubKey}">${buttonText}</a></li>`;
+            $('#accountList').append(appendStr);
+            $(`#${pubKey}`).on('click', () => {
+                popups.accSettings(pubKey);
+                app.panel.close('right', true);
+
+            });
         }
 
-
-        let appendStr = `<li><a href="" id="${pubKey}">${buttonText}</a></li>`;
-        $('#accountList').append(appendStr);
-        $(`#${pubKey}`).on('click', () => {
-            popups.accSettings(pubKey);
-            app.panel.close('right', true);
-
-        });
     }
 
+    window.updateAccounsInSettings = updateAccountsInSettings
+
+    $('#openSettings').on('click', async () => {
+        await updateAccountsInSettings();
+        app.panel.open($('.panel-right'));
+    })
 }
 
-window.updateAccounsInSettings = updateAccountsInSettings
+if(!window._isApp) {
+    startPopup();
+}
 
-$('#openSettings').on('click', async () => {
-    await updateAccountsInSettings();
-    app.panel.open($('.panel-right'));
-})
+export default startPopup;

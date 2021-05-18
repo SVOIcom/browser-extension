@@ -33,16 +33,16 @@ class TIP3Contract {
 
     static async BroxusTIP3Root() {
         return {
-            abi: await Utils.fetchJSON('/abi/BroxusTIP3Root.abi.json'),
-            imageBase64: await Utils.fetchJSON('/abi/contracts/BroxusTIP3Root.base64.json')
+            abi: await Utils.fetchJSON('/abi/BroxusTIP3Root.abi.json', true),
+            imageBase64: await Utils.fetchJSON('/abi/contracts/BroxusTIP3Root.base64.json', true)
         }
     }
 
     static async BroxusTIP3Wallet() {
         return {
-            abi: await Utils.fetchJSON('/abi/BroxusTIP3Wallet.abi.json'),
-            imageBase64: await Utils.fetchJSON('/abi/contracts/BroxusTIP3Wallet.base64.json'),
-            compiled: await Utils.fetchJSON('/abi/contracts/BroxusTIP3WalletCompiled.base64.json'),
+            abi: await Utils.fetchJSON('/abi/BroxusTIP3Wallet.abi.json', true),
+            imageBase64: await Utils.fetchJSON('/abi/contracts/BroxusTIP3Wallet.base64.json', true),
+            compiled: await Utils.fetchJSON('/abi/contracts/BroxusTIP3WalletCompiled.base64.json', true),
         }
     }
 
