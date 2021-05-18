@@ -6,6 +6,8 @@
    |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
 
  */
+import FreetonInstance from "./freeton/FreetonInstance.mjs";
+
 /**
  * @name FreeTON browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
@@ -56,6 +58,41 @@ const Utils = {
         ],
         "events": [],
         "data": []
+    },
+    TRANSFER_ABI: {
+        "ABI version": 2,
+        "functions": [
+            {
+                "name": "transfer",
+                "id": "0x00000000",
+                "inputs": [
+                    {
+                        "name": "comment",
+                        "type": "bytes"
+                    }
+                ],
+                "outputs": []
+            }
+        ],
+        "events": [],
+        "data": []
+    },
+
+    /**
+     * Encode payload comment
+     * @param comment
+     * @returns {Promise<*>}
+     */
+    async encodePayloadComment(comment) {
+        comment = Utils.string2Hex(comment);
+        const ton = await FreetonInstance.getFreeTON();
+
+        return (await ton.contracts.createRunBody({
+            abi: Utils.TRANSFER_ABI,
+            function: 'transfer',
+            params: {comment},
+            internal: true
+        })).bodyBase64
     },
 
     /**

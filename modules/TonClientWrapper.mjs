@@ -16,6 +16,10 @@
 import MESSAGES from "./const/Messages.mjs";
 import Utils from "./utils.mjs";
 
+if(!window.EventEmitter3){
+    window.EventEmitter3 = class Temp{};
+}
+
 class TonClientWrapper extends EventEmitter3 {
 
     /**

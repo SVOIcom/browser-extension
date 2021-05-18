@@ -395,7 +395,16 @@ const RPC = {
      * @returns {Promise<*>}
      */
     main_getKeysFromSeedPhrase: async (seed) => {
-        return await freetonCrypto.seedToKeypair(seed);
+        return await freetonCrypto.seedOrPrivateToKeypair(seed);
+    },
+
+    /**
+     * Returns encoded comment payload
+     * @param comment
+     * @returns {Promise<*>}
+     */
+    main_encodePayloadComment: async (comment) => {
+        return await Utils.encodePayloadComment(comment);
     },
 
     /**
@@ -767,7 +776,7 @@ const RPC = {
 
             if(tokenWaletTONBalance < 1e9) {
 
-                console.log('Transfering from', walletAddress, 'to',tokenWalletAddress );
+                console.log('Transfering from', walletAddress, 'to', tokenWalletAddress);
 
                 //Transfer tokens for contact deploy
                 let transferResult = await wallet.transfer(tokenWalletAddress, 1e9, '', keyPair);
