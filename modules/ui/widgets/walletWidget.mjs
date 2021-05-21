@@ -348,7 +348,7 @@ class walletWidget {
 
             html += ` <li>
                         <a href="#" data-address="${tokenAddress}" class="item-link item-content tokenButton">
-                            <div class="item-media">${tokenInfo.icon}</div>
+                            <div class="item-media">${tokenInfo.icon?tokenInfo.icon:''}</div>
                             <div class="item-inner">
                                 <div class="item-title">${tokenInfo.name} (${tokenInfo.symbol})</div>
                                 <div class="item-after">${tokenInfo.fungible ? (tokenBalance !== null ? Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals) : 'Not deployed') : 'NFT'}</div>
