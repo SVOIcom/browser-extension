@@ -119,7 +119,7 @@ class Popups {
 
                     if(!Utils.validateTONAddress(address)) {
                         try {
-                            address = await resolver.resolveAddress(address);
+                            address = await resolver.resolveAddress(address.toLowerCase());
                             $('#resolvedAddressHolder').show();
                         } catch (e) {
                             console.log(e);
@@ -157,6 +157,11 @@ class Popups {
                     let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
                     let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
 
+                    let encodedPayload = ''
+                    if(payload.length !== 0) {
+                        encodedPayload = await this.messenger.rpcCall('main_encodePayloadComment', [payload], 'background');
+                    }
+
 
                     console.log(account.wallets[currentNetwork.name]);
 
@@ -168,7 +173,7 @@ class Popups {
                             account.public,
                             address,
                             checker,
-                            payload,
+                            encodedPayload,
                             false
                         ], 'background'));
                     } catch (e) {
@@ -337,17 +342,21 @@ class Popups {
                     passwordCheck = validatePassword();
                     policyCheck = checkPolicyCheckbox();
                     if(passwordCheck === 1 && policyCheck === 1) {
-                        let keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
+                        try {
+                            let keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
 
-                        let publicKey = keyPair.public;
-                        let privateKey = keyPair.secret;
-                        let password = $("#password").val();
+                            let publicKey = keyPair.public;
+                            let privateKey = keyPair.secret;
+                            let password = $("#password").val();
 
 
-                        await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
-                        await this.messenger.rpcCall('main_changeAccount', [publicKey,], 'background');
+                            await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
+                            await this.messenger.rpcCall('main_changeAccount', [publicKey,], 'background');
 
-                        location.reload();
+                            location.reload();
+                        } catch (e) {
+                            app.dialog.alert(_('Error') + ':' + e.message);
+                        }
                     }
                 });
 
@@ -419,7 +428,7 @@ class Popups {
 
                     if(!Utils.validateTONAddress(address)) {
                         try {
-                            address = await resolver.resolveAddress(address);
+                            address = await resolver.resolveAddress(address.toLowerCase());
                             $('#resolvedAddressHolder').show();
 
                         } catch (e) {
@@ -584,25 +593,32 @@ class Popups {
                 });
 
                 $("#forgetAccount").on("click", async () => {
-                    await this.messenger.rpcCall('main_deleteAccount', [pubKey], 'background');
-                    location.reload();
-                    self.initPage();
+                    try {
+                        await this.messenger.rpcCall('main_deleteAccount', [pubKey], 'background');
+                        location.reload();
+                        self.initPage();
+                    } catch (e) {
+                        app.dialog.alert(_('Error') + ':' + e.message);
+                    }
                 });
 
                 $("#getAccountInfo").on("click", async () => {
-                    let keyPair = await this.messenger.rpcCall('main_getAccountInfo', [pubKey], 'background');
+                    try {
+                        let keyPair = await this.messenger.rpcCall('main_getAccountInfo', [pubKey], 'background');
 
-                    let message =
-                        `Private key for 
+                        let message =
+                            `Private key for 
                          <a data-clipboard="${pubKey}" class="autoClipboard">${Utils.shortenPubkey(pubKey)}</a> account is 
                         <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a> (click for copy)`
 
-                    // messenger.rpcCall('popup_alert', [text, publicKey], 'popup');
+                        // messenger.rpcCall('popup_alert', [text, publicKey], 'popup');
 
-                    app.dialog.alert(message);
-                    $('.autoClipboard').click(uiUtils.selfCopyElement());
+                        app.dialog.alert(message);
+                        $('.autoClipboard').click(uiUtils.selfCopyElement());
 
-
+                    } catch (e) {
+                        app.dialog.alert(_('Error') + ':' + e.message);
+                    }
                 });
 
                 $('#returnButton').once('click', () => {

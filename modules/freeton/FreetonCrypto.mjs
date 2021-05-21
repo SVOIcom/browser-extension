@@ -14,6 +14,7 @@
  */
 
 import FreetonInstance from "./FreetonInstance.mjs";
+
 export const MNEMONIC_DICTIONARY = {
     TON: 0,
     ENGLISH: 1,
@@ -35,13 +36,30 @@ export const HD_PATH = "m/44'/396'/0'/0/0";
 
 class FreetonCrypto {
 
+    /**
+     * Create SEED phrase
+     * @param dict
+     * @param length
+     * @returns {Promise<*>}
+     */
     static async generateSeed(dict = MNEMONIC_DICTIONARY.ENGLISH, length = SEED_LENGTH.w12) {
         const ton = await FreetonInstance.getFreeTON();
         return await ton.crypto.mnemonicFromRandom({dictionary: dict, wordCount: length});
     }
 
-    static async seedToKeypair(seed, dict = MNEMONIC_DICTIONARY.ENGLISH, length = SEED_LENGTH.w12) {
+    /**
+     * Seed phrase or private key to keypair
+     * @param seed
+     * @param dict
+     * @param length
+     * @returns {Promise<*>}
+     */
+    static async seedOrPrivateToKeypair(seed, dict = MNEMONIC_DICTIONARY.ENGLISH, length = SEED_LENGTH.w12) {
         const ton = await FreetonInstance.getFreeTON();
+        //Is a private key
+        if(seed.length === 64) {
+            return await ton.crypto.naclBoxKeypairFromSecretKey(seed);
+        }
         return await ton.crypto.mnemonicDeriveSignKeys({
             dictionary: dict,
             wordCount: length,
