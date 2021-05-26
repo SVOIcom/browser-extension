@@ -131,3 +131,37 @@ if(typeof window.freeton === 'undefined') {
     };
 }
 
+
+window._emulateCrystalAccepted = null;
+if(typeof window.ton === 'undefined') {
+
+    const CrystalWalletEmulationProxy = (await import("./modules/CrystalWalletEmulationProxy.mjs")).default;
+
+    window.ton = CrystalWalletEmulationProxy;
+
+
+
+
+    window._notProxiedRequest =  window.ton.request;
+
+
+    window.ton.request = async (request) => {
+            let accept;
+            if(!window._emulateCrystalAccepted) {
+                accept = confirm('TONWallet detects requests to CrystalWallet extension. TONWallet can emulate CrystalWallet for some cases. \n \nAllow emulation?');
+            }
+
+            if(accept || window._emulateCrystalAccepted) {
+                console.log('Crystal wallet emulation allowed. Redirect request ', request)
+                window._emulateCrystalAccepted = true;
+                await CrystalWalletEmulationProxy.init();
+                return await  window._notProxiedRequest(request);
+            } else {
+                window._emulateCrystalAccepted = false;
+
+                window.ton = undefined;
+            }
+        }
+
+}
+
