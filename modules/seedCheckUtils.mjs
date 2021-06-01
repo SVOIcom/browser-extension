@@ -102,14 +102,14 @@
         if (self.dataForCheckUses == 3) {
             self.dataForCheck = await self.getDataForCheck();
             self.dataForCheckUses = 0
-            console.log(self.dataForCheck, self.dataForCheckUses, "<<<<<")
+            // console.log(self.dataForCheck, self.dataForCheckUses, "<<<<<")
         }
 
         let roundObj = self.dataForCheck[self.dataForCheckUses];
     
         // console.log("enter");
 
-        let quizQuestion = `Select word from seed on position: ${roundObj.position}`
+        let quizQuestion = `${LOCALIZATION._("Select word from seed on position")}: ${roundObj.position}`
     
         $('#quiz').empty();
         $("#quizQuestion").text(quizQuestion);
@@ -139,7 +139,7 @@
                 $(`#${index}`).on('click', async () => {
 
                     self.correctCounter++
-                    console.log(self.correctCounter);
+                    // console.log(self.correctCounter);
                     $(`#${index}`).addClass("color-green");
 
                     self.quizeProgressSet();
@@ -168,7 +168,7 @@
             }
             else{
                 $(`#${index}`).on('click', async () => {
-                    console.log(self.correctCounter);
+                    // console.log(self.correctCounter);
                     $(`#${index}`).addClass("color-red");
 
                     for (let [index, data] of buttonTextObj.entries()) {
@@ -188,7 +188,7 @@
         }
 
         self.dataForCheckUses++;
-        console.log("dataForCheckUses:", self.dataForCheckUses);
+        // console.log("dataForCheckUses:", self.dataForCheckUses);
 
     
     }

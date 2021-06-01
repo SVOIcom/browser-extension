@@ -115,5 +115,7 @@
   "Transaction error": "Ошибка транзакции",
   "Rejected by user": "Отклонено пользователем",
   "": "",
-  "Select network": "Выбор сети"
+  "Select network": "Выбор сети",
+  "Seed phrase check": "Проверка seed фразы",
+  "Select word from seed on position": "Выберите слово из seed фразы на позиции"
 }

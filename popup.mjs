@@ -241,7 +241,7 @@ async function startPopup() {
     console.log(currentLang);
     $(`#${currentLang}`).attr("style", "color: blue");
 
-    $("#languageMenu li a").on("click",function(e) {
+    $("#languageMenu li a").on("click", function(e) {
         // $(this).attr("style", "color: blue");
 
         // $("#languageMenu li a").find(".colour-change").attr("style", "");
@@ -256,10 +256,6 @@ async function startPopup() {
         $(this).attr("style", "color: blue");
 
         LOCALIZATION.changeLang($(this).attr("id"));
-
-
-
-
         
     })
 

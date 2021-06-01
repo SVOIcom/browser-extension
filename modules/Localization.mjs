@@ -60,6 +60,7 @@ const LOCALIZATION = {
 
         return LOCALES[currentLang][string];
     },
+
     /**
      * Update plain class localization
      */
@@ -70,11 +71,16 @@ const LOCALIZATION = {
 
         localizeElements.forEach((locElement) => {
             locElement = $(locElement);
+
+            // if(currentLang === DEFAULT_LANG) {
+            //     locElement.attr("origin-en-text", `${locElement.text()}`);
+            // }
+
             locElement.text(LOCALIZATION._(locElement.text()));
+
 
             locElement.addClass('localization-complete');
         });
-
 
     },
     /**
