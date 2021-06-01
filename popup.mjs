@@ -239,7 +239,7 @@ async function startPopup() {
 
     let currentLang = LOCALIZATION.currentLang;
     console.log(currentLang);
-    $(`#${currentLang}_button`).attr("style", "color: blue");
+    $(`#${currentLang}`).attr("style", "color: blue");
 
     $("#languageMenu li a").on("click",function(e) {
         // $(this).attr("style", "color: blue");
@@ -251,14 +251,11 @@ async function startPopup() {
         // console.log(e.target);
         // console.log(Dom7(this));
 
-
-
-
         $("#languageMenu").find(".colour-change").attr("style", "");
 
         $(this).attr("style", "color: blue");
 
-        LOCALIZATION.changeLang(`${e.target.id}`);
+        LOCALIZATION.changeLang($(this).attr("id"));
 
 
 
