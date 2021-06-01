@@ -102,6 +102,9 @@ const LOCALIZATION = {
         currentLang = lang;
         LOCALIZATION.resetPlainLocalization();
         LOCALIZATION.updateLocalization();
+
+        // In russian it means kostyl
+        location.reload();
     }
 }
 
