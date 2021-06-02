@@ -141,7 +141,7 @@ const Utils = {
             return '0';
         }
 
-        return String(amount.toFixed(precision));
+        return String(BigNumber(amount).toFixed(precision));
     },
     /**
      * Js number to raw unsigned number
@@ -150,7 +150,10 @@ const Utils = {
      * @returns {number}
      */
     numberToUnsignedNumber(num, decimals = 9) {
-        return Number(Number(num).toFixed(decimals).replace('.', ''))
+        if(decimals === 0) {
+            return BigNumber(num).toFixed(decimals);
+        }
+        return (BigNumber(num).toFixed(decimals).replace('.', ''))
     },
     /**
      * Raw unsigned number to js number
@@ -159,7 +162,10 @@ const Utils = {
      * @returns {number}
      */
     unsignedNumberToSigned(num, decimals = 9) {
-        return Number(Number(Number(num) / Math.pow(10, decimals)).toFixed(9));
+        if(decimals === 0) {
+            return BigNumber(num).toFixed(decimals);
+        }
+        return BigNumber(num).div(Math.pow(10, decimals)).toFixed(decimals);
     },
     /**
      * Big number to big string
