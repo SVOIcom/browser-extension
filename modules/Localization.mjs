@@ -75,16 +75,13 @@ const LOCALIZATION = {
             locElement = $(locElement);
 
             if(!freezeLang) {
-                console.log(currentLang, "<><><><><><><><>");
                 locElement.data("original", `${locElement.text()}`);
-                console.log(locElement.data("original"), "---------------------------------------------------")
                 
             }
 
             // locElement.attr("origin-en-text", `${locElement.text()}`);
 
             // locElement.text(LOCALIZATION._(locElement.text()));
-            console.log(locElement.data("original"), "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
 
             if (locElement.data("original")){
@@ -93,8 +90,6 @@ const LOCALIZATION = {
             else {
                 locElement.text(LOCALIZATION._(locElement.text()));
             }
-
-
 
             locElement.addClass('localization-complete');
         });
