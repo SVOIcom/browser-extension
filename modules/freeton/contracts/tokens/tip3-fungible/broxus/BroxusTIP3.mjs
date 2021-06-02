@@ -75,7 +75,7 @@ class BroxusTIP3 {
         });
 
 
-        return Number(runResult.output.value0);
+        return runResult.output.value0;
     }
 
     /**
