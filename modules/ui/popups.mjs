@@ -19,6 +19,8 @@ import uiUtils from "./uiUtils.mjs";
 import LOCALIZATION from "../Localization.mjs";
 import DeNsResolver from "../partners/agual/DeNs/DeNsResolver.mjs";
 
+import SeedCheckUtils from "../seedCheckUtils.mjs"
+
 const $ = Dom7;
 const _ = LOCALIZATION._;
 
@@ -343,17 +345,25 @@ class Popups {
                     policyCheck = checkPolicyCheckbox();
                     if(passwordCheck === 1 && policyCheck === 1) {
                         try {
-                            let keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
+                            // let keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
 
-                            let publicKey = keyPair.public;
-                            let privateKey = keyPair.secret;
                             let password = $("#password").val();
 
+                            self.checkSeed(seedPhraseVal, password);
 
-                            await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
-                            await this.messenger.rpcCall('main_changeAccount', [publicKey,], 'background');
 
-                            location.reload();
+                            // let publicKey = keyPair.public;
+                            // let privateKey = keyPair.secret;
+                            // let password = $("#password").val();
+
+
+                            // await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
+                            // await this.messenger.rpcCall('main_changeAccount', [publicKey,], 'background');
+
+                            // location.reload();
+
+
+
                         } catch (e) {
                             app.dialog.alert(_('Error') + ':' + e.message);
                         }
@@ -364,6 +374,81 @@ class Popups {
                     policyCheck = checkPolicyCheckbox();
                 });
 
+                $('#returnButton').once('click', () => {
+                    Utils.appBack();
+                });
+
+                LOCALIZATION.updateLocalization();
+
+            });
+
+        });
+    }
+
+    /**
+     * Check that user get his seed phrase
+     * @returns {Promise<unknown>}
+     */
+    checkSeed(seedPhrase, password) {
+        return new Promise(async (resolve, reject) => {
+
+            let self = this;
+
+            const seedCheckUtils = new SeedCheckUtils(seedPhrase, password, this.messenger);
+
+            
+
+            // async function getterCalback(result){
+
+            //     if (result){
+            //         correctCounter++
+            //     }
+
+            //     console.log(correctCounter);
+            // }
+
+            
+
+            window.app.views.main.router.navigate("/checkSeed");
+
+            app.once('pageInit', async () => {
+
+                console.log("test<<<");
+                
+
+                // let dataForCheck = seedCheckUtils.getDataForCheck();
+
+                // console.log(dataForCheck)
+
+                
+                await seedCheckUtils.formNewRound();
+
+            
+
+
+
+
+                // let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
+        
+                // for (let pubKey of pubKeys) {
+                //     let accHaveName = await messenger.rpcCall('main_getAccountName', [pubKey], 'background');
+                //     let buttonText = Utils.shortenPubkey(pubKey);
+                //     if(accHaveName !== "") {
+                //         buttonText = accHaveName;
+                //     }
+        
+        
+                //     let appendStr = `<li><a href="" id="${pubKey}">${buttonText}</a></li>`;
+                //     $('#accountList').append(appendStr);
+                //     $(`#${pubKey}`).on('click', () => {
+                //         popups.accSettings(pubKey);
+                //         app.panel.close('right', true);
+        
+                //     });
+                // }
+
+
+               
                 $('#returnButton').once('click', () => {
                     Utils.appBack();
                 });

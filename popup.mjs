@@ -237,6 +237,30 @@ async function startPopup() {
     LOCALIZATION.startTimer();
 
 
+    let currentLang = LOCALIZATION.currentLang;
+    console.log(currentLang);
+    $(`#${currentLang}`).attr("style", "color: blue");
+
+    $("#languageMenu li a").on("click", function(e) {
+        // $(this).attr("style", "color: blue");
+
+        // $("#languageMenu li a").find(".colour-change").attr("style", "");
+        // $(`#${e.target.id}`).attr("style", "color: blue");
+        // LOCALIZATION.changeLang(`${e.target.id}`);
+
+        // console.log(e.target);
+        // console.log(Dom7(this));
+
+        $("#languageMenu").find(".colour-change").attr("style", "");
+
+        $(this).attr("style", "color: blue");
+
+        LOCALIZATION.changeLang($(this).attr("id"));
+        
+    })
+
+
+
     $('.sendMoneyButton').click(async () => {
 
         try {
@@ -281,6 +305,11 @@ async function startPopup() {
         await updateAccountsInSettings();
         app.panel.open($('.panel-right'));
     })
+
+
+
+
+
 }
 
 if(!window._isApp) {

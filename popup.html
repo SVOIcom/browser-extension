@@ -86,6 +86,72 @@
                                 </label>
                             </div>
 
+                            <!-- <div class="row">
+                                <p class="localization">Switch language</p>
+                                <div class="menu" style="z-index: 1001;">
+                                    <div class="menu-inner">
+                                       <div class="menu-item menu-item-dropdown menu-item-dropdown-opened">
+                                          <div class="menu-item-content">En</div>
+                                          <div class="menu-dropdown menu-dropdown-right">
+                                             <div class="menu-dropdown-content">
+                                                <a href="#" class="menu-dropdown-link menu-close">En</a>
+                                                <a href="#" class="menu-dropdown-link menu-close">Rus</a>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                            </div> -->
+
+
+                            <p class="localization">Switch language</p>
+
+                             <div id="languageMenu" class="list media-list menu-list">
+                                <ul>
+                                    <li>
+                                        <a href="#" id="en_US" class="item-content item-link colour-change">
+                                           <div class="item-media"><img src="pictures/uk-16.png"></div>
+                                           <div class="item-inner">
+                                              <div class="item-title-wrap">
+                                                 <div id="en_US_" class="item-title" >English</div>
+                                              </div>
+                                              <!-- <div class="item-subtitle">subtitle</div> -->
+                                           </div>
+                                        </a>
+                                    </li>
+
+                                   <li>
+                                      <a href="#" id="ru_RU" class="item-content item-link colour-change">
+                                         <div class="item-media"><img src="pictures/russia-16.png"></div>
+                                         <div class="item-inner">
+                                            <div class="item-title-wrap">
+                                               <div id="ru_RU_" class="item-title">Russian</div>
+                                            </div>
+                                            <!-- <div class="item-subtitle">subtitle</div> -->
+                                         </div>
+                                      </a>
+                                   </li>
+
+                                   <li>
+                                    <a href="#" id="es_ES" class="item-content item-link colour-change">
+                                       <div class="item-media"><img src="pictures/spain-16.png"></div>
+                                       <div class="item-inner">
+                                          <div class="item-title-wrap">
+                                             <div id="es_ES_" class="item-title">Spanish</div>
+                                          </div>
+                                          <!-- <div class="item-subtitle">subtitle</div> -->
+                                       </div>
+                                    </a>
+                                 </li>
+
+                                </ul>
+                             </div>
+
+                             <!-- style="color: blue" -->
+
+                             <!-- $('#translate-russian').attr("style", "color: red") -->
+
+
                             <p class="localization">Accounts settings</p>
 
                             <div class="list links-list">
@@ -220,5 +286,31 @@
 
 <script src="browser-polyfill.js"></script>
 <script type="module" src="popup.mjs"></script>
+
+
+
+
+
+<script>
+    export default (props, { $update }) => {
+      let selected = 'home';
+      let selectedMedia = 'home';
+  
+      const setItem = (newItem) => {
+        selected = newItem;
+        $update();
+      }
+      const setItemMedia = (newItem) => {
+        selectedMedia = newItem;
+        $update();
+      }
+      return $render;
+    }
+  </script>
+
+
+
+
+
 </body>
 </html>
