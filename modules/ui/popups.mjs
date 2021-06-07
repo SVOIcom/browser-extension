@@ -606,6 +606,13 @@ class Popups {
                 $('.tokenName').text(tokenInfo.name);
                 $('.tokenWalletAddress').html(`<a data-clipboard="${walletAddress}" class="autoClipboard" ><i class="material-icons buttonIcon">content_copy</i>${Utils.shortenPubkey(walletAddress)}</a>`)
                 $('.tokenRootAddress').html(`<a data-clipboard="${rootTokenAddress}" class="autoClipboard" >${Utils.shortenPubkey(rootTokenAddress)}</a>`);
+               try {
+                   let balance = await messenger.rpcCall('main_getWalletBalance', [walletAddress], 'background');
+                   $('.tokenTonBalance').html(Utils.unsignedNumberToSigned(balance));
+               }catch (e){
+                   $('.tokenTonBalance').html(``);
+                   console.log('ERROR GETTING TOKEN WALLET TON BALANCE', e)
+               }
 
                 $('.tokenWalletTokenIcon').html(tokenInfo.icon);
 
