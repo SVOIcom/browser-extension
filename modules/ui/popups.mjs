@@ -240,11 +240,35 @@ class Popups {
             let passwordCheck = 0;
             let policyCheck = 0;
             let seedPhraseEntered = 0;
+            let keyPairEntered = 0;
             let seedPhraseCheck = 0;
+
+            let seedPhraseField = true;
 
             app.once('pageInit', () => {
 
                 policyCheck = checkPolicyCheckbox();
+
+                $("#restoreBySeed").on("click", function(){
+                    $(this).addClass("button-active");
+                    $("#restoreByKeys").removeClass("button-active");
+
+                    $("#restoreBySeedField").attr("style","");
+                    $("#restoreByKeysField").attr("style","display: none;");
+
+                    seedPhraseField = true;
+                });
+                
+
+                $("#restoreByKeys").on("click", function(){
+                    $(this).addClass("button-active");
+                    $("#restoreBySeed").removeClass("button-active");
+
+                    $("#restoreByKeysField").attr("style","");
+                    $("#restoreBySeedField").attr("style","display: none;");
+
+                    seedPhraseField = false;
+                });
 
                 $("#policy1").on("click", () => {
                     self.goToPolicy();
@@ -252,30 +276,78 @@ class Popups {
 
                 $("#submit").on("click", async () => {
                     passwordCheck = validatePassword();
-                    seedPhraseEntered = checkSeedPhraseExist();
+                    // seedPhraseEntered = checkSeedPhraseExist();
+                    // keyPairEntered = checkKeyPairExist();
                     policyCheck = checkPolicyCheckbox();
 
-                    if(seedPhraseEntered === 1 && passwordCheck === 1 && policyCheck === 1) {
-                        let seedPhraseVal = $("#seedPhaseArea").val();
+                    let requireDefined = 0;
+
+                    if (seedPhraseField){
+                        requireDefined = checkSeedPhraseExist();
+                    } else {
+                        requireDefined = checkKeyPairExist();
+                    }
+
+                    if( requireDefined && passwordCheck === 1 && policyCheck === 1) {
+
+                        let seedPhraseVal = "";
+
+                        if (seedPhraseField){
+                            seedPhraseVal = $("#seedPhaseArea").val();
+
+                            let seedPhraseWordsList = seedPhraseVal.match(/([a-z]+)/g);
+
+                            seedPhraseVal = seedPhraseWordsList.join(' ');
+
+                            // console.log()
+                        }
+
+                        // console.log(seedPhraseVal);
 
                         try {
-                            let keyPair = ""
+                            let publicKey = ""
+                            let privateKey = ""
+                            let password = ""
+                            
+                            let keyPair = {}
 
-                            try {
-                                keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
-                                seedPhraseCheck = 1;
-                            } catch (e) {
-                                seedPhraseCheck = seedPhraseInvalid(e.code);
-                                return false;
+                            if (seedPhraseField){
+
+                                try {
+                                    // console.log(seedPhraseVal, "<<<<<<<<<<<<<<<<<<<<<<<<");
+                                    keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
+                                    seedPhraseCheck = 1;
+                                } catch (e) {
+                                    seedPhraseCheck = seedPhraseInvalid(e.code);
+                                    return false;
+                                }
+
+                                // Utils.appBack("/", {force : true,  reloadCurrent: true, ignoreCache: true,});
+                                // Utils.reloadPage();
+                                // location.reload();
+
+                                publicKey = keyPair.public;
+                                privateKey = keyPair.secret;
+
+                                console.log(publicKey, privateKey)
+                                console.log("seedPhraseField");
+                                
+
+                            } else {
+
+                                if (!keysInvalid()) {throw new Error("keysInvalid: keys that entered is not 64 characters long")}
+
+                                publicKey = $("#publicKeyField").val();
+                                privateKey = $("#privateKeyField").val();
+
+                                console.log(publicKey, privateKey)
+                                console.log("keysField");
                             }
+                            
 
-                            // Utils.appBack("/", {force : true,  reloadCurrent: true, ignoreCache: true,});
-                            // Utils.reloadPage();
-                            // location.reload();
-
-                            let publicKey = keyPair.public;
-                            let privateKey = keyPair.secret;
-                            let password = $("#password").val();
+                            // console.log("7e778c9cf16b8d6938413e1f2f57bb4a5170adf5096e421a03b09606bc8848dd".length)
+                            // throw new Error("puk");
+                            password = $("#password").val();
 
                             try {
                                 await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
@@ -283,7 +355,13 @@ class Popups {
                                 seedPhraseCheck = 1;
 
                             } catch (e) {
-                                seedPhraseCheck = seedPhraseInvalid(e.code);
+                                if (seedPhraseField){
+                                    seedPhraseCheck = seedPhraseInvalid(e.code);
+                                } else {
+                                    seedPhraseCheck = keysInvalid(e.code);
+                                }
+                                
+                                console.log(e)
                                 return false;
 
                             }
