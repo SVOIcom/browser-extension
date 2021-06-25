@@ -297,7 +297,7 @@ const RPC = {
      * @param payload
      * @returns {Promise<void>}
      */
-    main_transfer: async (from, publicKey, to, amount, payload = '', openPopup = true) => {
+    main_transfer: async function(from, publicKey, to, amount, payload = '', openPopup = true)  {
 
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;

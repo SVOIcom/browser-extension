@@ -326,6 +326,8 @@ class walletWidget {
      */
     async updateAssetsList(userWalletAddress) {
 
+
+
         const that = this;
         let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
         let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
@@ -383,7 +385,7 @@ class walletWidget {
                     app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: _('Token adding error')}).open();
                 }
 
-                await that.updateAssetsList(this.wallet?.address);
+                await that.updateAssetsList(that.wallet?.address);
 
             }
 
