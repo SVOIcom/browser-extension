@@ -220,15 +220,17 @@ function validatePassword() {
 
         validFlag = 0
 
-        } else {
+        } else if (errCode) {
 
-        keysAreaLi.removeClass('item-input-invalid');
-        keysAreaLi2.removeClass('item-input-invalid');
+        keysAreaLi.addClass('item-input-invalid');
+        keysAreaLi2.addClass('item-input-invalid');
 
-        publicKeyField.removeClass("input-invalid");
-        privateKeyField.removeClass("input-invalid");
+        publicKeyField.addClass("input-invalid");
+        privateKeyField.addClass("input-invalid");
 
-        return 1;
+        seedPhaseAreaLabel.text("This keys is invalid");
+
+        validFlag = 0
     }
 
     return validFlag;
