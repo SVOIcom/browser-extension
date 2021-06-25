@@ -15,6 +15,8 @@
 
 import Utils from "../../../../../utils.mjs";
 import FreetonDeploy from "../../../../FreetonDeploy.mjs";
+import FreetonInstance from "../../../../FreetonInstance.mjs";
+import Wallet from "../../../Wallet.mjs";
 
 class BroxusTIP3 {
 
@@ -83,7 +85,7 @@ class BroxusTIP3 {
      * @param {string} publicKey
      * @returns {Promise<string>}
      */
-    async getWalletAddress(publicKey) {
+    async getWalletAddressByPubkey(publicKey) {
         const runResult = await this.ton.contracts.runLocal({
             abi: this.RootABI,
             functionName: 'getWalletAddress',
@@ -98,6 +100,27 @@ class BroxusTIP3 {
         return runResult.output.value0;
     }
 
+    /**
+     * Returns token wallet by multisig address
+     * @param multisigWalletAddress
+     * @returns {Promise<*>}
+     */
+    async getWalletAddressByMultisig(multisigWalletAddress) {
+        const runResult = await this.ton.contracts.runLocal({
+            abi: this.RootABI,
+            functionName: 'getWalletAddress',
+            input: {
+                wallet_public_key_: `0x0000000000000000000000000000000000000000000000000000000000000000`,
+                owner_address_: multisigWalletAddress,
+                _answer_id: 0
+            },
+            address: this.rootAddress
+        });
+
+        return runResult.output.value0;
+    }
+
+
 
     /**
      * Transfer tokens
@@ -110,7 +133,7 @@ class BroxusTIP3 {
 
         //console.log('TIP# pretransfer', dest, amount, keyPair)
 
-        let walletAddress = await this.getWalletAddress(keyPair.public);
+        let walletAddress = await this.getWalletAddressByPubkey(keyPair.public);
 
         //console.log('TIP# pretransfer2', walletAddress)
 
@@ -153,6 +176,56 @@ class BroxusTIP3 {
     }
 
     /**
+     * Transfer tokens by multisig
+     * @param dest
+     * @param amount
+     * @param keyPair
+     * @param multisigAddress
+     * @returns {Promise<*>}
+     */
+    async multisigTransfer(dest, amount, keyPair, multisigAddress) {
+
+        const ton = await FreetonInstance.getFreeTON();
+
+        console.log('TIP# pretransfer', dest, amount, keyPair)
+
+        let walletAddress = await this.getWalletAddressByMultisig(multisigAddress);
+
+        console.log('TIP# pretransfer2', walletAddress)
+
+        try {
+
+            const payload = (await ton.contracts.createRunBody({
+                abi: this.WalletABI,
+                function: 'transfer',
+                params: {
+                    to: dest,
+                    tokens: amount,
+                    grams: 2e8,
+                    send_gas_to: multisigAddress,//'0:0000000000000000000000000000000000000000000000000000000000000000',
+                    notify_receiver: true,
+                    payload: ''
+                },
+                internal: true
+            })).bodyBase64;
+
+            console.log('BROXUS TIP3 PAYLOAD', payload)
+
+            let wallet = await (new Wallet(multisigAddress, this.ton)).init();
+
+            let transferResult = await wallet.transfer(walletAddress, 2e8, payload, keyPair);
+
+            console.log('BROXUS TIP3 TRANSFER RESULT', transferResult)
+
+            return transferResult;
+
+        } catch (e) {
+            console.log('DEPLOY ERROR', e);
+            throw e;
+        }
+    }
+
+    /**
      * Deploy token wallet
      * @param tokens
      * @param {Wallet} userWallet
@@ -172,10 +245,11 @@ class BroxusTIP3 {
                     abi: this.RootABI,
                     functionName: 'deployEmptyWallet',
                     input: {
-                        wallet_public_key_: `0x${publicKey}`,
+                        wallet_public_key_: `0x0000000000000000000000000000000000000000000000000000000000000000`,
+                        //wallet_public_key_: `0x${publicKey}`,
                         deploy_grams: 2e8,
-                        gas_back_address: '0:0000000000000000000000000000000000000000000000000000000000000000',
-                        owner_address_: '0:0000000000000000000000000000000000000000000000000000000000000000',
+                        gas_back_address: userWallet.address,//'0:0000000000000000000000000000000000000000000000000000000000000000',
+                        owner_address_: userWallet.address//'0:0000000000000000000000000000000000000000000000000000000000000000',
                     },
                     // keyPair
                 };
@@ -193,10 +267,11 @@ class BroxusTIP3 {
                     call_set: {
                         function_name: 'deployEmptyWallet',
                         input: {
-                            wallet_public_key_: `0x${publicKey}`,
+                            wallet_public_key_: `0x0000000000000000000000000000000000000000000000000000000000000000`,
+                            //wallet_public_key_: `0x${publicKey}`,
                             deploy_grams: 2e8,
-                            gas_back_address: '0:0000000000000000000000000000000000000000000000000000000000000000',
-                            owner_address_: '0:0000000000000000000000000000000000000000000000000000000000000000',
+                            gas_back_address: userWallet.address,//'0:0000000000000000000000000000000000000000000000000000000000000000',
+                            owner_address_: userWallet.address//'0:0000000000000000000000000000000000000000000000000000000000000000',
                         },
                     },
                     is_internal: true,
@@ -221,10 +296,11 @@ class BroxusTIP3 {
                     functionName: 'deployWallet',
                     input: {
                         tokens: tokens,
-                        wallet_public_key_: `0x${publicKey}`,
+                        wallet_public_key_: `0x0000000000000000000000000000000000000000000000000000000000000000`,
+                        //wallet_public_key_: `0x${publicKey}`,
                         deploy_grams: 2e8,
-                        gas_back_address: '0:0000000000000000000000000000000000000000000000000000000000000000',
-                        owner_address_: '0:0000000000000000000000000000000000000000000000000000000000000000',
+                        gas_back_address: userWallet.address,//'0:0000000000000000000000000000000000000000000000000000000000000000',
+                        owner_address_: userWallet.address//'0:0000000000000000000000000000000000000000000000000000000000000000',
                     },
                     keyPair
                 };

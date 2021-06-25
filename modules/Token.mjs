@@ -77,9 +77,20 @@ class Token {
      * @returns {Promise<*>}
      */
     async getPubkeyBalance(publicKey) {
-        let walletAddress = await this.tokenContract.getWalletAddress(publicKey);
+        let walletAddress = await this.tokenContract.getWalletAddressByPubkey(publicKey);
         return await this.getBalance(walletAddress);
     }
+
+    /**
+     * Get balance by multisig address
+     * @param multisigAddress
+     * @returns {Promise<*>}
+     */
+    async getMultisigBalance(multisigAddress) {
+        let walletAddress = await this.tokenContract.getWalletAddressByMultisig(multisigAddress);
+        return await this.getBalance(walletAddress);
+    }
+
 
     /**
      * Get wallet address by public key
@@ -87,8 +98,18 @@ class Token {
      * @returns {Promise<string>}
      */
     async getPubkeyWalletAddress(publicKey) {
-        return await this.tokenContract.getWalletAddress(publicKey);
+        return await this.tokenContract.getWalletAddressByPubkey(publicKey);
     }
+
+    /**
+     * Get wallet address by multisig wallet address
+     * @param multisigAddress
+     * @returns {Promise<string>}
+     */
+    async getMultisigWalletAddress(multisigAddress) {
+        return await this.tokenContract.getWalletAddressByMultisig(multisigAddress);
+    }
+
 
     /**
      * Get wallet token balance
@@ -108,6 +129,18 @@ class Token {
      */
     async transfer(dest, amount, keyPair) {
         return await this.tokenContract.transfer(dest, amount, keyPair)
+    }
+
+    /**
+     * Transfer token by multisig
+     * @param dest
+     * @param amount
+     * @param keyPair
+     * @param multisigAddress
+     * @returns {Promise<*>}
+     */
+    async multisigTransfer(dest, amount, keyPair, multisigAddress){
+        return await this.tokenContract.multisigTransfer(dest, amount, keyPair, multisigAddress)
     }
 
     /**

@@ -363,7 +363,6 @@ class Popups {
                             // location.reload();
 
 
-
                         } catch (e) {
                             app.dialog.alert(_('Error') + ':' + e.message);
                         }
@@ -396,7 +395,6 @@ class Popups {
 
             const seedCheckUtils = new SeedCheckUtils(seedPhrase, password, this.messenger);
 
-            
 
             // async function getterCalback(result){
 
@@ -407,48 +405,42 @@ class Popups {
             //     console.log(correctCounter);
             // }
 
-            
 
             window.app.views.main.router.navigate("/checkSeed");
 
             app.once('pageInit', async () => {
 
                 console.log("test<<<");
-                
+
 
                 // let dataForCheck = seedCheckUtils.getDataForCheck();
 
                 // console.log(dataForCheck)
 
-                
+
                 await seedCheckUtils.formNewRound();
-
-            
-
-
 
 
                 // let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
-        
+
                 // for (let pubKey of pubKeys) {
                 //     let accHaveName = await messenger.rpcCall('main_getAccountName', [pubKey], 'background');
                 //     let buttonText = Utils.shortenPubkey(pubKey);
                 //     if(accHaveName !== "") {
                 //         buttonText = accHaveName;
                 //     }
-        
-        
+
+
                 //     let appendStr = `<li><a href="" id="${pubKey}">${buttonText}</a></li>`;
                 //     $('#accountList').append(appendStr);
                 //     $(`#${pubKey}`).on('click', () => {
                 //         popups.accSettings(pubKey);
                 //         app.panel.close('right', true);
-        
+
                 //     });
                 // }
 
 
-               
                 $('#returnButton').once('click', () => {
                     Utils.appBack();
                 });
@@ -486,7 +478,7 @@ class Popups {
      * @param {ExtensionMessenger} messenger
      * @returns {Promise<unknown>}
      */
-    createTokenTransaction(walletAddress, rootTokenAddress, messenger) {
+    createTokenTransaction(walletAddress, rootTokenAddress, messenger, userWalletAddress) {
         return new Promise((resolve, reject) => {
             window.app.views.main.router.navigate("/createTransaction");
 
@@ -506,6 +498,7 @@ class Popups {
 
                 $('#transferAddress').on('keyup', async () => {
                     let address = $('#transferAddress').val();
+                    $('.transferTypeHolder').hide();
 
                     let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
 
@@ -527,7 +520,17 @@ class Popups {
                         $('#transferAddress').parent().parent().parent().addClass('item-input-invalid');
                     } else {
                         $('#transferAddress').parent().parent().parent().removeClass('item-input-invalid');
+
+                        let isTokenWallet = await messenger.rpcCall('main_isTokenWalletAddress', [rootTokenAddress, address], 'background');
+                        if(isTokenWallet) {
+                            $('.transferTypeHolder').text('✅ ' + _('Address resolved as TIP-3 wallet')).show();
+                        } else {
+                            $('.transferTypeHolder').text('⚠ ' + _(` Can't resolve address as TIP-3 wallet`)).show();
+                        }
+
                     }
+
+
                 });
                 $('#transferAddress').parent().find('.input-clear-button').click(() => {
                     $('#resolvedAddressHolder').hide();
@@ -549,6 +552,21 @@ class Popups {
                         return app.dialog.alert(_('Invalid amount'));
                     }
 
+                    let isTokenWallet = await messenger.rpcCall('main_isTokenWalletAddress', [rootTokenAddress, address], 'background');
+                    if(!isTokenWallet) {
+                        let resolvedAddress = await messenger.rpcCall('main_getTokenWalletAddress', [rootTokenAddress, null, address], 'background');
+                        address = await uiUtils.popupSelector([{
+                            text: _('Original address:') +' '+  Utils.shortenPubkey(address), onClick: async function () {
+                                return address
+                            }
+                        }, {
+                            text: _('Resolved TIP-3 address:') +' '+ Utils.shortenPubkey(resolvedAddress), onClick: async function () {
+                                return resolvedAddress
+                            }
+                        }], _('Select TIP-3 transfer address'))
+                    }
+
+
                     let account = await messenger.rpcCall('main_getAccount', undefined, 'background');
                     let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
 
@@ -561,7 +579,8 @@ class Popups {
                         walletAddress,
                         account.public,
                         address,
-                        checker
+                        checker,
+                        userWalletAddress
                     ], 'background'));
                     /* } catch (e) {
 
@@ -599,20 +618,20 @@ class Popups {
                 console.log('TOKEN ADDRESS', rootTokenAddress);
 
                 let tokenInfo = await messenger.rpcCall('main_getTokenInfo', [rootTokenAddress], 'background');
-                let walletAddress = await messenger.rpcCall('main_getTokenWalletAddress', [rootTokenAddress, publicKey], 'background');
+                let walletAddress = await messenger.rpcCall('main_getTokenWalletAddress', [rootTokenAddress, publicKey, userWalletAddress], 'background');
 
                 console.log(tokenInfo);
 
                 $('.tokenName').text(tokenInfo.name);
                 $('.tokenWalletAddress').html(`<a data-clipboard="${walletAddress}" class="autoClipboard" ><i class="material-icons buttonIcon">content_copy</i>${Utils.shortenPubkey(walletAddress)}</a>`)
                 $('.tokenRootAddress').html(`<a data-clipboard="${rootTokenAddress}" class="autoClipboard" >${Utils.shortenPubkey(rootTokenAddress)}</a>`);
-               try {
-                   let balance = await messenger.rpcCall('main_getWalletBalance', [walletAddress], 'background');
-                   $('.tokenTonBalance').html(Utils.unsignedNumberToSigned(balance));
-               }catch (e){
-                   $('.tokenTonBalance').html(``);
-                   console.log('ERROR GETTING TOKEN WALLET TON BALANCE', e)
-               }
+                try {
+                    let balance = await messenger.rpcCall('main_getWalletBalance', [walletAddress], 'background');
+                    $('.tokenTonBalance').html('Contract balance: ' + Utils.unsignedNumberToSigned(balance) + ' TON');
+                } catch (e) {
+                    $('.tokenTonBalance').html(``);
+                    console.log('ERROR GETTING TOKEN WALLET TON BALANCE', e)
+                }
 
                 $('.tokenWalletTokenIcon').html(tokenInfo.icon);
 
@@ -623,13 +642,14 @@ class Popups {
 
                 let tokenBalance = null;
                 try {
-                    tokenBalance = await messenger.rpcCall('main_getTokenBalance', [rootTokenAddress, publicKey], 'background');
+                    tokenBalance = await messenger.rpcCall('main_getTokenBalance', [rootTokenAddress, publicKey, userWalletAddress], 'background');
 
                     $('.tokenWalletBalance').text(Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals));
 
                     $('.ifTokenWalletNotExists').hide();
                     $('.ifTokenWalletExists').show();
                 } catch (e) {
+                    console.log(e);
                     $('.ifTokenWalletNotExists').show();
                     $('.ifTokenWalletExists').hide();
                 }
@@ -637,7 +657,7 @@ class Popups {
                 $('.sendTokenButton').click(async () => {
 
                     try {
-                        await popups.createTokenTransaction(walletAddress, rootTokenAddress, messenger);
+                        await popups.createTokenTransaction(walletAddress, rootTokenAddress, messenger, userWalletAddress);
                     } catch (e) {
                         //app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
                     }
