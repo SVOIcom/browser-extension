@@ -81,7 +81,9 @@ async function getTONClient() {
 window.addEventListener('load', async () => {
 
     //Trying setup TON WASM client
-    window.TONClient.setWasmOptions({binaryURL: window.tonWasmUrl});
+    try{
+        window.TONClient.setWasmOptions({binaryURL: window.tonWasmUrl});
+    } catch {}
 
     //Setup new FreeTON library
     tonclientWeb.libWebSetup({

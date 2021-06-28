@@ -329,19 +329,36 @@ class Popups {
                                 publicKey = keyPair.public;
                                 privateKey = keyPair.secret;
 
-                                console.log(publicKey, privateKey)
-                                console.log("seedPhraseField");
+                                // console.log(publicKey, privateKey)
+                                // console.log("seedPhraseField");
                                 
 
                             } else {
 
-                                if (!keysInvalid()) {throw new Error("keysInvalid: keys that entered is not 64 characters long")}
-
                                 publicKey = $("#publicKeyField").val();
                                 privateKey = $("#privateKeyField").val();
 
-                                console.log(publicKey, privateKey)
-                                console.log("keysField");
+                                try {
+
+                                    if (!keysInvalid()) {
+                                        let errorPub64 = new Error("keysInvalid: keys that entered is not 64 characters long");
+                                        errorPub64.code = 11006;
+                                        throw errorPub64;
+                                    }
+
+                                    // console.log(seedPhraseVal, "<<<<<<<<<<<<<<<<<<<<<<<<");
+                                    console.log(privateKey);
+                                    keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [privateKey,], 'background');
+
+
+                                } catch (e) {
+                                    seedPhraseCheck = keysInvalid(e.code);
+                                    return false;
+                                }
+
+                                // if (!keysInvalid()) {throw new Error("keysInvalid: keys that entered is not 64 characters long")}
+                                // console.log(publicKey, privateKey)
+                                // console.log("keysField");
                             }
                             
 
