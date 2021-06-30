@@ -340,15 +340,27 @@ class Popups {
 
                                 try {
 
-                                    if (!keysInvalid()) {
+                                    if (publicKey.length != 64 || privateKey.length != 64) {
                                         let errorPub64 = new Error("keysInvalid: keys that entered is not 64 characters long");
-                                        errorPub64.code = 11006;
+                                        errorPub64.code = 15001;
                                         throw errorPub64;
+                                    }
+
+                                    var hexReCheck = /[0-9A-Fa-f]+/g;
+
+                                    console.log(publicKey.match(hexReCheck)[0]);
+
+                                    if(!(publicKey.match(hexReCheck)[0].length == 64)) {
+                                        let errorPrKey = new Error("keysInvalid: Pub key is invalid");
+                                        errorPrKey.code = 15002;
+                                        throw errorPrKey;
                                     }
 
                                     // console.log(seedPhraseVal, "<<<<<<<<<<<<<<<<<<<<<<<<");
                                     console.log(privateKey);
                                     keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [privateKey,], 'background');
+                                    console.log(keyPair);
+
 
 
                                 } catch (e) {
@@ -357,13 +369,10 @@ class Popups {
                                 }
 
                                 // if (!keysInvalid()) {throw new Error("keysInvalid: keys that entered is not 64 characters long")}
-                                // console.log(publicKey, privateKey)
+                                // console.log(publicKey, privateKey);
                                 // console.log("keysField");
                             }
                             
-
-                            // console.log("7e778c9cf16b8d6938413e1f2f57bb4a5170adf5096e421a03b09606bc8848dd".length)
-                            // throw new Error("puk");
                             password = $("#password").val();
 
                             try {

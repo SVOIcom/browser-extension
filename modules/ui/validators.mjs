@@ -198,16 +198,29 @@ function validatePassword() {
 
     let validFlag = 1
 
-    if (publicKeyField.val().length != 64 || privateKeyField.val().length != 64){
+    if (errCode == 15001){
         keysAreaLi.addClass('item-input-invalid');
         keysAreaLi2.addClass('item-input-invalid');
 
         publicKeyField.addClass("input-invalid");
         privateKeyField.addClass("input-invalid");
 
-        keysAreaLabel.text("Keys must be 64 characters long ");
+        keysAreaLabel.text("Keys must be 64 characters long");
 
         validFlag = 0;
+
+    }  else if (errCode == 15002){
+        keysAreaLi.addClass('item-input-invalid');
+        keysAreaLi2.addClass('item-input-invalid');
+
+        publicKeyField.addClass("input-invalid");
+        privateKeyField.addClass("input-invalid");
+
+        keysAreaLabel.text("This public key is invalid");
+
+        validFlag = 0;
+
+
 
     }  else if (errCode == 10004){
         keysAreaLi.addClass('item-input-invalid');
@@ -228,7 +241,7 @@ function validatePassword() {
         publicKeyField.addClass("input-invalid");
         privateKeyField.addClass("input-invalid");
 
-        seedPhaseAreaLabel.text("This keys is invalid");
+        keysAreaLabel.text("This keys is invalid");
 
         validFlag = 0
     }
