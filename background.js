@@ -628,9 +628,9 @@ const RPC = {
      */
     main_tokenTransfer: async function (rootTokenAddress, walletAddress, publicKey, to, amount, multisigAddress) {
 
-        if(this.sender !== 'popup') {
+      /*  if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
-        }
+        }*/
 
         actionManager.startActionOnce('main_tokenTransfer');
 
