@@ -346,7 +346,7 @@ class Popups {
                                         throw errorPub64;
                                     }
 
-                                    var hexReCheck = /[0-9A-Za-z]+/g;
+                                    var hexReCheck = /[0-9A-Fa-f]+/g;
 
                                     console.log(publicKey.match(hexReCheck)[0], publicKey.match(hexReCheck)[0].length);
 
