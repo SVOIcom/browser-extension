@@ -299,9 +299,9 @@ const RPC = {
      */
     main_transfer: async function(from, publicKey, to, amount, payload = '', openPopup = true)  {
 
-        if(this.sender !== 'popup') {
+        /*if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
-        }
+        }*/
 
         actionManager.startActionOnce('main_transfer');
 
@@ -628,9 +628,9 @@ const RPC = {
      */
     main_tokenTransfer: async function (rootTokenAddress, walletAddress, publicKey, to, amount, multisigAddress) {
 
-      /*  if(this.sender !== 'popup') {
+        if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
-        }*/
+        }
 
         actionManager.startActionOnce('main_tokenTransfer');
 
