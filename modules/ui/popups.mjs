@@ -346,9 +346,9 @@ class Popups {
                                         throw errorPub64;
                                     }
 
-                                    var hexReCheck = /[0-9A-Fa-f]+/g;
+                                    var hexReCheck = /[0-9A-Za-z]+/g;
 
-                                    console.log(publicKey.match(hexReCheck)[0]);
+                                    console.log(publicKey.match(hexReCheck)[0], publicKey.match(hexReCheck)[0].length);
 
                                     if(!(publicKey.match(hexReCheck)[0].length == 64)) {
                                         let errorPrKey = new Error("keysInvalid: Pub key is invalid");
