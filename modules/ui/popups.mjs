@@ -348,7 +348,7 @@ class Popups {
 
                                     var hexReCheck = /[0-9A-Fa-f]+/g;
 
-                                    console.log(publicKey.match(hexReCheck)[0], publicKey.match(hexReCheck)[0].length);
+                                    // console.log(publicKey.match(hexReCheck)[0], publicKey.match(hexReCheck)[0].length);
 
                                     if(!(publicKey.match(hexReCheck)[0].length == 64)) {
                                         let errorPrKey = new Error("keysInvalid: Pub key is invalid");
@@ -771,9 +771,9 @@ class Popups {
     accSettings(pubKey) {
         let self = this;
 
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             window.app.views.main.router.navigate("/accSettings", {animate: false});
-            app.once('pageInit', () => {
+            app.once('pageInit',async () => {       
 
                 $("#submit").on("click", async () => {
                     let AccountValid = checkAccountName();
@@ -793,6 +793,13 @@ class Popups {
                 $("#forgetAccount").on("click", async () => {
                     try {
                         await this.messenger.rpcCall('main_deleteAccount', [pubKey], 'background');
+
+                        let keys = await this.messenger.rpcCall('main_getPublicKeys', undefined, 'background');
+
+                        if (keys.length != 0){
+                            await this.messenger.rpcCall('main_changeAccount', [keys[keys.length - 1],], 'background');
+                        }
+
                         location.reload();
                         self.initPage();
                     } catch (e) {
