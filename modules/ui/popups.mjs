@@ -164,9 +164,6 @@ class Popups {
                         encodedPayload = await this.messenger.rpcCall('main_encodePayloadComment', [payload], 'background');
                     }
 
-
-                    console.log(account.wallets[currentNetwork.name]);
-
                     Utils.appBack();
 
                     try {
@@ -228,7 +225,7 @@ class Popups {
     }
 
     /**
-     * Import seed popup
+     * Import seed or keys popup
      * @returns {Promise<unknown>}
      */
     importSeed() {
@@ -276,8 +273,6 @@ class Popups {
 
                 $("#submit").on("click", async () => {
                     passwordCheck = validatePassword();
-                    // seedPhraseEntered = checkSeedPhraseExist();
-                    // keyPairEntered = checkKeyPairExist();
                     policyCheck = checkPolicyCheckbox();
 
                     let requireDefined = 0;
@@ -299,10 +294,7 @@ class Popups {
 
                             seedPhraseVal = seedPhraseWordsList.join(' ');
 
-                            // console.log()
                         }
-
-                        // console.log(seedPhraseVal);
 
                         try {
                             let publicKey = ""
@@ -314,7 +306,6 @@ class Popups {
                             if (seedPhraseField){
 
                                 try {
-                                    // console.log(seedPhraseVal, "<<<<<<<<<<<<<<<<<<<<<<<<");
                                     keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
                                     seedPhraseCheck = 1;
                                 } catch (e) {
@@ -322,15 +313,9 @@ class Popups {
                                     return false;
                                 }
 
-                                // Utils.appBack("/", {force : true,  reloadCurrent: true, ignoreCache: true,});
-                                // Utils.reloadPage();
-                                // location.reload();
 
                                 publicKey = keyPair.public;
                                 privateKey = keyPair.secret;
-
-                                // console.log(publicKey, privateKey)
-                                // console.log("seedPhraseField");
                                 
 
                             } else {
@@ -348,18 +333,13 @@ class Popups {
 
                                     var hexReCheck = /[0-9A-Fa-f]+/g;
 
-                                    // console.log(publicKey.match(hexReCheck)[0], publicKey.match(hexReCheck)[0].length);
-
                                     if(!(publicKey.match(hexReCheck)[0].length == 64)) {
                                         let errorPrKey = new Error("keysInvalid: Pub key is invalid");
                                         errorPrKey.code = 15002;
                                         throw errorPrKey;
                                     }
 
-                                    // console.log(seedPhraseVal, "<<<<<<<<<<<<<<<<<<<<<<<<");
-                                    console.log(privateKey);
                                     keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [privateKey,], 'background');
-                                    console.log(keyPair);
 
 
 
@@ -368,9 +348,6 @@ class Popups {
                                     return false;
                                 }
 
-                                // if (!keysInvalid()) {throw new Error("keysInvalid: keys that entered is not 64 characters long")}
-                                // console.log(publicKey, privateKey);
-                                // console.log("keysField");
                             }
                             
                             password = $("#password").val();
@@ -449,24 +426,10 @@ class Popups {
                     policyCheck = checkPolicyCheckbox();
                     if(passwordCheck === 1 && policyCheck === 1) {
                         try {
-                            // let keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
 
                             let password = $("#password").val();
 
                             self.checkSeed(seedPhraseVal, password);
-
-
-                            // let publicKey = keyPair.public;
-                            // let privateKey = keyPair.secret;
-                            // let password = $("#password").val();
-
-
-                            // await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
-                            // await this.messenger.rpcCall('main_changeAccount', [publicKey,], 'background');
-
-                            // location.reload();
-
-
 
                         } catch (e) {
                             app.dialog.alert(_('Error') + ':' + e.message);
@@ -498,20 +461,7 @@ class Popups {
 
             let self = this;
 
-            const seedCheckUtils = new SeedCheckUtils(seedPhrase, password, this.messenger);
-
-            
-
-            // async function getterCalback(result){
-
-            //     if (result){
-            //         correctCounter++
-            //     }
-
-            //     console.log(correctCounter);
-            // }
-
-            
+            const seedCheckUtils = new SeedCheckUtils(seedPhrase, password, this.messenger);            
 
             window.app.views.main.router.navigate("/checkSeed");
 
@@ -519,39 +469,7 @@ class Popups {
 
                 console.log("test<<<");
                 
-
-                // let dataForCheck = seedCheckUtils.getDataForCheck();
-
-                // console.log(dataForCheck)
-
-                
                 await seedCheckUtils.formNewRound();
-
-            
-
-
-
-
-                // let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
-        
-                // for (let pubKey of pubKeys) {
-                //     let accHaveName = await messenger.rpcCall('main_getAccountName', [pubKey], 'background');
-                //     let buttonText = Utils.shortenPubkey(pubKey);
-                //     if(accHaveName !== "") {
-                //         buttonText = accHaveName;
-                //     }
-        
-        
-                //     let appendStr = `<li><a href="" id="${pubKey}">${buttonText}</a></li>`;
-                //     $('#accountList').append(appendStr);
-                //     $(`#${pubKey}`).on('click', () => {
-                //         popups.accSettings(pubKey);
-                //         app.panel.close('right', true);
-        
-                //     });
-                // }
-
-
                
                 $('#returnButton').once('click', () => {
                     Utils.appBack();

@@ -45,7 +45,7 @@
   "I agree with": "Estoy de acuerdo con",
   "Create": "Crear",
   "Import seed phrase": "Importar una seed frase",
-  "Restoring your wallet from seed": "Restaurar una billetera usando una seed frase",
+  "Restoring your wallet": "Restaurar una billetera usando",
   "Enter your seed phrase": "Ingrese su seed frase",
   "Enter your seed phrase or private key": "Ingrese su seed frase o la clave privada",
   "Seed phrase": "Seed frase",
@@ -119,5 +119,8 @@
   "": "",
   "Select network": "Seleccione la red",
   "Seed phrase check": "Verificación de frase seed",
-  "Select word from seed on position": "Seleccionar palabra de la seed frase en la posición"
-}
+  "Select word from seed on position": "Seleccionar palabra de la seed frase en la posición",
+  "Enter your keys": "Ingrese sus claves",
+  "Private key": "Llave privada",
+  "Public key": "Llave pública"
+}  

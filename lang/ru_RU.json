@@ -45,7 +45,7 @@
   "I agree with": "Я согласен с",
   "Create": "Создать",
   "Import seed phrase": "Импорт seed фразы",
-  "Restoring your wallet from seed": "Восстановление кошелька по seed фразе",
+  "Restoring your wallet": "Восстановление кошелька",
   "Enter your seed phrase or private key": "Введите seed фразу или приватный ключ",
   "Seed phrase": "Seed фраза",
   "Seed phrase or private key": "Seed фраза или приватный ключ",
@@ -117,5 +117,9 @@
   "": "",
   "Select network": "Выбор сети",
   "Seed phrase check": "Проверка seed фразы",
-  "Select word from seed on position": "Выберите слово из seed фразы на позиции"
+  "Select word from seed on position": "Выберите слово из seed фразы на позиции",
+  "Enter your seed phrase": "Введите вашу seed фразу",
+  "Enter your keys": "Введите ваши ключи",
+  "Private key": "Приватный ключ",
+  "Public key": "Публичный ключ"
 }
