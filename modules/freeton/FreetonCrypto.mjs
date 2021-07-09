@@ -60,12 +60,28 @@ class FreetonCrypto {
         if(seed.length === 64) {
             return await ton.crypto.naclBoxKeypairFromSecretKey(seed);
         }
-        return await ton.crypto.mnemonicDeriveSignKeys({
-            dictionary: dict,
-            wordCount: length,
-            phrase: seed,
-            path: HD_PATH
-        });
+
+        //TODO Даня делает регулярку
+        if(seed.split(' ').length === 24) {
+            length = SEED_LENGTH.w24;
+        }
+
+        for (let dictKey in MNEMONIC_DICTIONARY) {
+            dict = MNEMONIC_DICTIONARY[dictKey];
+            try {
+                return await ton.crypto.mnemonicDeriveSignKeys({
+                    dictionary: dict,
+                    wordCount: length,
+                    phrase: seed,
+                    path: HD_PATH
+                });
+            } catch (e) {
+
+            }
+        }
+
+        throw new Error('Invalid seed phrase or private key')
+
     }
 
 }

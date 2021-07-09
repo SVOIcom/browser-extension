@@ -63,6 +63,10 @@ const uiUtils = {
                 }
 
                 if(typeof item === 'object') {
+                    let onClickB = item.onClick;
+                    item.onClick = async function () {
+                        resolve(await onClickB());
+                    }
                     buttons.push(item)
                 }
             }
