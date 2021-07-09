@@ -240,11 +240,35 @@ class Popups {
             let passwordCheck = 0;
             let policyCheck = 0;
             let seedPhraseEntered = 0;
+            let keyPairEntered = 0;
             let seedPhraseCheck = 0;
+
+            let seedPhraseField = true;
 
             app.once('pageInit', () => {
 
                 policyCheck = checkPolicyCheckbox();
+
+                $("#restoreBySeed").on("click", function(){
+                    $(this).addClass("button-active");
+                    $("#restoreByKeys").removeClass("button-active");
+
+                    $("#restoreBySeedField").attr("style","");
+                    $("#restoreByKeysField").attr("style","display: none;");
+
+                    seedPhraseField = true;
+                });
+                
+
+                $("#restoreByKeys").on("click", function(){
+                    $(this).addClass("button-active");
+                    $("#restoreBySeed").removeClass("button-active");
+
+                    $("#restoreByKeysField").attr("style","");
+                    $("#restoreBySeedField").attr("style","display: none;");
+
+                    seedPhraseField = false;
+                });
 
                 $("#policy1").on("click", () => {
                     self.goToPolicy();
@@ -252,30 +276,104 @@ class Popups {
 
                 $("#submit").on("click", async () => {
                     passwordCheck = validatePassword();
-                    seedPhraseEntered = checkSeedPhraseExist();
+                    // seedPhraseEntered = checkSeedPhraseExist();
+                    // keyPairEntered = checkKeyPairExist();
                     policyCheck = checkPolicyCheckbox();
 
-                    if(seedPhraseEntered === 1 && passwordCheck === 1 && policyCheck === 1) {
-                        let seedPhraseVal = $("#seedPhaseArea").val();
+                    let requireDefined = 0;
+
+                    if (seedPhraseField){
+                        requireDefined = checkSeedPhraseExist();
+                    } else {
+                        requireDefined = checkKeyPairExist();
+                    }
+
+                    if( requireDefined && passwordCheck === 1 && policyCheck === 1) {
+
+                        let seedPhraseVal = "";
+
+                        if (seedPhraseField){
+                            seedPhraseVal = $("#seedPhaseArea").val();
+
+                            let seedPhraseWordsList = seedPhraseVal.match(/([a-z]+)/g);
+
+                            seedPhraseVal = seedPhraseWordsList.join(' ');
+
+                            // console.log()
+                        }
+
+                        // console.log(seedPhraseVal);
 
                         try {
-                            let keyPair = ""
+                            let publicKey = ""
+                            let privateKey = ""
+                            let password = ""
+                            
+                            let keyPair = {}
 
-                            try {
-                                keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
-                                seedPhraseCheck = 1;
-                            } catch (e) {
-                                seedPhraseCheck = seedPhraseInvalid(e.code);
-                                return false;
+                            if (seedPhraseField){
+
+                                try {
+                                    // console.log(seedPhraseVal, "<<<<<<<<<<<<<<<<<<<<<<<<");
+                                    keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
+                                    seedPhraseCheck = 1;
+                                } catch (e) {
+                                    seedPhraseCheck = seedPhraseInvalid(e.code);
+                                    return false;
+                                }
+
+                                // Utils.appBack("/", {force : true,  reloadCurrent: true, ignoreCache: true,});
+                                // Utils.reloadPage();
+                                // location.reload();
+
+                                publicKey = keyPair.public;
+                                privateKey = keyPair.secret;
+
+                                // console.log(publicKey, privateKey)
+                                // console.log("seedPhraseField");
+                                
+
+                            } else {
+
+                                publicKey = $("#publicKeyField").val();
+                                privateKey = $("#privateKeyField").val();
+
+                                try {
+
+                                    if (publicKey.length != 64 || privateKey.length != 64) {
+                                        let errorPub64 = new Error("keysInvalid: keys that entered is not 64 characters long");
+                                        errorPub64.code = 15001;
+                                        throw errorPub64;
+                                    }
+
+                                    var hexReCheck = /[0-9A-Fa-f]+/g;
+
+                                    // console.log(publicKey.match(hexReCheck)[0], publicKey.match(hexReCheck)[0].length);
+
+                                    if(!(publicKey.match(hexReCheck)[0].length == 64)) {
+                                        let errorPrKey = new Error("keysInvalid: Pub key is invalid");
+                                        errorPrKey.code = 15002;
+                                        throw errorPrKey;
+                                    }
+
+                                    // console.log(seedPhraseVal, "<<<<<<<<<<<<<<<<<<<<<<<<");
+                                    console.log(privateKey);
+                                    keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [privateKey,], 'background');
+                                    console.log(keyPair);
+
+
+
+                                } catch (e) {
+                                    seedPhraseCheck = keysInvalid(e.code);
+                                    return false;
+                                }
+
+                                // if (!keysInvalid()) {throw new Error("keysInvalid: keys that entered is not 64 characters long")}
+                                // console.log(publicKey, privateKey);
+                                // console.log("keysField");
                             }
-
-                            // Utils.appBack("/", {force : true,  reloadCurrent: true, ignoreCache: true,});
-                            // Utils.reloadPage();
-                            // location.reload();
-
-                            let publicKey = keyPair.public;
-                            let privateKey = keyPair.secret;
-                            let password = $("#password").val();
+                            
+                            password = $("#password").val();
 
                             try {
                                 await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
@@ -283,7 +381,13 @@ class Popups {
                                 seedPhraseCheck = 1;
 
                             } catch (e) {
-                                seedPhraseCheck = seedPhraseInvalid(e.code);
+                                if (seedPhraseField){
+                                    seedPhraseCheck = seedPhraseInvalid(e.code);
+                                } else {
+                                    seedPhraseCheck = keysInvalid(e.code);
+                                }
+                                
+                                console.log(e)
                                 return false;
 
                             }
@@ -687,9 +791,9 @@ class Popups {
     accSettings(pubKey) {
         let self = this;
 
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             window.app.views.main.router.navigate("/accSettings", {animate: false});
-            app.once('pageInit', () => {
+            app.once('pageInit',async () => {       
 
                 $("#submit").on("click", async () => {
                     let AccountValid = checkAccountName();
@@ -709,6 +813,13 @@ class Popups {
                 $("#forgetAccount").on("click", async () => {
                     try {
                         await this.messenger.rpcCall('main_deleteAccount', [pubKey], 'background');
+
+                        let keys = await this.messenger.rpcCall('main_getPublicKeys', undefined, 'background');
+
+                        if (keys.length != 0){
+                            await this.messenger.rpcCall('main_changeAccount', [keys[keys.length - 1],], 'background');
+                        }
+
                         location.reload();
                         self.initPage();
                     } catch (e) {
