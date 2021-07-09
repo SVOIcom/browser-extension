@@ -35,6 +35,13 @@ class NetworkManager extends EventEmitter3 {
         await this.storage.initialize();
 
         this.networks = await this.storage.get('networks', NETWORKS);
+
+        //Update networks from local list
+        for(let networkName in NETWORKS){
+            this.networks[networkName] = NETWORKS[networkName];
+        }
+
+
         this.currentNetwork = await this.storage.get('currentNetwork', this.currentNetwork);
 
         return this;
