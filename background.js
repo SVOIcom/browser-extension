@@ -297,9 +297,11 @@ const RPC = {
      * @param payload
      * @returns {Promise<void>}
      */
-    main_transfer: async (from, publicKey, to, amount, payload = '', openPopup = true) => {
+    main_transfer: async function(from, publicKey, to, amount, payload = '', openPopup = true)  {
 
-        //Want to check sender or not? Need TODO disscused
+        /*if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }*/
 
         actionManager.startActionOnce('main_transfer');
 
@@ -565,26 +567,30 @@ const RPC = {
      * Get token balance
      * @param tokenRootAddress
      * @param publicKey
+     * @param walletAddress
      * @returns {Promise<*>}
      */
-    main_getTokenBalance: async function (tokenRootAddress, publicKey) {
+    main_getTokenBalance: async function (tokenRootAddress, publicKey, walletAddress) {
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         const token = await (new Token(tokenRootAddress, ton)).init();
 
-        return await token.getPubkeyBalance(publicKey);
+        //return await token.getPubkeyBalance(publicKey);
+        return await token.getMultisigBalance(walletAddress);
     },
 
     /**
      * Get token wallet address by public key
      * @param tokenRootAddress
      * @param publicKey
+     * @param walletAddress
      * @returns {Promise<string>}
      */
-    main_getTokenWalletAddress: async function (tokenRootAddress, publicKey) {
+    main_getTokenWalletAddress: async function (tokenRootAddress, publicKey, walletAddress) {
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         const token = await (new Token(tokenRootAddress, ton)).init();
 
-        return await token.getPubkeyWalletAddress(publicKey);
+        //return await token.getPubkeyWalletAddress(publicKey);
+        return await token.getMultisigWalletAddress(walletAddress);
     },
 
     /**
@@ -617,9 +623,10 @@ const RPC = {
      * @param {string} publicKey
      * @param to
      * @param amount
+     * @param multisigAddress
      * @returns {Promise<*>}
      */
-    main_tokenTransfer: async function (rootTokenAddress, walletAddress, publicKey, to, amount) {
+    main_tokenTransfer: async function (rootTokenAddress, walletAddress, publicKey, to, amount, multisigAddress) {
 
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
@@ -630,16 +637,20 @@ const RPC = {
         try {
             let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
 
+            const token = await (new Token(rootTokenAddress, ton)).init();
+
+            let tokenInfo =  await token.getInfo();
+
             let keyPair = await getKeysFromDeployAcceptence(publicKey, 'token_transfer', {
                 address: walletAddress,
-                additionalMessage: `${_('This action sends')} <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> ${_('tokens to')} <span class="intextWallet">${to}</span> ${_('wallet.')}`,
+                additionalMessage: `${_('This action sends')} <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount, tokenInfo.decimals))}</b> ${_('tokens to')} <span class="intextWallet">${to}</span> ${_('wallet.')}`,
             }, undefined, true);
 
-            const token = await (new Token(rootTokenAddress, ton)).init();
+
 
             await messenger.rpcCall('popup_showToast', [_('Token transaction created')], 'popup');
 
-            let txInfo = await token.transfer(to, amount, keyPair);
+            let txInfo = await token.multisigTransfer(to, amount, keyPair, multisigAddress);
 
             console.log(txInfo);
 
@@ -710,7 +721,7 @@ const RPC = {
 
             const token = await (new Token(newRootAddress, ton)).init();
 
-            let deployWalletResult = await token.deployWallet(options.initialMint, null, keyPair);
+            let deployWalletResult = await token.deployWallet(options.initialMint,  await (new Wallet(fromWallet, ton)).init(), keyPair);
 
             console.log('TIP3 deploy WALLET result', deployWalletResult);
 
@@ -802,6 +813,45 @@ const RPC = {
 
     },
 
+    /**
+     * @deprecated
+     * @param address
+     * @returns {Promise<boolean>}
+     */
+    main_isMultisigAddress: async function (address) {
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+
+        try {
+            let wallet = await (new Wallet(address, ton)).init();
+            await wallet.getBalance();
+
+            return await wallet.contractDeployed()
+        } catch (e) {
+            return false;
+        }
+    },
+
+    /**
+     * Detects is TIP3 token
+     * @param tokenRoot
+     * @param address
+     * @returns {Promise<boolean>}
+     */
+    main_isTokenWalletAddress: async function (tokenRoot, address) {
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+
+        try {
+            const token = await (new Token(tokenRoot, ton)).init();
+
+            await token.getBalance(address);
+
+            return true;
+
+        } catch (e) {
+            return false;
+        }
+
+    },
 }
 
 

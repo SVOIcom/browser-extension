@@ -15,7 +15,7 @@
 
 const NETWORKS = {
     main: {
-        url: 'main.ton.dev',
+        url: 'main2.ton.dev',
         explorer: 'ton.live',
         description: 'FreeTON main net',
         site: 'https://freeton.org/',
@@ -26,7 +26,7 @@ const NETWORKS = {
         tokenIcon: '💎'
     },
     devnet: {
-        url: 'net.ton.dev',
+        url: 'net1.ton.dev',
         explorer: 'net.ton.live',
         description: 'FreeTON test network',
         site: 'https://freeton.org/',
