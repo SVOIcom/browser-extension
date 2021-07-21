@@ -50,6 +50,8 @@ async function getTONWeb() {
         servers: ['net.ton.dev']
     });
 
+    freeton.setServers((await freeton.network.get()).network.url);
+
     window._tonClient = freeton;
 
     return freeton;
