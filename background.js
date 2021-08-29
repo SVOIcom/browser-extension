@@ -295,9 +295,11 @@ const RPC = {
      * @param to
      * @param amount
      * @param payload
+     * @param bounce
+     * @param openPopup
      * @returns {Promise<void>}
      */
-    main_transfer: async function(from, publicKey, to, amount, payload = '', openPopup = true)  {
+    main_transfer: async function (from, publicKey, to, amount, payload = '', bounce = false, openPopup = true) {
 
         /*if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
@@ -320,7 +322,7 @@ const RPC = {
 
             await messenger.rpcCall('popup_showToast', [_('Transaction created')], 'popup');
 
-            let transferResult = await wallet.transfer(to, amount, payload, keyPair);
+            let transferResult = await wallet.transferNew(to, amount, payload, bounce, keyPair);
 
             actionManager.endAction('main_transfer');
 
@@ -639,13 +641,12 @@ const RPC = {
 
             const token = await (new Token(rootTokenAddress, ton)).init();
 
-            let tokenInfo =  await token.getInfo();
+            let tokenInfo = await token.getInfo();
 
             let keyPair = await getKeysFromDeployAcceptence(publicKey, 'token_transfer', {
                 address: walletAddress,
                 additionalMessage: `${_('This action sends')} <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount, tokenInfo.decimals))}</b> ${_('tokens to')} <span class="intextWallet">${to}</span> ${_('wallet.')}`,
             }, undefined, true);
-
 
 
             await messenger.rpcCall('popup_showToast', [_('Token transaction created')], 'popup');
@@ -721,7 +722,7 @@ const RPC = {
 
             const token = await (new Token(newRootAddress, ton)).init();
 
-            let deployWalletResult = await token.deployWallet(options.initialMint,  await (new Wallet(fromWallet, ton)).init(), keyPair);
+            let deployWalletResult = await token.deployWallet(options.initialMint, await (new Wallet(fromWallet, ton)).init(), keyPair);
 
             console.log('TIP3 deploy WALLET result', deployWalletResult);
 
