@@ -328,10 +328,11 @@ class TonClientWrapper extends EventEmitter3 {
              * @param to
              * @param amount
              * @param payload
+             * @param bounce
              * @returns {Promise<void>}
              */
-            walletTransfer: async (publicKey, from, to, amount, payload = '') => {
-                return await that._extensionRPCCall('main_transfer', [from, publicKey, to, amount, payload]);
+            walletTransfer: async (publicKey, from, to, amount, payload = '', bounce = false) => {
+                return await that._extensionRPCCall('main_transfer', [from, publicKey, to, amount, payload, bounce]);
             }
         }
     }

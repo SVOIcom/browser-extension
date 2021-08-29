@@ -84,6 +84,16 @@ class Wallet {
         }, keyPair);
     }
 
+    async transferNew(to, amount, payload = '', bounce = false, keyPair) {
+        return await this.contract.submitTransaction.deploy({
+            dest: to,
+            value: amount,
+            bounce: bounce,
+            allBalance: false,
+            payload: payload
+        }, keyPair);
+    }
+
     /**
      * Return messages for current wallet by filter
      * @param filter
@@ -125,7 +135,7 @@ class Wallet {
 
         let messages = [...outcomes, ...incomes];
 
-        messages = messages.sort((a, b) =>  b.created_at - a.created_at);
+        messages = messages.sort((a, b) => b.created_at - a.created_at);
 
         for (let i in messages) {
             if(messages[i].value !== null) {

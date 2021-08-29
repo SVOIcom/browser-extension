@@ -176,7 +176,8 @@ class Popups {
                             address,
                             checker,
                             encodedPayload,
-                            false
+                            false,
+                            false,
                         ], 'background'));
                     } catch (e) {
                         reject(e);
