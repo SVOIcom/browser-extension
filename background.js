@@ -869,6 +869,7 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
 
     if(!dontCreatePopup) {
         let popup = await uiUtils.openPopup();
+        await Utils.wait(3000);
     }
 
     //Simple timeout for initialization
