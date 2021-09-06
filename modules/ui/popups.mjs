@@ -60,7 +60,7 @@ class Popups {
                     $('#acceptRunAddress').text(Utils.shortenPubkey(callingDetails.address));
                     $('#acceptRunAddress').attr('title', callingDetails.address);
                 } else {
-                    $('#acceptRunAddress').text(_('Error'));
+                    $('#acceptRunAddress').text(_('N/A'));
                 }
 
 
