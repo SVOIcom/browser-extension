@@ -253,3 +253,9 @@
     height: 50px!important;
     display: inline-block;
 }
+
+.walletTokenIcon .walletIconImage{
+    width: 50px!important;
+    height: 50px!important;
+    display: inline-block;
+}

@@ -23,7 +23,9 @@ const NETWORKS = {
             type: 'url',
             address: 'https://t.me/Chatex_bot?start=r_509',
         },
-        tokenIcon: '<tgs-player autoplay loop renderer="canvas"  mode="normal" src="pictures/tgs/crystal.tgs" style="width: 15px; height: 15px; display: inline"></tgs-player>'
+        tokenIcon: '<img src="pictures/gif/crystal.gif" class="walletIconImage" style="width: 15px; height: 15px; display: inline">'
+        //tokenIcon: '💎'
+        //tokenIcon: '<tgs-player autoplay loop renderer="canvas"  mode="normal" src="pictures/tgs/crystal.tgs" style="width: 15px; height: 15px; display: inline"></tgs-player>'
     },
     devnet: {
         url: 'net1.ton.dev',
