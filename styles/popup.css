@@ -247,3 +247,9 @@
 .md .tab-link-highlight {
     display: none;
 }
+
+.walletTokenIcon tgs-player{
+    width: 50px!important;
+    height: 50px!important;
+    display: inline-block;
+}

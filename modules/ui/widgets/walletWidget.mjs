@@ -20,7 +20,7 @@ import TOKEN_LIST from "../../const/TokenList.mjs";
 import popups from "../popups.mjs";
 import LOCALIZATION from "../../Localization.mjs";
 
-const UPDATE_INTERVAL = 10000;
+const UPDATE_INTERVAL = 30000;
 
 
 const _ = LOCALIZATION._;
@@ -34,6 +34,14 @@ class walletWidget {
         this.messenger = messenger;
         this.app = app;
         this.wallet = null;
+
+        $(window).on('focus', async ()=>{
+            $('.walletTokenIcon tgs-player')[0].getLottie().play();
+        })
+
+        $(window).on('blur', async ()=>{
+            $('.walletTokenIcon tgs-player')[0].getLottie().stop();
+        })
 
         const enterWallet = async () => {
 
@@ -197,7 +205,10 @@ class walletWidget {
         }
 
         //console.log(account);
-        $('.walletTokenIcon').html(currentNetwork.network.tokenIcon);
+        if(this.lastNetwork !== currentNetwork.name) {
+            this.lastNetwork = currentNetwork.name;
+            $('.walletTokenIcon').html(currentNetwork.network.tokenIcon);
+        }
 
         //console.log(account.wallets[currentNetwork.name], currentNetwork.name);
 
