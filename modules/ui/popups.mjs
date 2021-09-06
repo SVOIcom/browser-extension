@@ -102,7 +102,7 @@ class Popups {
 
             app.once('pageInit', () => {
 
-                $('#transferAmount').on('keyup', () => {
+                let transferAmountValidate = () => {
                     let amount = $('#transferAmount').val();
                     let checker = Utils.numberToUnsignedNumber(amount);
                     if(!checker) {
@@ -110,9 +110,11 @@ class Popups {
                     } else {
                         $('#transferAmount').parent().parent().parent().removeClass('item-input-invalid');
                     }
-                });
+                }
+                $('#transferAmount').on('keyup', transferAmountValidate);
+                $('#transferAmount').on('change', transferAmountValidate);
 
-                $('#transferAddress').on('keyup', async () => {
+                let addressValidate = async () => {
                     let address = $('#transferAddress').val();
 
                     let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
@@ -140,7 +142,10 @@ class Popups {
                     } else {
                         $('#transferAddress').parent().parent().parent().removeClass('item-input-invalid');
                     }
-                });
+                }
+
+                $('#transferAddress').on('keyup', addressValidate);
+                $('#transferAddress').on('change', addressValidate);
 
                 $('#txTransfer').once('click', async () => {
                     let amount = $('#transferAmount').val();
@@ -591,7 +596,7 @@ class Popups {
 
                 $('.transferCommentField').hide();
 
-                $('#transferAmount').on('keyup', () => {
+                let validateAmount = () => {
                     let amount = $('#transferAmount').val();
                     let checker = Utils.numberToUnsignedNumber(amount);
                     if(!checker) {
@@ -599,9 +604,11 @@ class Popups {
                     } else {
                         $('#transferAmount').parent().parent().parent().removeClass('item-input-invalid');
                     }
-                });
+                }
+                $('#transferAmount').on('keyup', validateAmount);
+                $('#transferAmount').on('change', validateAmount);
 
-                $('#transferAddress').on('keyup', async () => {
+                let validateTransfer = async () => {
                     let address = $('#transferAddress').val();
                     $('.transferTypeHolder').hide();
 
@@ -636,7 +643,9 @@ class Popups {
                     }
 
 
-                });
+                }
+                $('#transferAddress').on('keyup', validateTransfer);
+                $('#transferAddress').on('change', validateTransfer);
                 $('#transferAddress').parent().find('.input-clear-button').click(() => {
                     $('#resolvedAddressHolder').hide();
                 })
