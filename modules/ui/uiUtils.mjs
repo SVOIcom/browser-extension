@@ -16,24 +16,27 @@
 import LOCALIZATION from "../Localization.mjs";
 
 
-
 const uiUtils = {
 
     /**
      * Open extension popup
      * @returns {Promise<*>}
      */
-    openPopup: async () => {
+    openPopup: async (options = {}) => {
         console.log('OPEN POPUP');
 
-        return browser.windows.create({
+        let popupObject = {
             url: 'popup.html',
             type: 'popup',
             width: 350,
             height: 536,
             // left: position.x,
             //  top: position.y,
-        });
+            ...options
+        };
+
+
+        return browser.windows.create(popupObject);
     },
 
     /**
@@ -78,7 +81,7 @@ const uiUtils = {
                     resolve();
                 }
             });
-            
+
             const actions = app.actions.create({
                 buttons
 

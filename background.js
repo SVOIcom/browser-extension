@@ -59,13 +59,13 @@ const RPC = {
      * Open popup
      * @returns {Promise<*>}
      */
-    mainOpenPopup: function async() {
+    mainOpenPopup: function async(options) {
 
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
         }
 
-        return uiUtils.openPopup();
+        return uiUtils.openPopup(options);
     },
 
     /**

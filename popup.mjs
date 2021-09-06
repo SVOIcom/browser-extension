@@ -142,17 +142,23 @@ async function startPopup() {
     popups.messenger = messenger;
     window.messenger = messenger;
 
+    if(location.hash === '#popNewWindow') {
+        await messenger.rpcCall('mainOpenPopup', [{left: window.screenLeft, top: window.screenTop}], 'background');
+        window.close();
+        return;
+    }
+
 // Dom7
     const $ = Dom7;
 
 
     let appTheme = "aurora";
-    if(window._isApp){
-        if(navigator.userAgent.toLowerCase().includes('android')){
+    if(window._isApp) {
+        if(navigator.userAgent.toLowerCase().includes('android')) {
             appTheme = 'md';
         }
 
-        if(navigator.platform.toLowerCase().includes('ios')){
+        if(navigator.platform.toLowerCase().includes('ios')) {
             appTheme = 'ios';
         }
     }
@@ -241,7 +247,7 @@ async function startPopup() {
     console.log(currentLang);
     $(`#${currentLang}`).attr("style", "color: blue");
 
-    $("#languageMenu li a").on("click", function(e) {
+    $("#languageMenu li a").on("click", function (e) {
         // $(this).attr("style", "color: blue");
 
         // $("#languageMenu li a").find(".colour-change").attr("style", "");
@@ -256,9 +262,8 @@ async function startPopup() {
         $(this).attr("style", "color: blue");
 
         LOCALIZATION.changeLang($(this).attr("id"));
-        
-    })
 
+    })
 
 
     $('.sendMoneyButton').click(async () => {
@@ -307,13 +312,12 @@ async function startPopup() {
     })
 
 
-
-
-
 }
 
 if(!window._isApp) {
-    startPopup();
+
+        startPopup();
+
 }
 
 export default startPopup;
