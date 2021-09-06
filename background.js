@@ -961,6 +961,29 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
     })
 
 
+    //Badge updater
+    const updateBadge = async ()=>{
+        try {
+            let account = await accountManager.getAccount();
+            let network = await networkManager.getNetwork()
+
+            let address = (account.wallets[network.name]).address;
+            let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+            let wallet = await (new Wallet(address, ton)).init();
+            let balance = Utils.nFormatter(Utils.unsignedNumberToSigned(await wallet.getBalance()), 1);
+
+            chrome.browserAction.setBadgeText({text: balance + '💎'});
+        }catch (e) {
+            chrome.browserAction.setBadgeText({text: 0 + '💎'});
+        }
+    }
+    setInterval(updateBadge, 60000);
+    await updateBadge();
+    accountManager.on(accountManager.EVENTS.accountChanged, async () => {
+        await updateBadge();
+    });
+
+
 })()
 
 

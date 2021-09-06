@@ -35,8 +35,7 @@ class walletWidget {
         this.app = app;
         this.wallet = null;
 
-
-        $('.enterWalletButton').click(async () => {
+        const enterWallet = async () => {
 
             let address = await this.promptWalletAddress();
             let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
@@ -65,12 +64,14 @@ class walletWidget {
 
             await this.updateWalletWidget();
 
-        });
+        }
+
+        $('.enterWalletButton').click(enterWallet);
 
         $('.createWalletButton, .editWalletButton').click(async () => {
             let walletType = await uiUtils.popupSelector([...WalletContract.WALLET_TYPES_LIST, {
                 text: _('Enter custom address'), onClick: async () => {
-                    $('.enterWalletButton').click();
+                   await enterWallet();
                 }
             }], _('Wallet type'));
 
