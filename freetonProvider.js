@@ -44,7 +44,10 @@ async function getTONWeb() {
         return window._tonClient;
     }
     if(window.tonWasmUrl) {
-        window.TONClient.setWasmOptions({binaryURL: window.tonWasmUrl});
+        try {
+            window.TONClient.setWasmOptions({binaryURL: window.tonWasmUrl});
+        }catch (e) {
+        }
     }
     let freeton = await (new TonClientWrapper()).create({
         servers: ['net.ton.dev']
@@ -66,10 +69,13 @@ async function getTONClient() {
     }
     if(window.tonNewWasmUrl) {
         //Setup new FreeTON library
-        tonclientWeb.libWebSetup({
-            binaryURL: window.tonNewWasmUrl,
-        });
-        tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
+        try {
+            tonclientWeb.libWebSetup({
+                binaryURL: window.tonNewWasmUrl,
+            });
+            tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
+        }catch (e) {
+        }
     }
     let freeton = await (new NewTonClientWrapper()).create();
 
@@ -85,11 +91,14 @@ window.addEventListener('load', async () => {
         window.TONClient.setWasmOptions({binaryURL: window.tonWasmUrl});
     } catch {}
 
-    //Setup new FreeTON library
-    tonclientWeb.libWebSetup({
-        binaryURL: window.tonNewWasmUrl,
-    });
-    tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
+    try {
+        //Setup new FreeTON library
+        tonclientWeb.libWebSetup({
+            binaryURL: window.tonNewWasmUrl,
+        });
+        tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
+    }catch (e) {
+    }
 
     if(typeof window.getTON === 'undefined') {
         window.getTON = getTON;

@@ -15,7 +15,7 @@
 
 
 const MISC = {
-    VERSION: '0.0.5'
+    VERSION: '0.0.7'
 };
 
 export default MISC;

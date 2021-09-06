@@ -1,6 +1,6 @@
 {
   "name": "tonwallet",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "FreeTON network wallet and dapps connectivity provider",
   "main": "index.js",
   "repository": {
