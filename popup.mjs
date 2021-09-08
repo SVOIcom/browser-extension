@@ -311,6 +311,12 @@ async function startPopup() {
         app.panel.open($('.panel-right'));
     })
 
+    //Cancel pending TX on window closing
+    window.addEventListener("beforeunload", function(e){
+        $('#txCancelButton').click();
+    }, false);
+
+
 
 }
 
