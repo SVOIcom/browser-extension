@@ -35,13 +35,13 @@ class walletWidget {
         this.app = app;
         this.wallet = null;
 
-        $(window).on('focus', async ()=>{
+        /*$(window).on('focus', async ()=>{
             $('.walletTokenIcon tgs-player')[0].getLottie().play();
         })
 
         $(window).on('blur', async ()=>{
             $('.walletTokenIcon tgs-player')[0].getLottie().stop();
-        })
+        })*/
 
         const enterWallet = async () => {
 

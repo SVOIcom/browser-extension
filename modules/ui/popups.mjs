@@ -105,7 +105,8 @@ class Popups {
                 let transferAmountValidate = () => {
                     let amount = $('#transferAmount').val();
                     let checker = Utils.numberToUnsignedNumber(amount);
-                    if(!checker) {
+                    //console.log('TAV', checker);
+                    if(!checker || checker==='NaN') {
                         $('#transferAmount').parent().parent().parent().addClass('item-input-invalid');
                     } else {
                         $('#transferAmount').parent().parent().parent().removeClass('item-input-invalid');
@@ -599,7 +600,7 @@ class Popups {
                 let validateAmount = () => {
                     let amount = $('#transferAmount').val();
                     let checker = Utils.numberToUnsignedNumber(amount);
-                    if(!checker) {
+                    if(!checker || checker==='NaN') {
                         $('#transferAmount').parent().parent().parent().addClass('item-input-invalid');
                     } else {
                         $('#transferAmount').parent().parent().parent().removeClass('item-input-invalid');
