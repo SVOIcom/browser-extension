@@ -843,9 +843,9 @@ class Popups {
                         let keyPair = await this.messenger.rpcCall('main_getAccountInfo', [pubKey], 'background');
 
                         let message =
-                            `Private key for 
-                         <a data-clipboard="${pubKey}" class="autoClipboard">${Utils.shortenPubkey(pubKey)}</a> account is 
-                        <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a> (click for copy)`
+                            `Public key: 
+                         <a data-clipboard="${pubKey}" class="autoClipboard">${Utils.shortenPubkey(pubKey)}</a> (click for copy) <br>
+                       Private key: <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a> (click for copy)`
 
                         // messenger.rpcCall('popup_alert', [text, publicKey], 'popup');
 
