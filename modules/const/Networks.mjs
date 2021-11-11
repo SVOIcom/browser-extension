@@ -21,7 +21,7 @@ const NETWORKS = {
         site: 'https://freeton.org/',
         faucet: {
             type: 'url',
-            address: 'https://t.me/Chatex_bot?start=r_509',
+            address: 'https://freeton.com/en/buy/',
         },
         tokenIcon: '<img src="pictures/gif/crystal.gif" class="walletIconImage" style="width: 15px; height: 15px; display: inline">'
         //tokenIcon: '💎'
@@ -33,7 +33,10 @@ const NETWORKS = {
         description: 'FreeTON test network',
         site: 'https://freeton.org/',
         tokenIcon: '<span style="color: red">♦️</span>',
-        faucet: null
+        faucet: {
+            type: 'url',
+            address: 'https://faucet.extraton.io/',
+        },
     }
 }
 

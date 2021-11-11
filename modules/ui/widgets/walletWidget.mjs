@@ -189,13 +189,7 @@ class walletWidget {
         if(currentNetwork.network.faucet) {
             if(currentNetwork.network.faucet.type === 'url') {
                 $('.getMoneyButton').show();
-                $('.getMoneyButton').click(function () {
-                    window.open(currentNetwork.network.faucet.address);
-                });
-            }
-
-            if(currentNetwork.network.faucet.type === 'url') {
-                $('.getMoneyButton').show();
+                $('.getMoneyButton').off('click');
                 $('.getMoneyButton').click(function () {
                     window.open(currentNetwork.network.faucet.address);
                 });
@@ -249,7 +243,7 @@ class walletWidget {
             $('.ifWalletNotExists').show();
             $('.createWalletButton').show();
             $('.deployWalletButton').hide();
-            $('.ifWalletNotDeployed').hide();
+            $('.ifWalletNotDeployed').show();
         }
 
 
@@ -365,7 +359,7 @@ class walletWidget {
                             <div class="item-media">${tokenInfo.icon ? tokenInfo.icon : ''}</div>
                             <div class="item-inner">
                                 <div class="item-title">${tokenInfo.name} (${tokenInfo.symbol})</div>
-                                <div class="item-after">${tokenInfo.fungible ? (tokenBalance !== null ? Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals) : 'Not deployed') : 'NFT'}</div>
+                                <div class="item-after">${tokenInfo.fungible ? (tokenBalance !== null ? Utils.nFormatter(Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals),1) : 'Not deployed') : 'NFT'}</div>
                             </div>
                         </a>
                     </li>`;

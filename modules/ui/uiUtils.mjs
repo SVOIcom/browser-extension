@@ -14,6 +14,7 @@
  */
 
 import LOCALIZATION from "../Localization.mjs";
+import Misc from "../const/Misc.mjs";
 
 
 const uiUtils = {
@@ -28,8 +29,9 @@ const uiUtils = {
         let popupObject = {
             url: 'popup.html',
             type: 'popup',
-            width: 350,
-            height: 536,
+            /*width: 350,
+            height: 536,*/
+            ...Misc.POPUP_PARAMS,
             // left: position.x,
             //  top: position.y,
             ...options

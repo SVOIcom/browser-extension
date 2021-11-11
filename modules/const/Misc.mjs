@@ -16,7 +16,11 @@
 
 const MISC = {
     VERSION: '0.0.8',
-    POPUP_FOCUSOUT_CLOSE_TIMER: 120000
+    POPUP_FOCUSOUT_CLOSE_TIMER: 120000,
+    POPUP_PARAMS:{
+        width: 350,
+        height: 600,
+    }
 };
 
 export default MISC;
