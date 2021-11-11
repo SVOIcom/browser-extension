@@ -21,13 +21,15 @@ class WalletContract {
     static WALLET_TYPES = {
         SafeMultisig: 'SafeMultisig',
         SurfMultisig: 'SurfMultisig',
+        SurfMultisigOld: 'SurfMultisigOld',
         TONCrystal: 'TONCrystal',
     }
 
     static WALLET_TYPES_LIST = [
         'SafeMultisig',
         'SURF',
-      //  'TONCrystal',
+        'SURF old'
+        //  'TONCrystal',
     ];
 
     /**
@@ -46,6 +48,13 @@ class WalletContract {
         return {
             abi: await Utils.fetchJSON('/abi/SurfMultisigWallet.abi.json', true),
             imageBase64: await Utils.fetchJSON('/abi/contracts/SurfMultisigWallet.base64.json', true)
+        }
+    }
+
+    static async SurfMultisigOld() {
+        return {
+            abi: await Utils.fetchJSON('/abi/SurfMultisigWalletold.abi.json', true),
+            imageBase64: await Utils.fetchJSON('/abi/contracts/SurfMultisigWalletold.base64.json', true)
         }
     }
 
@@ -76,6 +85,9 @@ class WalletContract {
                 return WalletContract.SurfMultisig();
             case 'TONCrystal':
                 return WalletContract.TONCrystal();
+            case 'SurfMultisigOld':
+            case 'SURF old':
+                return WalletContract.SurfMultisigOld();
         }
     }
 }

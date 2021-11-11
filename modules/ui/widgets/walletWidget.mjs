@@ -78,7 +78,25 @@ class walletWidget {
         $('.enterWalletButton').click(enterWallet);
 
         $('.createWalletButton, .editWalletButton').click(async () => {
-            let walletType = await uiUtils.popupSelector([...WalletContract.WALLET_TYPES_LIST, {
+
+            let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
+            let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
+
+            let walletsWithBalances = [];
+
+            for(let walletType of WalletContract.WALLET_TYPES_LIST){
+                let newWallet = await this.messenger.rpcCall('main_createWallet', [account.public, walletType], 'background');
+                let balance = 0;
+                try {
+                    balance = await this.messenger.rpcCall('main_getWalletBalance', [newWallet], 'background');
+                } catch (e) {
+                }
+
+                walletsWithBalances.push(`${walletType} - ${Utils.nFormatter(Utils.unsignedNumberToSigned(balance),2)} ${currentNetwork.network.tokenIcon}`)
+            }
+
+
+            let walletType = await uiUtils.popupSelector([...walletsWithBalances, {
                 text: _('Enter custom address'), onClick: async () => {
                     await enterWallet();
                 }
@@ -88,8 +106,9 @@ class walletWidget {
                 return;
             }
 
-            let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
-            let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
+            //Parse wallet type
+            walletType = walletType.split(' - ')[0];
+
 
             let newWallet = await this.messenger.rpcCall('main_createWallet', [account.public, walletType], 'background');
 

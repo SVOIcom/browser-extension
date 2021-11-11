@@ -323,6 +323,9 @@ const Utils = {
         });
     },
     nFormatter(num, digits) {
+        if(num < 1) {
+            return Number(num).toFixed(digits);
+        }
         const lookup = [
             {value: 1, symbol: ""},
             {value: 1e3, symbol: "k"},
