@@ -71,6 +71,14 @@ const TOKEN_LIST = {
             icon: '<img src="https://raw.githubusercontent.com/broxus/ton-assets/master/icons/BRIDGE/logo.svg" class="tokenIcon">',
             url: '',
         },
+        {
+            classType: 'BroxusTIP3',
+            name: 'Cola Coin',
+            symbol: 'COLA',
+            rootAddress: '0:967c87a81c2ad6a489fe006f831a11ffd8ac5bc6f7dd4e107a27e0e6a7728144',
+            icon: '🥤',
+            url: 'https://scalepunks.com/',
+        },
     ]
 };
 

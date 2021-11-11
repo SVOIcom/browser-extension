@@ -14,6 +14,7 @@
  */
 
 import Utils from "../../utils.mjs";
+import TonSwapTokenList from "../../const/TonSwapTokenList.mjs";
 import uiUtils from "../uiUtils.mjs";
 import WalletContract from "../../const/WalletContract.mjs";
 import TOKEN_LIST from "../../const/TokenList.mjs";
@@ -79,7 +80,7 @@ class walletWidget {
         $('.createWalletButton, .editWalletButton').click(async () => {
             let walletType = await uiUtils.popupSelector([...WalletContract.WALLET_TYPES_LIST, {
                 text: _('Enter custom address'), onClick: async () => {
-                   await enterWallet();
+                    await enterWallet();
                 }
             }], _('Wallet type'));
 
@@ -252,7 +253,7 @@ class walletWidget {
         }
 
 
-        await this.updateAssetsList( this.wallet?.address);
+        await this.updateAssetsList(this.wallet?.address);
 
         await this.updateHistoryList();
 
@@ -339,7 +340,6 @@ class walletWidget {
     async updateAssetsList(userWalletAddress) {
 
 
-
         const that = this;
         let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
         let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
@@ -362,7 +362,7 @@ class walletWidget {
 
             html += ` <li>
                         <a href="#" data-address="${tokenAddress}" class="item-link item-content tokenButton">
-                            <div class="item-media">${tokenInfo.icon?tokenInfo.icon:''}</div>
+                            <div class="item-media">${tokenInfo.icon ? tokenInfo.icon : ''}</div>
                             <div class="item-inner">
                                 <div class="item-title">${tokenInfo.name} (${tokenInfo.symbol})</div>
                                 <div class="item-after">${tokenInfo.fungible ? (tokenBalance !== null ? Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals) : 'Not deployed') : 'NFT'}</div>
@@ -401,7 +401,15 @@ class walletWidget {
 
             }
 
-            for (let token of TOKEN_LIST.TIP3_FUNGIBLE) {
+            let tokenList = TOKEN_LIST.TIP3_FUNGIBLE;
+            try {
+                let externalList = await (new TonSwapTokenList(null, null)).load();
+                tokenList = await externalList.getTokensInWalletFormat(tokenList);
+            } catch (e) {
+                console.log('Error loading external tokens', e)
+            }
+
+            for (let token of tokenList) {
                 tokenClickList.push({
                     text: token.name, onClick: async () => {
                         await addTokenToAccount(token.rootAddress);
