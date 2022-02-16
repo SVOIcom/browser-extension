@@ -148,10 +148,11 @@ class Token {
      * @param {number} amount
      * @param {object} userWallet
      * @param {object} keyPair
+     * @param {string|null} ownerAddress
      * @returns {Promise<*>}
      */
-    async deployWallet(amount = 0, userWallet = null, keyPair) {
-        return await this.tokenContract.deployWallet(amount, userWallet, keyPair);
+    async deployWallet(amount = 0, userWallet = null, keyPair, ownerAddress= null) {
+        return await this.tokenContract.deployWallet(amount, userWallet, keyPair, ownerAddress);
     }
 
 }

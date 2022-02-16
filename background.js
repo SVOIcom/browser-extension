@@ -271,6 +271,7 @@ const RPC = {
      * @returns {Promise<Wallet>}
      */
     main_getWalletHistory: async function (address, amount = 20) {
+        console.log('getWalletHistory', address, amount);
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         let wallet = await (new Wallet(address, ton)).init();
         window.wallet = wallet;
@@ -754,7 +755,7 @@ const RPC = {
         return actionManager.getActiveActions();
     },
 
-    main_deployTokenWallet: async function (publicKey, walletAddress, tokenRootAddress) {
+    main_deployTokenWallet: async function (publicKey, walletAddress, tokenRootAddress, ownerAddress = null) {
 
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
@@ -769,6 +770,11 @@ const RPC = {
             const token = await (new Token(tokenRootAddress, ton)).init();
 
             let tokenWalletAddress = await token.getPubkeyWalletAddress(publicKey);
+
+            //if we create wallet for other user
+            if(ownerAddress){
+                tokenWalletAddress = await token.getMultisigWalletAddress(publicKey);
+            }
 
 
             let keyPair = await getKeysFromDeployAcceptence(publicKey, 'create_token', {
@@ -799,7 +805,7 @@ const RPC = {
             }
 
 
-            let deployWalletResult = await token.deployWallet(0, await (new Wallet(walletAddress, ton)).init(), keyPair);
+            let deployWalletResult = await token.deployWallet(0, await (new Wallet(walletAddress, ton)).init(), keyPair, ownerAddress);
 
             console.log('TIP3 deploy WALLET result', deployWalletResult);
 

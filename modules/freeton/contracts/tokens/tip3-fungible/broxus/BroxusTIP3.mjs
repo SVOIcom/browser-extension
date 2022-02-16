@@ -121,7 +121,6 @@ class BroxusTIP3 {
     }
 
 
-
     /**
      * Transfer tokens
      * @param dest
@@ -230,10 +229,12 @@ class BroxusTIP3 {
      * @param tokens
      * @param {Wallet} userWallet
      * @param keyPair
+     * @param ownerAddress
      * @returns {Promise<*>}
      */
-    async deployWallet(tokens = 0, userWallet = null, keyPair) {
+    async deployWallet(tokens = 0, userWallet = null, keyPair, ownerAddress = null) {
         let publicKey = keyPair.public;
+        console.log('DEPLOY TOKEN WALLET', userWallet, keyPair, ownerAddress);
 
         try {
 
@@ -249,7 +250,7 @@ class BroxusTIP3 {
                         //wallet_public_key_: `0x${publicKey}`,
                         deploy_grams: 2e8,
                         gas_back_address: userWallet.address,//'0:0000000000000000000000000000000000000000000000000000000000000000',
-                        owner_address_: userWallet.address//'0:0000000000000000000000000000000000000000000000000000000000000000',
+                        owner_address_: ownerAddress ? ownerAddress : userWallet.address//'0:0000000000000000000000000000000000000000000000000000000000000000',
                     },
                     // keyPair
                 };
@@ -271,7 +272,7 @@ class BroxusTIP3 {
                             //wallet_public_key_: `0x${publicKey}`,
                             deploy_grams: 2e8,
                             gas_back_address: userWallet.address,//'0:0000000000000000000000000000000000000000000000000000000000000000',
-                            owner_address_: userWallet.address//'0:0000000000000000000000000000000000000000000000000000000000000000',
+                            owner_address_: ownerAddress ? ownerAddress : userWallet.address//'0:0000000000000000000000000000000000000000000000000000000000000000',
                         },
                     },
                     is_internal: true,
@@ -300,7 +301,7 @@ class BroxusTIP3 {
                         //wallet_public_key_: `0x${publicKey}`,
                         deploy_grams: 2e8,
                         gas_back_address: userWallet.address,//'0:0000000000000000000000000000000000000000000000000000000000000000',
-                        owner_address_: userWallet.address//'0:0000000000000000000000000000000000000000000000000000000000000000',
+                        owner_address_: ownerAddress ? ownerAddress : userWallet.address//'0:0000000000000000000000000000000000000000000000000000000000000000',
                     },
                     keyPair
                 };

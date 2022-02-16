@@ -109,7 +109,7 @@ class Wallet {
                 {path:"lt",direction:"ASC"}
             ],*/
             orderBy: [
-                {path: "now", direction: "DESC"}],
+                {path: "created_at", direction: "DESC"}],
             limit: limit,
             result: 'id created_at dst src boc value'
         })
@@ -121,29 +121,34 @@ class Wallet {
      * @returns {Promise<this>}
      */
     async getHistory(limit = 20) {
-        let outcomes = await this.getWalletMessages({
-            src: {
-                eq: this.address
+        try {
+            window.getWalletMessages = this.getWalletMessages;
+            let outcomes = await this.getWalletMessages({
+                src: {
+                    eq: this.address
+                }
+            }, limit);
+            let incomes = await this.getWalletMessages({
+                dst: {
+                    eq: this.address
+                }
+            }, limit);
+            let messages = [...outcomes, ...incomes];
+
+            messages = messages.sort((a, b) => b.created_at - a.created_at);
+
+            console.log('Messages', messages);
+
+            for (let i in messages) {
+                if(messages[i].value !== null) {
+                    messages[i].value = Number(messages[i].value);
+                }
             }
-        }, limit);
 
-        let incomes = await this.getWalletMessages({
-            dst: {
-                eq: this.address
-            }
-        }, limit);
-
-        let messages = [...outcomes, ...incomes];
-
-        messages = messages.sort((a, b) => b.created_at - a.created_at);
-
-        for (let i in messages) {
-            if(messages[i].value !== null) {
-                messages[i].value = Number(messages[i].value);
-            }
+            return messages;
+        } catch (e) {
+            console.log(e);
         }
-
-        return messages;
 
     }
 }

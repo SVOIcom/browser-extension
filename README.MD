@@ -1,6 +1,6 @@
-![TONWallet](icons/128.png?raw=true)
+![Everscale Wallet](icons/128.png?raw=true)
 
-# TONWallet
+# Everscale Wallet
 
 FreeTON network wallet and dapps connectivity provider
 

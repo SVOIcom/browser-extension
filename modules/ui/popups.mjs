@@ -106,7 +106,7 @@ class Popups {
                     let amount = $('#transferAmount').val();
                     let checker = Utils.numberToUnsignedNumber(amount);
                     //console.log('TAV', checker);
-                    if(!checker || checker==='NaN') {
+                    if(!checker || checker === 'NaN') {
                         $('#transferAmount').parent().parent().parent().addClass('item-input-invalid');
                     } else {
                         $('#transferAmount').parent().parent().parent().removeClass('item-input-invalid');
@@ -256,23 +256,23 @@ class Popups {
 
                 policyCheck = checkPolicyCheckbox();
 
-                $("#restoreBySeed").on("click", function(){
+                $("#restoreBySeed").on("click", function () {
                     $(this).addClass("button-active");
                     $("#restoreByKeys").removeClass("button-active");
 
-                    $("#restoreBySeedField").attr("style","");
-                    $("#restoreByKeysField").attr("style","display: none;");
+                    $("#restoreBySeedField").attr("style", "");
+                    $("#restoreByKeysField").attr("style", "display: none;");
 
                     seedPhraseField = true;
                 });
-                
 
-                $("#restoreByKeys").on("click", function(){
+
+                $("#restoreByKeys").on("click", function () {
                     $(this).addClass("button-active");
                     $("#restoreBySeed").removeClass("button-active");
 
-                    $("#restoreByKeysField").attr("style","");
-                    $("#restoreBySeedField").attr("style","display: none;");
+                    $("#restoreByKeysField").attr("style", "");
+                    $("#restoreBySeedField").attr("style", "display: none;");
 
                     seedPhraseField = false;
                 });
@@ -289,17 +289,17 @@ class Popups {
 
                     let requireDefined = 0;
 
-                    if (seedPhraseField){
+                    if(seedPhraseField) {
                         requireDefined = checkSeedPhraseExist();
                     } else {
                         requireDefined = checkKeyPairExist();
                     }
 
-                    if( requireDefined && passwordCheck === 1 && policyCheck === 1) {
+                    if(requireDefined && passwordCheck === 1 && policyCheck === 1) {
 
                         let seedPhraseVal = "";
 
-                        if (seedPhraseField){
+                        if(seedPhraseField) {
                             seedPhraseVal = $("#seedPhaseArea").val();
 
                             let seedPhraseWordsList = seedPhraseVal.match(/([a-z]+)/g);
@@ -315,10 +315,10 @@ class Popups {
                             let publicKey = ""
                             let privateKey = ""
                             let password = ""
-                            
+
                             let keyPair = {}
 
-                            if (seedPhraseField){
+                            if(seedPhraseField) {
 
                                 try {
                                     // console.log(seedPhraseVal, "<<<<<<<<<<<<<<<<<<<<<<<<");
@@ -338,7 +338,7 @@ class Popups {
 
                                 // console.log(publicKey, privateKey)
                                 // console.log("seedPhraseField");
-                                
+
 
                             } else {
 
@@ -347,7 +347,7 @@ class Popups {
 
                                 try {
 
-                                    if (publicKey.length != 64 || privateKey.length != 64) {
+                                    if(publicKey.length != 64 || privateKey.length != 64) {
                                         let errorPub64 = new Error("keysInvalid: keys that entered is not 64 characters long");
                                         errorPub64.code = 15001;
                                         throw errorPub64;
@@ -369,7 +369,6 @@ class Popups {
                                     console.log(keyPair);
 
 
-
                                 } catch (e) {
                                     seedPhraseCheck = keysInvalid(e.code);
                                     return false;
@@ -379,7 +378,7 @@ class Popups {
                                 // console.log(publicKey, privateKey);
                                 // console.log("keysField");
                             }
-                            
+
                             password = $("#password").val();
 
                             try {
@@ -388,12 +387,12 @@ class Popups {
                                 seedPhraseCheck = 1;
 
                             } catch (e) {
-                                if (seedPhraseField){
+                                if(seedPhraseField) {
                                     seedPhraseCheck = seedPhraseInvalid(e.code);
                                 } else {
                                     seedPhraseCheck = keysInvalid(e.code);
                                 }
-                                
+
                                 console.log(e)
                                 return false;
 
@@ -600,7 +599,7 @@ class Popups {
                 let validateAmount = () => {
                     let amount = $('#transferAmount').val();
                     let checker = Utils.numberToUnsignedNumber(amount);
-                    if(!checker || checker==='NaN') {
+                    if(!checker || checker === 'NaN') {
                         $('#transferAmount').parent().parent().parent().addClass('item-input-invalid');
                     } else {
                         $('#transferAmount').parent().parent().parent().removeClass('item-input-invalid');
@@ -638,7 +637,13 @@ class Popups {
                         if(isTokenWallet) {
                             $('.transferTypeHolder').text('✅ ' + _('Address resolved as TIP-3 wallet')).show();
                         } else {
-                            $('.transferTypeHolder').text('⚠ ' + _(` Can't resolve address as TIP-3 wallet`)).show();
+                            let resolvedAddress = await messenger.rpcCall('main_getTokenWalletAddress', [rootTokenAddress, null, address], 'background');
+                            let isResolvedTokenWallet = await messenger.rpcCall('main_isTokenWalletAddress', [rootTokenAddress, resolvedAddress], 'background');
+                            if(isResolvedTokenWallet) {
+                                $('.transferTypeHolder').text('✅ ' + _('Address has deployed TIP-3 wallet')).show();
+                            } else {
+                                $('.transferTypeHolder').text('⚠ ' + _(` Can't resolve address as TIP-3 wallet`)).show();
+                            }
                         }
 
                     }
@@ -654,6 +659,9 @@ class Popups {
                 $('#txTransfer').once('click', async () => {
 
                     let tokenInfo = await messenger.rpcCall('main_getTokenInfo', [rootTokenAddress], 'background');
+                    let account = await messenger.rpcCall('main_getAccount', undefined, 'background');
+                    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
+
 
                     let amount = $('#transferAmount').val();
                     let address = $('#resolvedAddress').val();
@@ -669,8 +677,11 @@ class Popups {
 
                     let isTokenWallet = await messenger.rpcCall('main_isTokenWalletAddress', [rootTokenAddress, address], 'background');
                     if(!isTokenWallet) {
+                        //NOTE: Тут была проверка, что если получатель не определен как кошелек токена, то следует пользователю
+                        //Предложить два адреса - перевести напрямую или вычисленный адрес из этого токена
+                        //Люди много путались, поэтому было принято решение убрать такой метод
                         let resolvedAddress = await messenger.rpcCall('main_getTokenWalletAddress', [rootTokenAddress, null, address], 'background');
-                        address = await uiUtils.popupSelector([{
+                        /*address = await uiUtils.popupSelector([{
                             text: _('Original address:') +' '+  Utils.shortenPubkey(address), onClick: async function () {
                                 return address
                             }
@@ -679,11 +690,33 @@ class Popups {
                                 return resolvedAddress
                             }
                         }], _('Select TIP-3 transfer address'))
+
+                         */
+
+                        let isResolvedTokenWallet = await messenger.rpcCall('main_isTokenWalletAddress', [rootTokenAddress, resolvedAddress], 'background');
+                        if(isResolvedTokenWallet) {
+                            address = resolvedAddress;
+                        } else {
+                            let result = await new Promise((resolve, reject) => {
+                                app.dialog.confirm(`We could not detect the existence of a TIP-3 wallet at this address. Would you like to create it?`, _(`Action required`), () => {
+                                    resolve(true)
+                                }, () => {
+                                    resolve(false)
+                                });
+                            })
+
+                            //Delpoy wallet for user
+                            if(result){
+
+                                let deployTokenWallet = await messenger.rpcCall('main_deployTokenWallet', [account.public, userWalletAddress, rootTokenAddress, address], 'background');
+
+                                address = resolvedAddress;
+                            }
+                        }
+
                     }
 
 
-                    let account = await messenger.rpcCall('main_getAccount', undefined, 'background');
-                    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
 
 
                     Utils.appBack();
@@ -804,7 +837,7 @@ class Popups {
 
         return new Promise(async (resolve, reject) => {
             window.app.views.main.router.navigate("/accSettings", {animate: false});
-            app.once('pageInit',async () => {       
+            app.once('pageInit', async () => {
 
                 $("#submit").on("click", async () => {
                     let AccountValid = checkAccountName();
@@ -827,7 +860,7 @@ class Popups {
 
                         let keys = await this.messenger.rpcCall('main_getPublicKeys', undefined, 'background');
 
-                        if (keys.length != 0){
+                        if(keys.length != 0) {
                             await this.messenger.rpcCall('main_changeAccount', [keys[keys.length - 1],], 'background');
                         }
 

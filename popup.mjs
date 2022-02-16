@@ -244,6 +244,10 @@ async function startPopup() {
     LOCALIZATION.startTimer();
 
 
+    let manifest = await Utils.fetchJSON('/package.json');
+    console.log('manifest', manifest);
+    $('#version').text('Version ' + manifest.version);
+
     let currentLang = LOCALIZATION.currentLang;
     console.log(currentLang);
     $(`#${currentLang}`).attr("style", "color: blue");

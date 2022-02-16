@@ -291,6 +291,7 @@ class walletWidget {
      */
     async updateHistoryList() {
 
+
         let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
         let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
         if(account.wallets[currentNetwork.name]) {
