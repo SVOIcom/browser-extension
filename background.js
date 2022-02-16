@@ -978,9 +978,9 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
             let wallet = await (new Wallet(address, ton)).init();
             let balance = Utils.nFormatter(Utils.unsignedNumberToSigned(await wallet.getBalance()), 1);
 
-            chrome.browserAction.setBadgeText({text: balance + '💎'});
+            chrome.browserAction.setBadgeText({text: balance + '💸'});
         }catch (e) {
-            chrome.browserAction.setBadgeText({text: 0 + '💎'});
+            chrome.browserAction.setBadgeText({text: 0 + '💸'});
         }
     }
     setInterval(updateBadge, 60000);
