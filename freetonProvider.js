@@ -112,6 +112,18 @@ window.addEventListener('load', async () => {
         window.getTONClient = getTONClient;
     }
 
+    if(typeof window.getEver === 'undefined') {
+        window.getEver = getTON;
+    }
+
+    if(typeof window.getEverWeb === 'undefined') {
+        window.getEverWeb = getTONWeb;
+    }
+
+    if(typeof window.getEverClient === 'undefined') {
+        window.getEverClient = getTONClient;
+    }
+
 
 });
 
