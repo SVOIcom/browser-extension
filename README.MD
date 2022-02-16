@@ -18,7 +18,7 @@ FreeTON network wallet and dapps connectivity provider
 * Work with the main and test FreeTON network, and add your custom one 
 * Select useful name for public key
 * ton-client-web-js and ton-client-js (partial) injection support
-* [Scale.domains by SolderingArmor](https://github.com/SolderingArmor/dens-v2) resolver
+* [Scale.domains by SuperArmor](https://github.com/SolderingArmor/dens-v2) resolver
 * Chromium-based browser support: Google Chrome, Opera, Brevity, Microsoft Edge and etc.
 
 And more
