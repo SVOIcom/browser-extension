@@ -264,3 +264,8 @@ a{
 
     color: #7355fc;
 }
+
+.everscalizeButton{
+    transform: rotate(45deg);
+    font-weight: 900;
+}
