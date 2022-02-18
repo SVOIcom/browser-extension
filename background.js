@@ -923,7 +923,7 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
 
 //Setup new TON libriary
 tonclientWeb.libWebSetup({
-    binaryURL: 'ton-client-js/tonclient.wasm',
+    binaryURL: 'ever-sdk-js/eversdk.wasm',
 });
 tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
 

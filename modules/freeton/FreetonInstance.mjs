@@ -14,6 +14,7 @@
  */
 
 import TonClientWrapper from "../TonClientWrapper.mjs";
+import NewTonClientWrapper from "../NewTonClientWrapper.mjs";
 
 /**
  * Freeton instancer
@@ -36,8 +37,23 @@ class FreetonInstance {
             servers: [server]
         });
 
+        //TODO: move to "low level" TON client
+        try {
+            console.log('Creating low level TON client');
+            let lowLevelTON = await (new NewTonClientWrapper(true, true)).create({
+                servers: [server]
+            });
+
+            FreetonInstance.freeTONInstances[server].lowLevel = lowLevelTON;
+        }catch (e) {
+            console.log('Failed to create low level TON client', e);
+        }
+
+
         return FreetonInstance.freeTONInstances[server]
     }
+
+
 }
 
 export default FreetonInstance;

@@ -41,8 +41,8 @@
     "browser-polyfill.js",
     "ton-client/main.js",
     "ton-client/tonclient.wasm",
-    "ton-client-js/tonclient.wasm",
-    "ton-client-js/main.js",
+    "ever-sdk-js/eversdk.wasm",
+    "ever-sdk-js/main.js",
     "freetonProvider.js",
     "modules/*",
     "packages/*"

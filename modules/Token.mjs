@@ -16,8 +16,14 @@
 import Tokens from "./freeton/contracts/tokens/Tokens.mjs";
 import TOKEN_LIST from "./const/TokenList.mjs";
 
+const SUPPORT_TOKEN_CLASSES = [
+    Tokens.TOKEN_TYPE.TIP3_FUNGIBLE_TOKENS.broxus,
+    Tokens.TOKEN_TYPE.TIP3_FUNGIBLE_TOKENS.tip31
+];
+
+
 class Token {
-    constructor(rootAddress, ton, tokenClass = Tokens.TOKEN_TYPE.TIP3_FUNGIBLE_TOKENS.broxus) {
+    constructor(rootAddress, ton, tokenClass = undefined) {
         this.rootAddress = rootAddress;
         this.ton = ton;
         this.tokenClass = tokenClass;
@@ -29,8 +35,37 @@ class Token {
      * @returns {Promise<Token>}
      */
     async init() {
-        this.tokenContract = await (new (Tokens.getTokenContract(this.tokenClass))(this.ton, this.rootAddress)).init();
+
+        //If class not defined, try to detect it
+        if(!this.tokenClass) {
+            let {tokenClass, tokenContract} = await this.detectTokenClass();
+            this.tokenClass = tokenClass;
+            this.tokenContract = tokenContract;
+        } else {
+            this.tokenContract = await (new (Tokens.getTokenContract(this.tokenClass))(this.ton, this.rootAddress)).init();
+        }
         return this;
+    }
+
+    /**
+     * Detect token class by root address
+     * @returns {Promise<{tokenClass: (string), tokenContract: *}>}
+     */
+    async detectTokenClass() {
+        for (let tokenClass of SUPPORT_TOKEN_CLASSES) {
+            try {
+                let tokenContract = await (new (Tokens.getTokenContract(tokenClass))(this.ton, this.rootAddress)).init();
+
+                //TODO Предусмотреть более элегантный способ детектировать класс (но не по хешу кода,это отстой)
+                await tokenContract.getTokenInfo();
+                return {tokenContract, tokenClass};
+
+            } catch (e) {
+                continue;
+            }
+        }
+
+        throw new Error("Can't detect token class");
     }
 
     /**
@@ -43,6 +78,10 @@ class Token {
         switch (this.tokenClass) {
             case "BroxusTIP3":
                 searchlist = TOKEN_LIST.TIP3_FUNGIBLE;
+                break;
+            case "BroxusTIP3_1":
+                searchlist = TOKEN_LIST.TIP3_FUNGIBLE;
+                break;
         }
 
         for (let token of searchlist) {
@@ -61,13 +100,16 @@ class Token {
     async getInfo() {
         let tokenInfo = await this.tokenContract.getTokenInfo();
 
+        let tokenClassInstance = Tokens.getTokenContract(this.tokenClass);
+
         //TODO check token info for potential XSS
         return {
             ...tokenInfo,
             icon: tokenInfo.icon ? `<img src="${tokenInfo.icon}" class="tokenIcon">` : await this.getTokenIcon(this.rootAddress),
             rootAddress: this.rootAddress,
-            type: (Tokens.getTokenContract(this.tokenClass)).TOKEN_TYPE,
-            fungible: (Tokens.getTokenContract(this.tokenClass)).TOKEN_FUNGUBLE
+            type: tokenClassInstance.TOKEN_TYPE,
+            fungible: tokenClassInstance.TOKEN_FUNGUBLE,
+            deprecated: tokenClassInstance.IS_DEPRECATED
         }
     }
 
@@ -139,7 +181,7 @@ class Token {
      * @param multisigAddress
      * @returns {Promise<*>}
      */
-    async multisigTransfer(dest, amount, keyPair, multisigAddress){
+    async multisigTransfer(dest, amount, keyPair, multisigAddress) {
         return await this.tokenContract.multisigTransfer(dest, amount, keyPair, multisigAddress)
     }
 
@@ -151,7 +193,7 @@ class Token {
      * @param {string|null} ownerAddress
      * @returns {Promise<*>}
      */
-    async deployWallet(amount = 0, userWallet = null, keyPair, ownerAddress= null) {
+    async deployWallet(amount = 0, userWallet = null, keyPair, ownerAddress = null) {
         return await this.tokenContract.deployWallet(amount, userWallet, keyPair, ownerAddress);
     }
 

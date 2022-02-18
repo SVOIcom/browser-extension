@@ -25,6 +25,7 @@ class BroxusTIP3 {
     static WALLET_CODE_HASH = '2f062cde9cc0e2999f6bded5b4f160578b81530aaa3ae7d7077df60cd40f6056';
     static TOKEN_TYPE = 'TIP3';
     static TOKEN_FUNGUBLE = true;
+    static IS_DEPRECATED = true;
 
     constructor(ton, rootAddress) {
         this.ton = ton;
