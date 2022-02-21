@@ -28,11 +28,12 @@ class NewTonClientWrapper extends EventEmitter3 {
     }
 
 
-    constructor(disableMocks = false) {
+    constructor(disableMocks = false, internal = false) {
         super();
         this._rawTon = null;
         this._externalRequests = {};
         this.disableMocks = disableMocks;
+        this._internal = internal;
 
         this._setupAccounts();
         this._setupNetwork();
@@ -48,46 +49,59 @@ class NewTonClientWrapper extends EventEmitter3 {
 
         console.log('Warning: Using ton-client-js library is not recommended due to the incomplete implementation of integration with the extension. Use this library for additional functions only.')
 
+
         //Configure RPC
         if(this._rawTon === null) {
-            window.addEventListener("message", async (event) => {
-                // We only accept messages from ourselves
-                if(event.source != window) {
-                    return;
-                }
-
-                //is RPC call
-                if(event.data.requestId && event.data.result !== undefined) {
-                    if(this._externalRequests[event.data.requestId]) {
-                        this._externalRequests[event.data.requestId](event.data);
-                        delete this._externalRequests[event.data.requestId];
+            if(!this.disableMocks) {
+                window.addEventListener("message", async (event) => {
+                    // We only accept messages from ourselves
+                    if(event.source != window) {
+                        return;
                     }
-                }
 
-                //Other messages
-                if(event.data.broadcastMessage) {
-                    switch (event.data.broadcastMessage) {
-
-                        //Network changed. Sets new params
-                        case MESSAGES.NETWORK_CHANGED:
-                            let network = await this.network.get();
-                            await this.setServers(network.network.url);
-                            break;
-
-                        case MESSAGES.ACCOUNT_CHANGED:
-                            this.emit(this.EVENTS.ACCOUNT_CHANGED, await this.accounts.getAccount());
-                            break;
-                        default:
-                            //nop
-                            break;
+                    //is RPC call
+                    if(event.data.requestId && event.data.result !== undefined) {
+                        if(this._externalRequests[event.data.requestId]) {
+                            this._externalRequests[event.data.requestId](event.data);
+                            delete this._externalRequests[event.data.requestId];
+                        }
                     }
-                }
-            });
+
+                    //Other messages
+                    if(event.data.broadcastMessage) {
+                        switch (event.data.broadcastMessage) {
+
+                            //Network changed. Sets new params
+                            case MESSAGES.NETWORK_CHANGED:
+                                let network = await this.network.get();
+                                await this.setServers(network.network.url);
+                                break;
+
+                            case MESSAGES.ACCOUNT_CHANGED:
+                                this.emit(this.EVENTS.ACCOUNT_CHANGED, await this.accounts.getAccount());
+                                break;
+                            default:
+                                //nop
+                                break;
+                        }
+                    }
+                });
+            }
+        }
+
+       /// console.log('AAAA', options);
+        if(options.servers) {
+            if(!options.network) {
+                options.network = {};
+            }
+            if(!options.network.server_address) {
+                options.network.server_address = options.servers.shift();
+            }
         }
 
         this._rawTon = new tonclientWeb.TonClient({
             ...options, network: {
-                server_address: (await this._extensionRPCCall('main_getNetwork')).network.url
+                server_address: this._internal ? options.network.server_address : (await this._extensionRPCCall('main_getNetwork')).network.url
             }
         });
 

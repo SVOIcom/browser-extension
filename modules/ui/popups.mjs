@@ -635,14 +635,14 @@ class Popups {
 
                         let isTokenWallet = await messenger.rpcCall('main_isTokenWalletAddress', [rootTokenAddress, address], 'background');
                         if(isTokenWallet) {
-                            $('.transferTypeHolder').text('✅ ' + _('Address resolved as TIP-3 wallet')).show();
+                            $('.transferTypeHolder').text('✅ ' + _('Address resolved as TIP-3/TIP-3.1 wallet')).show();
                         } else {
                             let resolvedAddress = await messenger.rpcCall('main_getTokenWalletAddress', [rootTokenAddress, null, address], 'background');
                             let isResolvedTokenWallet = await messenger.rpcCall('main_isTokenWalletAddress', [rootTokenAddress, resolvedAddress], 'background');
                             if(isResolvedTokenWallet) {
-                                $('.transferTypeHolder').text('✅ ' + _('Address has deployed TIP-3 wallet')).show();
+                                $('.transferTypeHolder').text('✅ ' + _('Address has deployed TIP-3/TIP-3.1 wallet')).show();
                             } else {
-                                $('.transferTypeHolder').text('⚠ ' + _(` Can't resolve address as TIP-3 wallet`)).show();
+                                $('.transferTypeHolder').text('⚠ ' + _(` Can't resolve address as TIP-3/TIP-3.1wallet`)).show();
                             }
                         }
 
@@ -698,7 +698,7 @@ class Popups {
                             address = resolvedAddress;
                         } else {
                             let result = await new Promise((resolve, reject) => {
-                                app.dialog.confirm(`We could not detect the existence of a TIP-3 wallet at this address. Would you like to create it?`, _(`Action required`), () => {
+                                app.dialog.confirm(`We could not detect the existence of a TIP-3/TIP-3.1 wallet at this address. Would you like to create it?`, _(`Action required`), () => {
                                     resolve(true)
                                 }, () => {
                                     resolve(false)
@@ -813,7 +813,7 @@ class Popups {
                 });
 
                 $('.deployTokenWalletButton').click(async () => {
-                    let deployTokenWallet = await messenger.rpcCall('main_deployTokenWallet', [publicKey, userWalletAddress, rootTokenAddress], 'background');
+                    let deployTokenWallet = await messenger.rpcCall('main_deployTokenWallet', [publicKey, userWalletAddress, rootTokenAddress, userWalletAddress], 'background');
 
                 });
 
