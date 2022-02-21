@@ -96,12 +96,6 @@ class BroxusTIP3_1 {
      */
     async getTokenInfo() {
 
-        console.log('Get token info');
-        // try {
-        console.log(await this.runLocal(this.RootABI, this.rootAddress, 'name', {answerId: 0}))
-        // } catch (e) {
-        //     console.log(e);
-        //}
 
         try {
             let name = (await this.runLocal(this.RootABI, this.rootAddress, 'name', {answerId: 0})).value0;
