@@ -813,7 +813,7 @@ class Popups {
                 });
 
                 $('.deployTokenWalletButton').click(async () => {
-                    let deployTokenWallet = await messenger.rpcCall('main_deployTokenWallet', [publicKey, userWalletAddress, rootTokenAddress], 'background');
+                    let deployTokenWallet = await messenger.rpcCall('main_deployTokenWallet', [publicKey, userWalletAddress, rootTokenAddress, userWalletAddress], 'background');
 
                 });
 

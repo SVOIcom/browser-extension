@@ -769,17 +769,19 @@ const RPC = {
 
             const token = await (new Token(tokenRootAddress, ton)).init();
 
-            let tokenWalletAddress = await token.getPubkeyWalletAddress(publicKey);
+            console.log('DEPLOY TOKEN WALLET', publicKey, walletAddress, tokenRootAddress, ownerAddress);
+
+            let tokenWalletAddress = await token.getMultisigWalletAddress(ownerAddress);
 
             //if we create wallet for other user
-            if(ownerAddress){
-                tokenWalletAddress = await token.getMultisigWalletAddress(publicKey);
+            if(!ownerAddress){
+                tokenWalletAddress = await token.getPubkeyWalletAddress(publicKey);
             }
 
 
             let keyPair = await getKeysFromDeployAcceptence(publicKey, 'create_token', {
                 address: tokenWalletAddress,
-                additionalMessage: `${_('This action deploy new TIP3 token wallet')} 1 TON`,
+                additionalMessage: `${_('This action deploy new token wallet')} 1 TON`,
             }, undefined, true);
 
 
