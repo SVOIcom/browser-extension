@@ -20,8 +20,8 @@ import Wallet from "../../../Wallet.mjs";
 class BroxusTIP3_1 {
 
     static CLASS_NAME = 'BroxusTIP3_1';
-    static ROOT_CODE_HASH = '2ff4aaaab0f31d5a7b276b78a490277aa043d445bb71ac7c3dac8ae9e39b4d23';
-    static WALLET_CODE_HASH = '2f062cde9cc0e2999f6bded5b4f160578b81530aaa3ae7d7077df60cd40f6056';
+    //static ROOT_CODE_HASH = '2ff4aaaab0f31d5a7b276b78a490277aa043d445bb71ac7c3dac8ae9e39b4d23';
+    //static WALLET_CODE_HASH = '2f062cde9cc0e2999f6bded5b4f160578b81530aaa3ae7d7077df60cd40f6056';
     static TOKEN_TYPE = 'TIP3_1';
     static TOKEN_FUNGUBLE = true;
     static IS_DEPRECATED = false;
@@ -96,12 +96,6 @@ class BroxusTIP3_1 {
      */
     async getTokenInfo() {
 
-        console.log('Get token info');
-        // try {
-        console.log(await this.runLocal(this.RootABI, this.rootAddress, 'name', {answerId: 0}))
-        // } catch (e) {
-        //     console.log(e);
-        //}
 
         try {
             let name = (await this.runLocal(this.RootABI, this.rootAddress, 'name', {answerId: 0})).value0;
