@@ -131,6 +131,7 @@ if(typeof window.freeton === 'undefined') {
     };
 }
 
+window.__hasEverscaleProvider = true;
 
 window._emulateCrystalAccepted = null;
 if(typeof window.ton === 'undefined') {
@@ -145,6 +146,7 @@ if(typeof window.ton === 'undefined') {
     window._notProxiedRequest =  window.ton.request;
 
 
+    window._emulateCrystalAccepted = true;
     window.ton.request = async (request) => {
             let accept;
             if(!window._emulateCrystalAccepted) {
@@ -155,6 +157,9 @@ if(typeof window.ton === 'undefined') {
                 console.log('Crystal wallet emulation allowed. Redirect request ', request)
                 window._emulateCrystalAccepted = true;
                 await CrystalWalletEmulationProxy.init();
+
+                window.ton.request = window._notProxiedRequest;
+
                 return await  window._notProxiedRequest(request);
             } else {
                 window._emulateCrystalAccepted = false;
