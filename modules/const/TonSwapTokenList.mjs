@@ -21,6 +21,8 @@ const TONSWAP_EXPLORERS_TOKEN_LIST = {
     test: 'https://explorer.tonswap.com/api/tokens'
 }
 
+const BROXUS_TOKEN_LIST = 'https://raw.githubusercontent.com/broxus/ton-assets/master/manifest.json';
+
 class TonSwapTokenList {
     constructor(listUrl = '/json/tokensList.json', ton = null) {
         this.listUrl = listUrl;
@@ -57,9 +59,54 @@ class TonSwapTokenList {
             token.symbol = token.ticker;
         }
 
+        let processedExplorerTokens = [];
+
+        for(let rawToken of explorerTokens){
+            if(await this.tokenExists(rawToken.tokenRoot)){
+                continue;
+            }
+
+            rawToken.name = rawToken.name +' (OLD)';
+            rawToken.deprecated = true;
+            processedExplorerTokens.push(rawToken);
+        }
+
         console.log(explorerTokens);
 
-        this.tokens = [...newTokens, ...explorerTokens];
+        this.tokens = [...newTokens, ...processedExplorerTokens];
+
+        //Load Broxus list
+        try {
+            let broxusFile = await utils.fetchJSON(BROXUS_TOKEN_LIST);
+            let tokens = broxusFile.tokens;
+            let processedTokens = [];
+            for (let rawToken of tokens) {
+                if(await this.tokenExists(rawToken.address)){
+                    continue;
+                }
+                let token = {
+                    rootAddress: rawToken.address,
+                    tokenRoot: rawToken.address,
+                    decimals: rawToken.decimals,
+                    icon: rawToken.logoURI?`<img src="${rawToken.logoURI}" class="tokenIcon">`:null,
+                    tokenIcon: rawToken.logoURI?`<img src="${rawToken.logoURI}" class="tokenIcon">`:null,
+                    symbol: rawToken.symbol,
+                    name: rawToken.name,
+                    deprecated: false,
+                    _version: rawToken.version
+                    //We can identify other fields from the root address
+                };
+                processedTokens.push(token);
+            }
+            this.tokens = [...this.tokens, ...processedTokens];
+
+
+        } catch (e) {
+            console.log('Error loading Broxus list', e);
+        }
+
+
+        this.tokens.sort((a, b) => { return a.name.localeCompare(b.name) });
 
 
         return this;
@@ -99,6 +146,16 @@ class TonSwapTokenList {
         }
 
         return formattedTokens;
+    }
+
+    async tokenExists(rootAddress){
+        for (let token of this.tokens) {
+            if(token.rootAddress === rootAddress) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

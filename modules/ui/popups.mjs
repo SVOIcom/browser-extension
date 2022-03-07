@@ -767,6 +767,7 @@ class Popups {
 
                 let tokenInfo = await messenger.rpcCall('main_getTokenInfo', [rootTokenAddress], 'background');
                 let walletAddress = await messenger.rpcCall('main_getTokenWalletAddress', [rootTokenAddress, publicKey, userWalletAddress], 'background');
+                let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
 
                 console.log(tokenInfo);
 
@@ -775,10 +776,10 @@ class Popups {
                 $('.tokenRootAddress').html(`<a data-clipboard="${rootTokenAddress}" class="autoClipboard" >${Utils.shortenPubkey(rootTokenAddress)}</a>`);
                 try {
                     let balance = await messenger.rpcCall('main_getWalletBalance', [walletAddress], 'background');
-                    $('.tokenTonBalance').html('Contract balance: ' + Utils.unsignedNumberToSigned(balance) + ' TON');
+                    $('.tokenTonBalance').html('Contract balance: ' + Utils.unsignedNumberToSigned(balance) + ' EVER');
                 } catch (e) {
                     $('.tokenTonBalance').html(``);
-                    console.log('ERROR GETTING TOKEN WALLET TON BALANCE', e)
+                    console.log('ERROR GETTING TOKEN WALLET EVER BALANCE', e)
                 }
 
                 $('.tokenWalletTokenIcon').html(tokenInfo.icon);
@@ -787,6 +788,15 @@ class Popups {
                 $('.getTokenButton').click(function () {
                     window.open($(this).attr('href'));
                 });
+
+                $('.removeTokenButton').click(async ()=>{
+                    app.dialog.confirm(_(`Are you sure you want to remove this token?`), async() => {
+                      await  messenger.rpcCall('main_removeAccountToken', [ publicKey,rootTokenAddress, currentNetwork.name], 'background');
+                      Utils.appBack();
+                      await window.updateWalletWidget();
+                    });
+                });
+
 
                 let tokenBalance = null;
                 try {

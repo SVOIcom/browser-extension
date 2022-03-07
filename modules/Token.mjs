@@ -15,6 +15,7 @@
 
 import Tokens from "./freeton/contracts/tokens/Tokens.mjs";
 import TOKEN_LIST from "./const/TokenList.mjs";
+import TonSwapTokenList from "./const/TonSwapTokenList.mjs";
 
 const SUPPORT_TOKEN_CLASSES = [
     Tokens.TOKEN_TYPE.TIP3_FUNGIBLE_TOKENS.broxus,
@@ -69,7 +70,7 @@ class Token {
     }
 
     /**
-     * Search token icon from list
+     * Search token icon from lists
      * @param rootAddress
      * @returns {Promise<null|*>}
      */
@@ -88,6 +89,13 @@ class Token {
             if(token.rootAddress === rootAddress) {
                 return token.icon;
             }
+        }
+
+        let externalList = new TonSwapTokenList(null, null)
+        await externalList.load()
+        let token = await externalList.getTokenByRootAddress(rootAddress);
+        if(token) {
+            return token.icon;
         }
 
         return null;
