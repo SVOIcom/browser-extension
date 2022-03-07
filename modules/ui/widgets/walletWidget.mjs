@@ -189,6 +189,11 @@ class walletWidget {
 
         }, 1000)
 
+        //Set global methods
+        window.updateWalletWidget = async ()=>{
+            return await  this.updateWalletWidget();
+        }
+
 
     }
 

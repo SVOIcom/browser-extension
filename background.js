@@ -620,6 +620,24 @@ const RPC = {
     },
 
     /**
+     * Remove token from account
+     * @param publicKey
+     * @param tokenRootAddress
+     * @param network
+     * @returns {Promise<boolean>}
+     */
+    main_removeAccountToken: async function (publicKey, tokenRootAddress, network) {
+
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+        const tokenManager = await (new TokenManager()).init();
+        await tokenManager.removeAccountToken(publicKey, tokenRootAddress, network);
+
+        return true;
+    },
+
+    /**
      * Transfer token
      * @param {string} rootTokenAddress Token Root address
      * @param {string} walletAddress Current wallet
