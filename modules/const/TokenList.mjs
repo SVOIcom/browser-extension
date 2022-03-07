@@ -79,6 +79,14 @@ const TOKEN_LIST = {
             icon: '🥤',
             url: 'https://scalepunks.com/',
         },
+        {
+            classType: 'BroxusTIP3_1',
+            name: 'Whiskey',
+            symbol: 'Whiskey',
+            rootAddress: '0:d893fe68910b9d65446a7a4e8adb245e8c9bc5d981ced60a9dd1546dca9d6500',
+            icon: '🥃',
+            url: 'https://scalepunks.com/',
+        },
     ]
 };
 
