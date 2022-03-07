@@ -2,9 +2,9 @@
 
 # Everscale Wallet
 
-FreeTON network wallet and dapps connectivity provider
+Everscale network wallet and dapps connectivity provider
 
-[tonwallet.io](https://tonwallet.io)
+[https://everscalewallet.com/](https://everscalewallet.com/)
 
 ## Features
 
@@ -14,8 +14,8 @@ FreeTON network wallet and dapps connectivity provider
 * Import existing seed phrase
 * Deploy SafeMultisig and SURF contract wallets
 * Transfer Crystal and Ruby
-* Create and transfer TIP3 fungible tokens (most advanced version of TIP3 fungible token contracts)
-* Work with the main and test FreeTON network, and add your custom one 
+* Transfer TIP3/TIP-3.1 fungible tokens
+* Work with the main and test Everscale network, and add your custom one 
 * Select useful name for public key
 * ton-client-web-js and ton-client-js (partial) injection support
 * [Agual.TEAM freeton.domains DeNs](https://github.com/laugual) resolver
