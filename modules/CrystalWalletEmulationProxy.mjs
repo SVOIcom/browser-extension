@@ -184,21 +184,15 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                 address = (await that.ton.accounts.getWalletInfo()).address;
                                 publicKey = (await that.ton.accounts.getAccount()).public;
 
-                                let messagePayload = await that._payload(params.payload.abi, params.payload.method, params.payload.params);
-                                let transferResult = await that.everClient.accounts.walletTransfer(publicKey, params.sender, params.recipient, params.amount, messagePayload, params.bounce);
-
-
-                                /*let rawTransaction = transferResult.transaction;
-
-                                rawTransaction.in_message = await that._getMessage(rawTransaction.in_msg);
-
-                                rawTransaction.out_messages = [];
-
-                                for (let msg of rawTransaction.out_msgs) {
-                                    rawTransaction.out_messages.push(await that._getMessage(msg))
+                                let transferResult = null;
+                                let messagePayload = null;
+                                if(!params.payload) {
+                                    transferResult = await that.everClient.accounts.walletTransfer(publicKey, params.sender, params.recipient, params.amount, '', params.bounce);
+                                } else {
+                                    messagePayload = await that._payload(params.payload.abi, params.payload.method, params.payload.params);
+                                    transferResult = await that.everClient.accounts.walletTransfer(publicKey, params.sender, params.recipient, params.amount, messagePayload, params.bounce);
                                 }
 
-                                let transaction = that._formatTransaction(transferResult.transaction);*/
 
                                 let transaction = await that._getTransaction(transferResult.transaction.id);
 
@@ -230,6 +224,12 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                 that.emit('permissionsChanged', {permissions: {}});
                                 return {};
 
+                            case 'packIntoCell':
+
+                                //TODO implement packIntoCell. Not using mock for most of cases
+                                if(!params.data.data) {
+                                    return {boc: ''/*'te6ccgEBAgEABQABAAEAAA=='*/};
+                                }
                         }
 
                         throw new Error('Unsupported method ' + method);
@@ -437,7 +437,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
         return transactions;
     }
 
-    async _getTransaction(id){
+    async _getTransaction(id) {
         let TON = this.everClient;
 
         let transactionsRaw = (await TON.net.query_collection({
@@ -533,18 +533,26 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
             }
         }
 
-        console.log('methodParams', methodParams);
+        // console.log('methodParams', methodParams);
 
         let inputsMap = {};
         for (let input of methodParams.inputs) {
             inputsMap[input.name] = input.type;
         }
 
-        console.log('inputsMap', inputsMap);
+        // console.log('inputsMap', inputsMap);
 
         for (let keyOfArgs of Object.keys(args)) {
             if(inputsMap[keyOfArgs] === 'bytes') {
                 args[keyOfArgs] = Buffer.from(args[keyOfArgs], 'base64').toString('hex');
+            }
+
+            /*if(typeof args[keyOfArgs] === 'object'){
+                args[keyOfArgs] = JSON.stringify(args[keyOfArgs]);
+            }*/
+
+            if(Array.isArray(args[keyOfArgs]) && args[keyOfArgs].length === 0){
+                args[keyOfArgs] = {};
             }
         }
 
