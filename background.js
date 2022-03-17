@@ -773,6 +773,38 @@ const RPC = {
         return actionManager.getActiveActions();
     },
 
+    async main_signDataRaw(publicKey, data = '') {
+        actionManager.startActionOnce('main_signDataRaw');
+        try {
+
+            let keyPair = await getKeysFromDeployAcceptence(publicKey, 'sign_data_raw', {
+                //address: tokenWalletAddress,
+                additionalMessage: `${_('You are signing data')}: ${_(data)}`, //TODO fix injection
+            }, 'Sign', false);
+
+            let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+
+            let sign = await ton.lowLevel.crypto.sign({unsigned: data, keys: keyPair});
+
+
+            actionManager.endAction('main_signDataRaw');
+
+            return {
+                signature: Buffer.from(sign.signature, 'hex').toString('base64'),
+                signatureFull: sign.signed,
+                signatureHex: sign.signature,
+                signatureParts: {
+                    high: `0x${sign.signature.slice(0, 64)}`,
+                    low: `0x${sign.signature.slice(64, 128)}`,
+                }
+            }
+
+        } catch (e) {
+            actionManager.endAction('main_signDataRaw');
+            throw e;
+        }
+    },
+
     main_deployTokenWallet: async function (publicKey, walletAddress, tokenRootAddress, ownerAddress = null) {
 
         if(this.sender !== 'popup') {
@@ -792,7 +824,7 @@ const RPC = {
             let tokenWalletAddress = await token.getMultisigWalletAddress(ownerAddress);
 
             //if we create wallet for other user
-            if(!ownerAddress){
+            if(!ownerAddress) {
                 tokenWalletAddress = await token.getPubkeyWalletAddress(publicKey);
             }
 
@@ -988,7 +1020,7 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
 
 
     //Badge updater
-    const updateBadge = async ()=>{
+    const updateBadge = async () => {
         try {
             let account = await accountManager.getAccount();
             let network = await networkManager.getNetwork()
@@ -999,7 +1031,7 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
             let balance = Utils.nFormatter(Utils.unsignedNumberToSigned(await wallet.getBalance()), 1);
 
             chrome.browserAction.setBadgeText({text: balance + '💸'});
-        }catch (e) {
+        } catch (e) {
             chrome.browserAction.setBadgeText({text: 0 + '💸'});
         }
     }

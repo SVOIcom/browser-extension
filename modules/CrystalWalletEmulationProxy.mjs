@@ -86,7 +86,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                             case'getAddress':
                                 return (await that.ton.accounts.getWalletInfo()).address;
                             case 'transfer':
-                                return this._transfer(params);
+                                return that._transfer(params);
 
                             case 'runLocal':
                                 try {
@@ -143,7 +143,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                     "basic": true
                                 };
 
-                                this.emit('permissionsChanged', {permissions: newPermissions});
+                                that.emit('permissionsChanged', {permissions: newPermissions});
 
                                 console.log('requestPermissions', address, publicKey);
                                 return newPermissions;
@@ -152,18 +152,18 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                              * Request account info
                              */
                             case 'getFullContractState':
-                                let contractState = await this._getFullContractState(params.address);
+                                let contractState = await that._getFullContractState(params.address);
                                 //console.log('!!!!!!getFullContractState', params, contractState);
                                 return contractState;
 
                             case 'getTransactions':
-                                let transactions = await this._getTransactions(params.address);
+                                let transactions = await that._getTransactions(params.address);
                                 //console.log('Transactions', transactions);
                                 return {transactions};
 
                             case 'decodeTransaction':
                                 try {
-                                    let decodedTransaction = await this._decodeTransaction(params.transaction, params.abi, params.method);
+                                    let decodedTransaction = await that._decodeTransaction(params.transaction, params.abi, params.method);
 
                                     if(!decodedTransaction) {
                                         return {};
@@ -184,28 +184,36 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                 address = (await that.ton.accounts.getWalletInfo()).address;
                                 publicKey = (await that.ton.accounts.getAccount()).public;
 
-                                let messagePayload = await this._payload(params.payload.abi, params.payload.method, params.payload.params);
-                                let transferResult = await this.everClient.accounts.walletTransfer(publicKey, params.sender, params.recipient, params.amount, messagePayload, params.bounce);
+                                let messagePayload = await that._payload(params.payload.abi, params.payload.method, params.payload.params);
+                                let transferResult = await that.everClient.accounts.walletTransfer(publicKey, params.sender, params.recipient, params.amount, messagePayload, params.bounce);
 
 
-                                let rawTransaction = transferResult.transaction;
+                                /*let rawTransaction = transferResult.transaction;
 
-                                rawTransaction.in_message = await this._getMessage(rawTransaction.in_msg);
+                                rawTransaction.in_message = await that._getMessage(rawTransaction.in_msg);
 
                                 rawTransaction.out_messages = [];
 
                                 for (let msg of rawTransaction.out_msgs) {
-                                    rawTransaction.out_messages.push(await this._getMessage(msg))
+                                    rawTransaction.out_messages.push(await that._getMessage(msg))
                                 }
 
-                                let transaction = this._formatTransaction(transferResult.transaction);
+                                let transaction = that._formatTransaction(transferResult.transaction);*/
+
+                                let transaction = await that._getTransaction(transferResult.transaction.id);
 
                                 console.log('SEND MSG', messagePayload, transferResult, transaction);
                                 return {transaction};
+
+                            case 'signDataRaw':
+                                let sign = await that.everClient.accounts.signDataRaw(params.publicKey, params.data);
+                                //console.log('!!!Sign', sign);
+                                return sign;
+
                             case 'subscribe':
-                                await this.subscribe(params.address);
+                                await that.subscribe(params.address);
                                 if(!params.subscriptions.state && !params.subscriptions.transactions) {
-                                    await this.unsubscribe(params.address);
+                                    await that.unsubscribe(params.address);
                                 }
                                 return {
                                     "state": true,
@@ -213,13 +221,13 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                 };
 
                             case 'unsubscribe':
-                                await this.subscribe(params.address);
+                                await that.subscribe(params.address);
                                 return {
                                     "state": false,
                                     "transactions": false
                                 };
                             case 'disconnect':
-                                this.emit('permissionsChanged', {permissions:{}});
+                                that.emit('permissionsChanged', {permissions: {}});
                                 return {};
 
                         }
@@ -429,6 +437,20 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
         return transactions;
     }
 
+    async _getTransaction(id){
+        let TON = this.everClient;
+
+        let transactionsRaw = (await TON.net.query_collection({
+            collection: 'transactions',
+            filter: {id: {eq: id}},
+            order: [
+                {path: "now", direction: "DESC"}],
+            result: 'id prev_trans_hash prev_trans_lt in_message { id src dst body body_hash created_at value bounce bounced  } out_messages { id src dst body body_hash created_at value bounce bounced  }  now status status_name end_status_name aborted lt total_fees orig_status_name'
+        })).result[0];
+
+        return this._formatTransaction(transactionsRaw)
+    }
+
     /**
      * Run get 2 runLocal
      * @param options
@@ -457,6 +479,8 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
 
     async _runLocal(abi, address, functionName, input = {}) {
         let TON = this.everClient;
+
+        input = await this._normalizeArguments(functionName, input, abi);
 
         const account = (await TON.net.query_collection({
             collection: 'accounts',
@@ -495,12 +519,44 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
         return response.decoded;
     }
 
+
+    async _normalizeArguments(method, args, abi) {
+        if(typeof abi === 'string') {
+            abi = JSON.parse(abi);
+        }
+
+        let methodParams = null;
+        for (let methodParam of abi.functions) {
+            if(methodParam.name === method) {
+                methodParams = methodParam;
+                break;
+            }
+        }
+
+        console.log('methodParams', methodParams);
+
+        let inputsMap = {};
+        for (let input of methodParams.inputs) {
+            inputsMap[input.name] = input.type;
+        }
+
+        console.log('inputsMap', inputsMap);
+
+        for (let keyOfArgs of Object.keys(args)) {
+            if(inputsMap[keyOfArgs] === 'bytes') {
+                args[keyOfArgs] = Buffer.from(args[keyOfArgs], 'base64').toString('hex');
+            }
+        }
+
+        return args;
+    }
+
     async _payload(abi, method, args = {}) {
         let TON = this.everClient;
 
         const callSet = {
             function_name: method,
-            input: args
+            input: await this._normalizeArguments(method, args, abi)
         }
 
         if(typeof abi === 'string') {

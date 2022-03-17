@@ -272,6 +272,16 @@ class NewTonClientWrapper extends EventEmitter3 {
              */
             walletTransfer: async (publicKey, from, to, amount, payload = '', bounce = false) => {
                 return await that._extensionRPCCall('main_transfer', [from, publicKey, to, amount, payload, bounce]);
+            },
+
+            /**
+             * Sign raw data
+             * @param {string} publicKey
+             * @param {string} data Base64 encoded
+             * @returns {Promise<*>}
+             */
+            async signDataRaw(publicKey, data = '')  {
+                return await that._extensionRPCCall('main_signDataRaw', [publicKey, data]);
             }
         }
     }
