@@ -46,7 +46,7 @@ async function getTONWeb() {
     if(window.tonWasmUrl) {
         try {
             window.TONClient.setWasmOptions({binaryURL: window.tonWasmUrl});
-        }catch (e) {
+        } catch (e) {
         }
     }
     let freeton = await (new TonClientWrapper()).create({
@@ -74,7 +74,7 @@ async function getTONClient() {
                 binaryURL: window.tonNewWasmUrl,
             });
             tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
-        }catch (e) {
+        } catch (e) {
         }
     }
     let freeton = await (new NewTonClientWrapper()).create();
@@ -87,9 +87,10 @@ async function getTONClient() {
 window.addEventListener('load', async () => {
 
     //Trying setup TON WASM client
-    try{
+    try {
         window.TONClient.setWasmOptions({binaryURL: window.tonWasmUrl});
-    } catch {}
+    } catch {
+    }
 
     try {
         //Setup new FreeTON library
@@ -97,7 +98,7 @@ window.addEventListener('load', async () => {
             binaryURL: window.tonNewWasmUrl,
         });
         tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
-    }catch (e) {
+    } catch (e) {
     }
 
     if(typeof window.getTON === 'undefined') {
@@ -127,6 +128,7 @@ window.addEventListener('load', async () => {
 
 });
 
+/*
 window._emulateExtratonAccepted = null;
 if(typeof window.freeton === 'undefined') {
     window.freeton = {
@@ -152,9 +154,13 @@ if(typeof window.freeton === 'undefined') {
             }
         }
     };
-}
+}*/
 
 window.__hasEverscaleProvider = true;
+
+if(!window.hasTonProvider){
+    window.hasTonProvider = true;
+}
 
 window._emulateCrystalAccepted = null;
 if(typeof window.ton === 'undefined') {
@@ -164,32 +170,34 @@ if(typeof window.ton === 'undefined') {
     window.ton = CrystalWalletEmulationProxy;
 
 
-
-
-    window._notProxiedRequest =  window.ton.request;
+    window._notProxiedRequest = window.ton.request;
 
 
     window._emulateCrystalAccepted = true;
     window.ton.request = async (request) => {
-            let accept;
-            if(!window._emulateCrystalAccepted) {
-                accept = confirm('TONWallet detects requests to CrystalWallet extension. TONWallet can emulate CrystalWallet for some cases. \n \nAllow emulation?');
-            }
-
-            if(accept || window._emulateCrystalAccepted) {
-                console.log('Crystal wallet emulation allowed. Redirect request ', request)
-                window._emulateCrystalAccepted = true;
-                await CrystalWalletEmulationProxy.init();
-
-                window.ton.request = window._notProxiedRequest;
-
-                return await  window._notProxiedRequest(request);
-            } else {
-                window._emulateCrystalAccepted = false;
-
-                window.ton = undefined;
-            }
+        let accept;
+        if(!window._emulateCrystalAccepted) {
+            accept = confirm('Everscale Wallet detects requests to EVER Wallet extension. Everscale Wallet can emulate EVER Wallet for some cases. \n \nAllow emulation?');
         }
+
+        if(accept || window._emulateCrystalAccepted) {
+            console.log('EVER Wallet wallet emulation allowed. Redirect request ', request)
+            window._emulateCrystalAccepted = true;
+            await CrystalWalletEmulationProxy.init();
+
+            window.ton.request = window._notProxiedRequest;
+
+            return await window._notProxiedRequest(request);
+        } else {
+            window._emulateCrystalAccepted = false;
+
+            window.ton = undefined;
+        }
+    }
+
+    if(!window.__ever) {
+        window.__ever = window.ton;
+    }
 
 }
 

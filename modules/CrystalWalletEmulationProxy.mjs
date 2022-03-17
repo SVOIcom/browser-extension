@@ -19,6 +19,8 @@ const MAINNET_NAME = 'main';
 const EMULATED_VERSION = '0.2.27';
 const EMULATED_VERSION_NUMERIC = 2027;
 
+const SUBSCRIPTIONS_INTERVAL = 10000;
+
 let that = null;
 
 /**
@@ -35,7 +37,19 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
             return that;
         }
         this.ton = await getTONWeb();
+        this.everClient = await getEverClient();
         that = this;
+
+
+        this.subscriptionsStates = {};
+        this.subscriptionsTransactions = {};
+
+        this.subscriptionsAddresses = [];
+
+        setInterval(async () => {
+            await this._checkSubscriptions();
+        }, SUBSCRIPTIONS_INTERVAL);
+
         return this;
     }
 
@@ -74,11 +88,25 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                             case 'transfer':
                                 return this._transfer(params);
 
+                            case 'runLocal':
+                                try {
+                                    //   console.log('!!! runLocal', params);
+                                    let runLocalResults = await that._runLocal(params.functionCall.abi, params.address, params.functionCall.method, params.functionCall.params);
+                                    //      console.log('!!! runLocalRESULT', runLocalResults);
+                                    return {...runLocalResults, code: 0};
+                                } catch (e) {
+                                    console.log('!!! runLocalERROR', e, params);
+                                    throw e;
+                                }
+
+                            /**
+                             * Base provider state info
+                             */
                             case 'getProviderState':
                                 address = (await that.ton.accounts.getWalletInfo()).address;
                                 publicKey = (await that.ton.accounts.getAccount()).public;
 
-                                console.log('getProviderState', address, publicKey);
+                                // console.log('getProviderState', address, publicKey);
 
                                 return {
                                     "version": EMULATED_VERSION,
@@ -99,6 +127,9 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                     "subscriptions": {}
                                 };
 
+                            /**
+                             * Requesting permissions. Emits event with permissions
+                             */
                             case 'requestPermissions':
                                 address = (await that.ton.accounts.getWalletInfo()).address;
                                 publicKey = (await that.ton.accounts.getAccount()).public;
@@ -115,44 +146,135 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                 this.emit('permissionsChanged', {permissions: newPermissions});
 
                                 console.log('requestPermissions', address, publicKey);
-                                return newPermissions
+                                return newPermissions;
+
+                            /**
+                             * Request account info
+                             */
                             case 'getFullContractState':
-                                return {
-                                    "state": {
-                                        "balance": "18097459956",
-                                        "genTimings": {
-                                            "genLt": "0",
-                                            "genUtime": 0
-                                        },
-                                        "lastTransactionId": {
-                                            "isExact": true,
-                                            "lt": "24188629000001",
-                                            "hash": "54e00fa3aaeac28c1d630f2d754d1df59f4c71eb40207feffe3c1d05c27d93b2"
-                                        },
-                                        "isDeployed": true,
-                                        "boc": "te6ccgECRgEAEYkAAnCABn4z3ZFdCn0BB27piGYM0g0mWJO8Y10Mq3uUns0oO2dFGUH1BiH2keAAAK/+1Rz6EoIbWKl6JgMBAdWP1kRpGI3ddBzUs5vKkhcz+DEtgO5bqR9YHC8wqsQN2wAAAX9KsjDax+siNIxG7roOalnN5UkLmfwYlsB3LdSPrA4XmFViBu2AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAsAIARaAR+siNIxG7roOalnN5UkLmfwYlsB3LdSPrA4XmFViBu2AQAib/APSkICLAAZL0oOGK7VNYMPShBgQBCvSkIPShBQAAAgEgCQcByP9/Ie1E0CDXScIBjifT/9M/0wDT/9P/0wfTB/QE9AX4bfhs+G/4bvhr+Gp/+GH4Zvhj+GKOKvQFcPhqcPhrbfhsbfhtcPhucPhvcAGAQPQO8r3XC//4YnD4Y3D4Zn/4YeLTAAEIALiOHYECANcYIPkBAdMAAZTT/wMBkwL4QuIg+GX5EPKoldMAAfJ64tM/AfhDIbkgnzAg+COBA+iogggbd0Cgud6TIPhjlIA08vDiMNMfAfgjvPK50x8B8AH4R26Q3gIBICwKAgEgHAsCASAUDAIBIA4NAAm3XKcyIAHNtsSL3L4QW6OKu1E0NP/0z/TANP/0//TB9MH9AT0Bfht+Gz4b/hu+Gv4an/4Yfhm+GP4Yt7RcG1vAvgjtT+BDhChgCCs+EyAQPSGjhoB0z/TH9MH0wfT/9MH+kDTf9MP1NcKAG8Lf4A8BaI4vcF9gjQhgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEcHDIyXBvC3DikSAQAv6OgOhfBMiCEHMSL3KCEIAAAACxzwsfIW8iAssf9ADIglhgAAAAAAAAAAAAAAAAzwtmIc8xgQOYuZZxz0AhzxeVcc9BIc3iIMlx+wBbMMD/jiz4QsjL//hDzws/+EbPCwD4SvhL+E74T/hM+E1eUMv/y//LB8sH9AD0AMntVN5/EhEABPhnAdJTI7yOQFNBbyvIK88LPyrPCx8pzwsHKM8LByfPC/8mzwsHJc8WJM8LfyPPCw8izxQhzwoAC18LAW8iIaQDWYAg9ENvAjXeIvhMgED0fI4aAdM/0x/TB9MH0//TB/pA03/TD9TXCgBvC38TAGyOL3BfYI0IYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABHBwyMlwbwtw4gI1MzECAnYYFQEHsFG70RYB+vhBbo4q7UTQ0//TP9MA0//T/9MH0wf0BPQF+G34bPhv+G74a/hqf/hh+Gb4Y/hi3tF1gCCBDhCCCA9CQPhPyIIQbSjd6IIQgAAAALHPCx8lzwsHJM8LByPPCz8izwt/Ic8LB8iCWGAAAAAAAAAAAAAAAADPC2YhzzGBA5i5FwCUlnHPQCHPF5Vxz0EhzeIgyXH7AFtfBcD/jiz4QsjL//hDzws/+EbPCwD4SvhL+E74T/hM+E1eUMv/y//LB8sH9AD0AMntVN5/+GcBB7A80nkZAfr4QW6OXu1E0CDXScIBjifT/9M/0wDT/9P/0wfTB/QE9AX4bfhs+G/4bvhr+Gp/+GH4Zvhj+GKOKvQFcPhqcPhrbfhsbfhtcPhucPhvcAGAQPQO8r3XC//4YnD4Y3D4Zn/4YeLe+EaS8jOTcfhm4tMf9ARZbwIB0wfR+EUgbhoB/JIwcN74Qrry4GQhbxDCACCXMCFvEIAgu97y4HX4AF8hcHAjbyIxgCD0DvKy1wv/+GoibxBwm1MBuSCVMCKAILnejjRTBG8iMYAg9A7ystcL/yD4TYEBAPQOIJEx3rOOFFMzpDUh+E1VAcjLB1mBAQD0Q/ht3jCk6DBTEruRIRsAcpEi4vhvIfhuXwb4QsjL//hDzws/+EbPCwD4SvhL+E74T/hM+E1eUMv/y//LB8sH9AD0AMntVH/4ZwIBICkdAgEgJR4CAWYiHwGZsAGws/CC3RxV2omhp/+mf6YBp/+n/6YPpg/oCegL8Nvw2fDf8N3w1/DU//DD8M3wx/DFvaLg2t4F8JsCAgHpDSoDrhYO/ybg4OHFIkEgAf6ON1RzEm8CbyLIIs8LByHPC/8xMQFvIiGkA1mAIPRDbwI0IvhNgQEA9HyVAdcLB3+TcHBw4gI1MzHoXwPIghBbANhZghCAAAAAsc8LHyFvIgLLH/QAyIJYYAAAAAAAAAAAAAAAAM8LZiHPMYEDmLmWcc9AIc8XlXHPQSHN4iDJIQBycfsAWzDA/44s+ELIy//4Q88LP/hGzwsA+Er4S/hO+E/4TPhNXlDL/8v/ywfLB/QA9ADJ7VTef/hnAQewyBnpIwH++EFujirtRNDT/9M/0wDT/9P/0wfTB/QE9AX4bfhs+G/4bvhr+Gp/+GH4Zvhj+GLe1NHIghB9cpzIghB/////sM8LHyHPFMiCWGAAAAAAAAAAAAAAAADPC2YhzzGBA5i5lnHPQCHPF5Vxz0EhzeIgyXH7AFsw+ELIy//4Q88LPyQASvhGzwsA+Er4S/hO+E/4TPhNXlDL/8v/ywfLB/QA9ADJ7VR/+GcBu7YnA0N+EFujirtRNDT/9M/0wDT/9P/0wfTB/QE9AX4bfhs+G/4bvhr+Gp/+GH4Zvhj+GLe0XBtbwJwcPhMgED0ho4aAdM/0x/TB9MH0//TB/pA03/TD9TXCgBvC3+AmAXCOL3BfYI0IYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABHBwyMlwbwtw4gI0MDGRICcB/I5sXyLIyz8BbyIhpANZgCD0Q28CMyH4TIBA9HyOGgHTP9Mf0wfTB9P/0wf6QNN/0w/U1woAbwt/ji9wX2CNCGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARwcMjJcG8LcOICNDAx6FvIghBQnA0NghCAAAAAsSgA3M8LHyFvIgLLH/QAyIJYYAAAAAAAAAAAAAAAAM8LZiHPMYEDmLmWcc9AIc8XlXHPQSHN4iDJcfsAWzDA/44s+ELIy//4Q88LP/hGzwsA+Er4S/hO+E/4TPhNXlDL/8v/ywfLB/QA9ADJ7VTef/hnAQm5ncyNkCoB/PhBbo4q7UTQ0//TP9MA0//T/9MH0wf0BPQF+G34bPhv+G74a/hqf/hh+Gb4Y/hi3vpBldTR0PpA39cNf5XU0dDTf9/XDACV1NHQ0gDf1w0HldTR0NMH39TR+E7AAfLgbPhFIG6SMHDe+Eq68uBk+ABUc0LIz4WAygBzz0DOASsArvoCgGrPQCHQyM4BIc8xIc81vJTPg88RlM+BzxPiySL7AF8FwP+OLPhCyMv/+EPPCz/4Rs8LAPhK+Ev4TvhP+Ez4TV5Qy//L/8sHywf0APQAye1U3n/4ZwIBSEEtAgEgNi4CASAxLwHHtfAocemP6YPouC+RL5i42o+RVlhhgCqgL4KqiC3kQQgP8ChxwQhAAAAAWOeFj5DnhQBkQSwwAAAAAAAAAAAAAAAAZ4WzEOeYwIHMXMs456AQ54vKuOegkObxEGS4/YAtmGB/wDAAZI4s+ELIy//4Q88LP/hGzwsA+Er4S/hO+E/4TPhNXlDL/8v/ywfLB/QA9ADJ7VTef/hnAa21U6B2/CC3RxV2omhp/+mf6YBp/+n/6YPpg/oCegL8Nvw2fDf8N3w1/DU//DD8M3wx/DFvaZ/o/CKQN0kYOG8QfCbAgIB6BxBKAOuFg8i4cRD5cDIYmMAyAqCOgNgh+EyAQPQOII4ZAdM/0x/TB9MH0//TB/pA03/TD9TXCgBvC5Ft4iHy4GYgbxEjXzFxtR8irLDDAFUwXwSz8uBn+ABUcwIhbxOkIm8Svj4zAaqOUyFvFyJvFiNvGsjPhYDKAHPPQM4B+gKAas9AIm8Z0MjOASHPMSHPNbyUz4PPEZTPgc8T4skibxj7APhLIm8VIXF4I6isoTEx+Gsi+EyAQPRbMPhsNAH+jlUhbxEhcbUfIawisTIwIgFvUTJTEW8TpG9TMiL4TCNvK8grzws/Ks8LHynPCwcozwsHJ88L/ybPCwclzxYkzwt/I88LDyLPFCHPCgALXwtZgED0Q/hs4l8H+ELIy//4Q88LP/hGzwsA+Er4S/hO+E/4TPhNXlDL/8v/ywfLBzUAFPQA9ADJ7VR/+GcBvbbHYLN+EFujirtRNDT/9M/0wDT/9P/0wfTB/QE9AX4bfhs+G/4bvhr+Gp/+GH4Zvhj+GLe+kGV1NHQ+kDf1w1/ldTR0NN/39cMAJXU0dDSAN/XDACV1NHQ0gDf1NFwgNwHsjoDYyIIQEx2CzYIQgAAAALHPCx8hzws/yIJYYAAAAAAAAAAAAAAAAM8LZiHPMYEDmLmWcc9AIc8XlXHPQSHN4iDJcfsAWzD4QsjL//hDzws/+EbPCwD4SvhL+E74T/hM+E1eUMv/y//LB8sH9AD0AMntVH/4ZzgBqvhFIG6SMHDeXyD4TYEBAPQOIJQB1wsHkXDiIfLgZDExJoIID0JAvvLgayPQbQFwcY4RItdKlFjVWqSVAtdJoAHiIm7mWDAhgSAAuSCUMCDBCN7y4Hk5AtyOgNj4S1MweCKorYEA/7C1BzExdbny4HH4AFOGcnGxIZ0wcoEAgLH4J28QtX8z3lMCVSFfA/hPIMABjjJUccrIz4WAygBzz0DOAfoCgGrPQCnQyM4BIc8xIc81vJTPg88RlM+BzxPiySP7AF8NcD46AQqOgOME2TsBdPhLU2BxeCOorKAxMfhr+CO1P4AgrPglghD/////sLEgcCNwXytWE1OaVhJWFW8LXyFTkG8TpCJvEr48AaqOUyFvFyJvFiNvGsjPhYDKAHPPQM4B+gKAas9AIm8Z0MjOASHPMSHPNbyUz4PPEZTPgc8T4skibxj7APhLIm8VIXF4I6isoTEx+Gsi+EyAQPRbMPhsPQC8jlUhbxEhcbUfIawisTIwIgFvUTJTEW8TpG9TMiL4TCNvK8grzws/Ks8LHynPCwcozwsHJ88L/ybPCwclzxYkzwt/I88LDyLPFCHPCgALXwtZgED0Q/hs4l8DIQ9fDwH0+CO1P4EOEKGAIKz4TIBA9IaOGgHTP9Mf0wfTB9P/0wf6QNN/0w/U1woAbwt/ji9wX2CNCGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARwcMjJcG8LcOJfIJQwUyO73iCzkl8F4PgAcJlTEZUwIIAoud4/Af6OfaT4SyRvFSFxeCOorKExMfhrJPhMgED0WzD4bCT4TIBA9HyOGgHTP9Mf0wfTB9P/0wf6QNN/0w/U1woAbwt/ji9wX2CNCGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARwcMjJcG8LcOICNzUzUyKUMFNFu94yQABi6PhCyMv/+EPPCz/4Rs8LAPhK+Ev4TvhP+Ez4TV5Qy//L/8sHywf0APQAye1U+A9fBgIBIEVCAdu2tmgjvhBbo4q7UTQ0//TP9MA0//T/9MH0wf0BPQF+G34bPhv+G74a/hqf/hh+Gb4Y/hi3tM/0XBfUI0IYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABHBwyMlwbwsh+EyAQPQOIIEMB/o4ZAdM/0x/TB9MH0//TB/pA03/TD9TXCgBvC5Ft4iHy4GYgM1UCXwPIghAK2aCOghCAAAAAsc8LHyFvK1UKK88LPyrPCx8pzwsHKM8LByfPC/8mzwsHJc8WJM8LfyPPCw8izxQhzwoAC18LyIJYYAAAAAAAAAAAAAAAAM8LZiFEAJ7PMYEDmLmWcc9AIc8XlXHPQSHN4iDJcfsAWzDA/44s+ELIy//4Q88LP/hGzwsA+Er4S/hO+E/4TPhNXlDL/8v/ywfLB/QA9ADJ7VTef/hnAGrbcCHHAJ0i0HPXIdcLAMABkJDi4CHXDR+Q4VMRwACQ4MEDIoIQ/////byxkOAB8AH4R26Q3g=="
+                                let contractState = await this._getFullContractState(params.address);
+                                //console.log('!!!!!!getFullContractState', params, contractState);
+                                return contractState;
+
+                            case 'getTransactions':
+                                let transactions = await this._getTransactions(params.address);
+                                //console.log('Transactions', transactions);
+                                return {transactions};
+
+                            case 'decodeTransaction':
+                                try {
+                                    let decodedTransaction = await this._decodeTransaction(params.transaction, params.abi, params.method);
+
+                                    if(!decodedTransaction) {
+                                        return {};
                                     }
+
+                                    //console.log('!!!Decoded transaction', decodedTransaction);
+                                    return decodedTransaction;
+                                } catch (e) {
+                                    console.log('!!!Error in decodeTransaction', e, params);
+                                    return {};
                                 }
 
+
+                            /*
+                            * Creates payload for transaction and sends it to the blockchain
+                             */
+                            case 'sendMessage':
+                                address = (await that.ton.accounts.getWalletInfo()).address;
+                                publicKey = (await that.ton.accounts.getAccount()).public;
+
+                                let messagePayload = await this._payload(params.payload.abi, params.payload.method, params.payload.params);
+                                let transferResult = await this.everClient.accounts.walletTransfer(publicKey, params.sender, params.recipient, params.amount, messagePayload, params.bounce);
+
+
+                                let rawTransaction = transferResult.transaction;
+
+                                rawTransaction.in_message = await this._getMessage(rawTransaction.in_msg);
+
+                                rawTransaction.out_messages = [];
+
+                                for (let msg of rawTransaction.out_msgs) {
+                                    rawTransaction.out_messages.push(await this._getMessage(msg))
+                                }
+
+                                let transaction = this._formatTransaction(transferResult.transaction);
+
+                                console.log('SEND MSG', messagePayload, transferResult, transaction);
+                                return {transaction};
                             case 'subscribe':
+                                await this.subscribe(params.address);
+                                if(!params.subscriptions.state && !params.subscriptions.transactions) {
+                                    await this.unsubscribe(params.address);
+                                }
                                 return {
                                     "state": true,
+                                    "transactions": true
+                                };
+
+                            case 'unsubscribe':
+                                await this.subscribe(params.address);
+                                return {
+                                    "state": false,
                                     "transactions": false
                                 };
+                            case 'disconnect':
+                                this.emit('permissionsChanged', {permissions:{}});
+                                return {};
 
                         }
 
-                        throw new Error('Unsupported method');
+                        throw new Error('Unsupported method ' + method);
                     })()
-                    console.log('LL', result)
+                    // console.log('LL', result)
                     return resolve(result);
                 } catch (e) {
+                    console.log('!!!Emulator error', e)
                     reject(e);
                 }
-            }, 1000);
+            }, 10);
         })
 
     }
+
+    async subscribe(address) {
+        this.subscriptionsAddresses.push(address);
+        await this._checkSubscriptions(true);
+    }
+
+    async unsubscribe(address) {
+        let index = this.subscriptionsAddresses.includes(address);
+        if(index !== -1) {
+            this.subscriptionsAddresses.splice(index, 1);
+        }
+    }
+
+    async _checkSubscriptions(noNotify = false) {
+        for (let address of this.subscriptionsAddresses) {
+
+            //In case we just simplified emulator we just send all transactions as transactionsFound event every check
+            let transactions = await this._getTransactions(address);
+            if(JSON.stringify(transactions) !== JSON.stringify(this.subscriptionsTransactions[address])) {
+                if(!noNotify) {
+                    this.emit('transactionsFound', {address, transactions});
+                }
+                this.subscriptionsTransactions[address] = transactions;
+            }
+
+
+            let state = await this._getFullContractState(address);
+
+            if(JSON.stringify(state) !== JSON.stringify(this.subscriptionsStates[address])) {
+                if(!noNotify) {
+                    this.emit('contractStateChanged', {address, state: state.state});
+                }
+                this.subscriptionsStates[address] = state;
+            }
+
+
+        }
+    }
+
 
     /**
      * Extraton get network wrapper
@@ -166,6 +288,145 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
             server: currentNetwork.network.url,
             explorer: currentNetwork.network.explorer
         }
+    }
+
+    async _getFullContractState(address) {
+        let TON = this.everClient;
+
+        let contractState = (await TON.net.query_collection({
+            collection: 'accounts',
+            filter: {id: {eq: address}},
+            result: 'boc balance acc_type'
+        })).result[0];
+
+        if(!contractState || contractState.balance === undefined) {
+            return {};
+        }
+
+        let lastTx = (await this._getTransactions(address)).shift();
+
+        return {
+            "state": {
+                "balance": Number(contractState.balance),
+                "genTimings": { //TODO WTF is that? Check it
+                    "genLt": "0",
+                    "genUtime": 0
+                },
+                "lastTransactionId": { //TODO make it real
+                    ...lastTx.id
+                    /*"isExact": true,
+                    "lt": "24188629000001",
+                    "hash": "54e00fa3aaeac28c1d630f2d754d1df59f4c71eb40207feffe3c1d05c27d93b2"*/
+                },
+                "isDeployed": contractState.acc_type !== 3 ? true : false,
+                "boc": contractState.boc
+            }
+        }
+
+    }
+
+    async _decodeMessage(msg, abi) {
+        let TON = this.everClient;
+        let result = await TON.abi.decode_message_body({
+            body: msg.body,
+            is_internal: true,
+            abi: {
+                type: 'Contract',
+                value: abi
+            }
+        });
+
+        return result;
+    }
+
+    async _decodeTransaction(tx, abi, methods) {
+        let TON = this.everClient;
+
+        if(typeof abi === 'string') {
+            abi = JSON.parse(abi);
+        }
+
+        try {
+            let result = await this._decodeMessage(tx.inMessage, abi);
+
+            return {
+                method: result.name,
+                input: result.value,
+                output: result.output,
+            }
+        } catch (e) {
+            return null;
+        }
+
+    }
+
+    _formatMessage(msg) {
+        return {
+            ...msg,
+            bodyHash: msg.body_hash,
+            value: msg.value ? Number(msg.value) : 0,
+        }
+    }
+
+    _formatTransaction(tx) {
+
+        let outMessages = [];
+
+        for (let msg of tx.out_messages) {
+            outMessages.push(this._formatMessage(msg));
+        }
+
+        return {
+            ...tx,
+            id: {
+                hash: tx.id,
+                lt: Number(tx.lt)
+            },
+            prevTransactionId: {
+                hash: tx.prev_trans_hash,
+                lt: Number(tx.prev_trans_lt)
+            },
+            createdAt: Number(tx.now),
+            origStatus: tx.orig_status_name?.toLowerCase(),
+            endStatus: tx.end_status_name?.toLowerCase(),
+            totalFees: tx.total_fees ? Number(tx.total_fees) : 0,
+            exitCode: 0, //TODO Dont know where get it
+            inMessage: this._formatMessage(tx.in_message),
+            outMessages
+        }
+
+    }
+
+    async _getMessage(id) {
+        let TON = this.everClient;
+        return (await TON.net.query_collection({
+            collection: 'messages',
+            filter: {id: {eq: id}},
+            result: 'id src dst body body_hash created_at value bounce bounced'
+        })).result[0];
+    }
+
+    async _getTransactions(address) {
+        let TON = this.everClient;
+
+        let transactionsRaw = (await TON.net.query_collection({
+            collection: 'transactions',
+            filter: {account_addr: {eq: address}},
+            order: [
+                {path: "now", direction: "DESC"}],
+            result: 'id prev_trans_hash prev_trans_lt in_message { id src dst body body_hash created_at value bounce bounced  } out_messages { id src dst body body_hash created_at value bounce bounced  }  now status status_name end_status_name aborted lt total_fees orig_status_name'
+        })).result;
+//out_messages in_message
+
+        let transactions = [];
+
+        for (let tx of transactionsRaw) {
+            transactions.push(this._formatTransaction(tx));
+        }
+
+
+        window.everrr = TON;
+        return transactions;
     }
 
     /**
@@ -192,6 +453,74 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
             console.error(e);
             throw e;
         }
+    }
+
+    async _runLocal(abi, address, functionName, input = {}) {
+        let TON = this.everClient;
+
+        const account = (await TON.net.query_collection({
+            collection: 'accounts',
+            filter: {id: {eq: address}},
+            result: 'boc'
+        })).result[0].boc;
+
+        if(typeof abi === 'string') {
+            abi = JSON.parse(abi);
+        }
+
+        const message = await TON.abi.encode_message({
+            abi: {
+                type: 'Contract',
+                value: (abi)
+            },
+            address: address,
+            call_set: {
+                function_name: functionName,
+                input: input
+            },
+            signer: {
+                type: 'None'
+            }
+        });
+
+        let response = await TON.tvm.run_tvm({
+            message: message.message,
+            account: account,
+            abi: {
+                type: 'Contract',
+                value: (abi)
+            },
+        });
+
+        return response.decoded;
+    }
+
+    async _payload(abi, method, args = {}) {
+        let TON = this.everClient;
+
+        const callSet = {
+            function_name: method,
+            input: args
+        }
+
+        if(typeof abi === 'string') {
+            abi = JSON.parse(abi);
+        }
+
+        const encoded_msg = await TON.abi.encode_message_body({
+            abi: {
+                type: 'Contract',
+                value: (abi)
+            },
+            call_set: callSet,
+            is_internal: true,
+            signer: {
+                type: 'None'
+            }
+        });
+
+        return encoded_msg.body;
+
     }
 
     /**
