@@ -24,6 +24,7 @@ import accountWidget from "./modules/ui/widgets/accountWidget.mjs";
 
 import Utils from "./modules/utils.mjs";
 import LOCALIZATION from "./modules/Localization.mjs";
+import MISC from "./modules/const/Misc.mjs";
 
 async function startPopup() {
     const _ = LOCALIZATION._;
@@ -142,17 +143,23 @@ async function startPopup() {
     popups.messenger = messenger;
     window.messenger = messenger;
 
+    if(location.hash === '#popNewWindow') {
+        await messenger.rpcCall('mainOpenPopup', [{left: window.screenLeft, top: window.screenTop}], 'background');
+        window.close();
+        return;
+    }
+
 // Dom7
     const $ = Dom7;
 
 
     let appTheme = "aurora";
-    if(window._isApp){
-        if(navigator.userAgent.toLowerCase().includes('android')){
+    if(window._isApp) {
+        if(navigator.userAgent.toLowerCase().includes('android')) {
             appTheme = 'md';
         }
 
-        if(navigator.platform.toLowerCase().includes('ios')){
+        if(navigator.platform.toLowerCase().includes('ios')) {
             appTheme = 'ios';
         }
     }
@@ -237,6 +244,33 @@ async function startPopup() {
     LOCALIZATION.startTimer();
 
 
+    let manifest = await Utils.fetchJSON('/package.json');
+    console.log('manifest', manifest);
+    $('#version').text('Version ' + manifest.version);
+
+    let currentLang = LOCALIZATION.currentLang;
+    console.log(currentLang);
+    $(`#${currentLang}`).attr("style", "color: blue");
+
+    $("#languageMenu li a").on("click", function (e) {
+        // $(this).attr("style", "color: blue");
+
+        // $("#languageMenu li a").find(".colour-change").attr("style", "");
+        // $(`#${e.target.id}`).attr("style", "color: blue");
+        // LOCALIZATION.changeLang(`${e.target.id}`);
+
+        // console.log(e.target);
+        // console.log(Dom7(this));
+
+        $("#languageMenu").find(".colour-change").attr("style", "");
+
+        $(this).attr("style", "color: blue");
+
+        LOCALIZATION.changeLang($(this).attr("id"));
+
+    })
+
+
     $('.sendMoneyButton').click(async () => {
 
         try {
@@ -281,10 +315,65 @@ async function startPopup() {
         await updateAccountsInSettings();
         app.panel.open($('.panel-right'));
     })
+
+    //Cancel pending TX on window closing
+    window.addEventListener("beforeunload", function (e) {
+        $('#txCancelButton').click();
+    }, false);
+
+
+    $(window).on('focus', async () => {
+        //console.log('FOCUS IN');
+        clearInterval(window.focusOutTimer);
+        clearTimeout(window.closeReminderTimer);
+        if(window.closeReminder) {
+            window.closeReminder.close();
+            delete window.closeReminder;
+        }
+    })
+
+    $(window).on('mousemove', async () => {
+        if(document.hasFocus()) {
+            //console.log('MOUSE MOVE');
+            clearInterval(window.focusOutTimer);
+            clearTimeout(window.closeReminderTimer);
+            if(window.closeReminder) {
+                window.closeReminder.close();
+                delete window.closeReminder;
+            }
+        }
+    })
+
+    $(window).on('blur', async () => {
+        //console.log('FOCUS OUT');
+
+        window.focusOutTimer = setInterval(async () => {
+
+            let activeActions = await messenger.rpcCall('main_getActiveActions', undefined, 'background');
+
+            if(activeActions.length === 0) {
+                console.log('NO ACTIVITY DETECTED. CLOSING');
+
+
+                window.closeReminder = app.dialog.alert(_('The wallet popup will be closed in 5 seconds due to inactivity'))
+                window.closeReminderTimer = setTimeout(() => {
+                    $('#txCancelButton').click();
+                    window.close();
+                }, 5000);
+            }
+
+        }, MISC.POPUP_FOCUSOUT_CLOSE_TIMER);
+
+
+    })
+
+
 }
 
 if(!window._isApp) {
+
     startPopup();
+
 }
 
 export default startPopup;

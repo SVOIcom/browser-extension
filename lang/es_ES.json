@@ -117,5 +117,7 @@
   "Transaction error": "Error de transacción",
   "Rejected by user": "Rechazado por el usuario",
   "": "",
-  "Select network": "Seleccione la red"
+  "Select network": "Seleccione la red",
+  "Seed phrase check": "Verificación de frase seed",
+  "Select word from seed on position": "Seleccionar palabra de la seed frase en la posición"
 }

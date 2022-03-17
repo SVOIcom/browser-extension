@@ -19,6 +19,8 @@ import uiUtils from "./uiUtils.mjs";
 import LOCALIZATION from "../Localization.mjs";
 import DeNsResolver from "../partners/agual/DeNs/DeNsResolver.mjs";
 
+import SeedCheckUtils from "../seedCheckUtils.mjs"
+
 const $ = Dom7;
 const _ = LOCALIZATION._;
 
@@ -58,7 +60,7 @@ class Popups {
                     $('#acceptRunAddress').text(Utils.shortenPubkey(callingDetails.address));
                     $('#acceptRunAddress').attr('title', callingDetails.address);
                 } else {
-                    $('#acceptRunAddress').text(_('Error'));
+                    $('#acceptRunAddress').text(_('N/A'));
                 }
 
 
@@ -100,17 +102,20 @@ class Popups {
 
             app.once('pageInit', () => {
 
-                $('#transferAmount').on('keyup', () => {
+                let transferAmountValidate = () => {
                     let amount = $('#transferAmount').val();
                     let checker = Utils.numberToUnsignedNumber(amount);
-                    if(!checker) {
+                    //console.log('TAV', checker);
+                    if(!checker || checker === 'NaN') {
                         $('#transferAmount').parent().parent().parent().addClass('item-input-invalid');
                     } else {
                         $('#transferAmount').parent().parent().parent().removeClass('item-input-invalid');
                     }
-                });
+                }
+                $('#transferAmount').on('keyup', transferAmountValidate);
+                $('#transferAmount').on('change', transferAmountValidate);
 
-                $('#transferAddress').on('keyup', async () => {
+                let addressValidate = async () => {
                     let address = $('#transferAddress').val();
 
                     let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
@@ -138,7 +143,10 @@ class Popups {
                     } else {
                         $('#transferAddress').parent().parent().parent().removeClass('item-input-invalid');
                     }
-                });
+                }
+
+                $('#transferAddress').on('keyup', addressValidate);
+                $('#transferAddress').on('change', addressValidate);
 
                 $('#txTransfer').once('click', async () => {
                     let amount = $('#transferAmount').val();
@@ -174,7 +182,8 @@ class Popups {
                             address,
                             checker,
                             encodedPayload,
-                            false
+                            false,
+                            false,
                         ], 'background'));
                     } catch (e) {
                         reject(e);
@@ -238,11 +247,35 @@ class Popups {
             let passwordCheck = 0;
             let policyCheck = 0;
             let seedPhraseEntered = 0;
+            let keyPairEntered = 0;
             let seedPhraseCheck = 0;
+
+            let seedPhraseField = true;
 
             app.once('pageInit', () => {
 
                 policyCheck = checkPolicyCheckbox();
+
+                $("#restoreBySeed").on("click", function () {
+                    $(this).addClass("button-active");
+                    $("#restoreByKeys").removeClass("button-active");
+
+                    $("#restoreBySeedField").attr("style", "");
+                    $("#restoreByKeysField").attr("style", "display: none;");
+
+                    seedPhraseField = true;
+                });
+
+
+                $("#restoreByKeys").on("click", function () {
+                    $(this).addClass("button-active");
+                    $("#restoreBySeed").removeClass("button-active");
+
+                    $("#restoreByKeysField").attr("style", "");
+                    $("#restoreBySeedField").attr("style", "display: none;");
+
+                    seedPhraseField = false;
+                });
 
                 $("#policy1").on("click", () => {
                     self.goToPolicy();
@@ -250,30 +283,103 @@ class Popups {
 
                 $("#submit").on("click", async () => {
                     passwordCheck = validatePassword();
-                    seedPhraseEntered = checkSeedPhraseExist();
+                    // seedPhraseEntered = checkSeedPhraseExist();
+                    // keyPairEntered = checkKeyPairExist();
                     policyCheck = checkPolicyCheckbox();
 
-                    if(seedPhraseEntered === 1 && passwordCheck === 1 && policyCheck === 1) {
-                        let seedPhraseVal = $("#seedPhaseArea").val();
+                    let requireDefined = 0;
+
+                    if(seedPhraseField) {
+                        requireDefined = checkSeedPhraseExist();
+                    } else {
+                        requireDefined = checkKeyPairExist();
+                    }
+
+                    if(requireDefined && passwordCheck === 1 && policyCheck === 1) {
+
+                        let seedPhraseVal = "";
+
+                        if(seedPhraseField) {
+                            seedPhraseVal = $("#seedPhaseArea").val();
+
+                            let seedPhraseWordsList = seedPhraseVal.match(/([a-z]+)/g);
+
+                            seedPhraseVal = seedPhraseWordsList.join(' ');
+
+                            // console.log()
+                        }
+
+                        // console.log(seedPhraseVal);
 
                         try {
-                            let keyPair = ""
+                            let publicKey = ""
+                            let privateKey = ""
+                            let password = ""
 
-                            try {
-                                keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
-                                seedPhraseCheck = 1;
-                            } catch (e) {
-                                seedPhraseCheck = seedPhraseInvalid(e.code);
-                                return false;
+                            let keyPair = {}
+
+                            if(seedPhraseField) {
+
+                                try {
+                                    // console.log(seedPhraseVal, "<<<<<<<<<<<<<<<<<<<<<<<<");
+                                    keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
+                                    seedPhraseCheck = 1;
+                                } catch (e) {
+                                    seedPhraseCheck = seedPhraseInvalid(e.code);
+                                    return false;
+                                }
+
+                                // Utils.appBack("/", {force : true,  reloadCurrent: true, ignoreCache: true,});
+                                // Utils.reloadPage();
+                                // location.reload();
+
+                                publicKey = keyPair.public;
+                                privateKey = keyPair.secret;
+
+                                // console.log(publicKey, privateKey)
+                                // console.log("seedPhraseField");
+
+
+                            } else {
+
+                                publicKey = $("#publicKeyField").val();
+                                privateKey = $("#privateKeyField").val();
+
+                                try {
+
+                                    if(publicKey.length != 64 || privateKey.length != 64) {
+                                        let errorPub64 = new Error("keysInvalid: keys that entered is not 64 characters long");
+                                        errorPub64.code = 15001;
+                                        throw errorPub64;
+                                    }
+
+                                    var hexReCheck = /[0-9A-Fa-f]+/g;
+
+                                    // console.log(publicKey.match(hexReCheck)[0], publicKey.match(hexReCheck)[0].length);
+
+                                    if(!(publicKey.match(hexReCheck)[0].length == 64)) {
+                                        let errorPrKey = new Error("keysInvalid: Pub key is invalid");
+                                        errorPrKey.code = 15002;
+                                        throw errorPrKey;
+                                    }
+
+                                    // console.log(seedPhraseVal, "<<<<<<<<<<<<<<<<<<<<<<<<");
+                                    console.log(privateKey);
+                                    keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [privateKey,], 'background');
+                                    console.log(keyPair);
+
+
+                                } catch (e) {
+                                    seedPhraseCheck = keysInvalid(e.code);
+                                    return false;
+                                }
+
+                                // if (!keysInvalid()) {throw new Error("keysInvalid: keys that entered is not 64 characters long")}
+                                // console.log(publicKey, privateKey);
+                                // console.log("keysField");
                             }
 
-                            // Utils.appBack("/", {force : true,  reloadCurrent: true, ignoreCache: true,});
-                            // Utils.reloadPage();
-                            // location.reload();
-
-                            let publicKey = keyPair.public;
-                            let privateKey = keyPair.secret;
-                            let password = $("#password").val();
+                            password = $("#password").val();
 
                             try {
                                 await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
@@ -281,7 +387,13 @@ class Popups {
                                 seedPhraseCheck = 1;
 
                             } catch (e) {
-                                seedPhraseCheck = seedPhraseInvalid(e.code);
+                                if(seedPhraseField) {
+                                    seedPhraseCheck = seedPhraseInvalid(e.code);
+                                } else {
+                                    seedPhraseCheck = keysInvalid(e.code);
+                                }
+
+                                console.log(e)
                                 return false;
 
                             }
@@ -343,17 +455,24 @@ class Popups {
                     policyCheck = checkPolicyCheckbox();
                     if(passwordCheck === 1 && policyCheck === 1) {
                         try {
-                            let keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
+                            // let keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
 
-                            let publicKey = keyPair.public;
-                            let privateKey = keyPair.secret;
                             let password = $("#password").val();
 
+                            self.checkSeed(seedPhraseVal, password);
 
-                            await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
-                            await this.messenger.rpcCall('main_changeAccount', [publicKey,], 'background');
 
-                            location.reload();
+                            // let publicKey = keyPair.public;
+                            // let privateKey = keyPair.secret;
+                            // let password = $("#password").val();
+
+
+                            // await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
+                            // await this.messenger.rpcCall('main_changeAccount', [publicKey,], 'background');
+
+                            // location.reload();
+
+
                         } catch (e) {
                             app.dialog.alert(_('Error') + ':' + e.message);
                         }
@@ -363,6 +482,74 @@ class Popups {
                 $("#policyCheckbox").on("change", () => {
                     policyCheck = checkPolicyCheckbox();
                 });
+
+                $('#returnButton').once('click', () => {
+                    Utils.appBack();
+                });
+
+                LOCALIZATION.updateLocalization();
+
+            });
+
+        });
+    }
+
+    /**
+     * Check that user get his seed phrase
+     * @returns {Promise<unknown>}
+     */
+    checkSeed(seedPhrase, password) {
+        return new Promise(async (resolve, reject) => {
+
+            let self = this;
+
+            const seedCheckUtils = new SeedCheckUtils(seedPhrase, password, this.messenger);
+
+
+            // async function getterCalback(result){
+
+            //     if (result){
+            //         correctCounter++
+            //     }
+
+            //     console.log(correctCounter);
+            // }
+
+
+            window.app.views.main.router.navigate("/checkSeed");
+
+            app.once('pageInit', async () => {
+
+                console.log("test<<<");
+
+
+                // let dataForCheck = seedCheckUtils.getDataForCheck();
+
+                // console.log(dataForCheck)
+
+
+                await seedCheckUtils.formNewRound();
+
+
+                // let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
+
+                // for (let pubKey of pubKeys) {
+                //     let accHaveName = await messenger.rpcCall('main_getAccountName', [pubKey], 'background');
+                //     let buttonText = Utils.shortenPubkey(pubKey);
+                //     if(accHaveName !== "") {
+                //         buttonText = accHaveName;
+                //     }
+
+
+                //     let appendStr = `<li><a href="" id="${pubKey}">${buttonText}</a></li>`;
+                //     $('#accountList').append(appendStr);
+                //     $(`#${pubKey}`).on('click', () => {
+                //         popups.accSettings(pubKey);
+                //         app.panel.close('right', true);
+
+                //     });
+                // }
+
 
                 $('#returnButton').once('click', () => {
                     Utils.appBack();
@@ -401,7 +588,7 @@ class Popups {
      * @param {ExtensionMessenger} messenger
      * @returns {Promise<unknown>}
      */
-    createTokenTransaction(walletAddress, rootTokenAddress, messenger) {
+    createTokenTransaction(walletAddress, rootTokenAddress, messenger, userWalletAddress) {
         return new Promise((resolve, reject) => {
             window.app.views.main.router.navigate("/createTransaction");
 
@@ -409,18 +596,21 @@ class Popups {
 
                 $('.transferCommentField').hide();
 
-                $('#transferAmount').on('keyup', () => {
+                let validateAmount = () => {
                     let amount = $('#transferAmount').val();
                     let checker = Utils.numberToUnsignedNumber(amount);
-                    if(!checker) {
+                    if(!checker || checker === 'NaN') {
                         $('#transferAmount').parent().parent().parent().addClass('item-input-invalid');
                     } else {
                         $('#transferAmount').parent().parent().parent().removeClass('item-input-invalid');
                     }
-                });
+                }
+                $('#transferAmount').on('keyup', validateAmount);
+                $('#transferAmount').on('change', validateAmount);
 
-                $('#transferAddress').on('keyup', async () => {
+                let validateTransfer = async () => {
                     let address = $('#transferAddress').val();
+                    $('.transferTypeHolder').hide();
 
                     let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
 
@@ -442,8 +632,26 @@ class Popups {
                         $('#transferAddress').parent().parent().parent().addClass('item-input-invalid');
                     } else {
                         $('#transferAddress').parent().parent().parent().removeClass('item-input-invalid');
+
+                        let isTokenWallet = await messenger.rpcCall('main_isTokenWalletAddress', [rootTokenAddress, address], 'background');
+                        if(isTokenWallet) {
+                            $('.transferTypeHolder').text('✅ ' + _('Address resolved as TIP-3/TIP-3.1 wallet')).show();
+                        } else {
+                            let resolvedAddress = await messenger.rpcCall('main_getTokenWalletAddress', [rootTokenAddress, null, address], 'background');
+                            let isResolvedTokenWallet = await messenger.rpcCall('main_isTokenWalletAddress', [rootTokenAddress, resolvedAddress], 'background');
+                            if(isResolvedTokenWallet) {
+                                $('.transferTypeHolder').text('✅ ' + _('Address has deployed TIP-3/TIP-3.1 wallet')).show();
+                            } else {
+                                $('.transferTypeHolder').text('⚠ ' + _(` Can't resolve address as TIP-3/TIP-3.1wallet`)).show();
+                            }
+                        }
+
                     }
-                });
+
+
+                }
+                $('#transferAddress').on('keyup', validateTransfer);
+                $('#transferAddress').on('change', validateTransfer);
                 $('#transferAddress').parent().find('.input-clear-button').click(() => {
                     $('#resolvedAddressHolder').hide();
                 })
@@ -451,6 +659,9 @@ class Popups {
                 $('#txTransfer').once('click', async () => {
 
                     let tokenInfo = await messenger.rpcCall('main_getTokenInfo', [rootTokenAddress], 'background');
+                    let account = await messenger.rpcCall('main_getAccount', undefined, 'background');
+                    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
+
 
                     let amount = $('#transferAmount').val();
                     let address = $('#resolvedAddress').val();
@@ -464,8 +675,48 @@ class Popups {
                         return app.dialog.alert(_('Invalid amount'));
                     }
 
-                    let account = await messenger.rpcCall('main_getAccount', undefined, 'background');
-                    let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
+                    let isTokenWallet = await messenger.rpcCall('main_isTokenWalletAddress', [rootTokenAddress, address], 'background');
+                    if(!isTokenWallet) {
+                        //NOTE: Тут была проверка, что если получатель не определен как кошелек токена, то следует пользователю
+                        //Предложить два адреса - перевести напрямую или вычисленный адрес из этого токена
+                        //Люди много путались, поэтому было принято решение убрать такой метод
+                        let resolvedAddress = await messenger.rpcCall('main_getTokenWalletAddress', [rootTokenAddress, null, address], 'background');
+                        /*address = await uiUtils.popupSelector([{
+                            text: _('Original address:') +' '+  Utils.shortenPubkey(address), onClick: async function () {
+                                return address
+                            }
+                        }, {
+                            text: _('Resolved TIP-3 address:') +' '+ Utils.shortenPubkey(resolvedAddress), onClick: async function () {
+                                return resolvedAddress
+                            }
+                        }], _('Select TIP-3 transfer address'))
+
+                         */
+
+                        let isResolvedTokenWallet = await messenger.rpcCall('main_isTokenWalletAddress', [rootTokenAddress, resolvedAddress], 'background');
+                        if(isResolvedTokenWallet) {
+                            address = resolvedAddress;
+                        } else {
+                            let result = await new Promise((resolve, reject) => {
+                                app.dialog.confirm(`We could not detect the existence of a TIP-3/TIP-3.1 wallet at this address. Would you like to create it?`, _(`Action required`), () => {
+                                    resolve(true)
+                                }, () => {
+                                    resolve(false)
+                                });
+                            })
+
+                            //Delpoy wallet for user
+                            if(result){
+
+                                let deployTokenWallet = await messenger.rpcCall('main_deployTokenWallet', [account.public, userWalletAddress, rootTokenAddress, address], 'background');
+
+                                address = resolvedAddress;
+                            }
+                        }
+
+                    }
+
+
 
 
                     Utils.appBack();
@@ -476,7 +727,8 @@ class Popups {
                         walletAddress,
                         account.public,
                         address,
-                        checker
+                        checker,
+                        userWalletAddress
                     ], 'background'));
                     /* } catch (e) {
 
@@ -514,13 +766,21 @@ class Popups {
                 console.log('TOKEN ADDRESS', rootTokenAddress);
 
                 let tokenInfo = await messenger.rpcCall('main_getTokenInfo', [rootTokenAddress], 'background');
-                let walletAddress = await messenger.rpcCall('main_getTokenWalletAddress', [rootTokenAddress, publicKey], 'background');
+                let walletAddress = await messenger.rpcCall('main_getTokenWalletAddress', [rootTokenAddress, publicKey, userWalletAddress], 'background');
+                let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
 
                 console.log(tokenInfo);
 
                 $('.tokenName').text(tokenInfo.name);
                 $('.tokenWalletAddress').html(`<a data-clipboard="${walletAddress}" class="autoClipboard" ><i class="material-icons buttonIcon">content_copy</i>${Utils.shortenPubkey(walletAddress)}</a>`)
                 $('.tokenRootAddress').html(`<a data-clipboard="${rootTokenAddress}" class="autoClipboard" >${Utils.shortenPubkey(rootTokenAddress)}</a>`);
+                try {
+                    let balance = await messenger.rpcCall('main_getWalletBalance', [walletAddress], 'background');
+                    $('.tokenTonBalance').html('Contract balance: ' + Utils.unsignedNumberToSigned(balance) + ' EVER');
+                } catch (e) {
+                    $('.tokenTonBalance').html(``);
+                    console.log('ERROR GETTING TOKEN WALLET EVER BALANCE', e)
+                }
 
                 $('.tokenWalletTokenIcon').html(tokenInfo.icon);
 
@@ -529,15 +789,25 @@ class Popups {
                     window.open($(this).attr('href'));
                 });
 
+                $('.removeTokenButton').click(async ()=>{
+                    app.dialog.confirm(_(`Are you sure you want to remove this token?`), async() => {
+                      await  messenger.rpcCall('main_removeAccountToken', [ publicKey,rootTokenAddress, currentNetwork.name], 'background');
+                      Utils.appBack();
+                      await window.updateWalletWidget();
+                    });
+                });
+
+
                 let tokenBalance = null;
                 try {
-                    tokenBalance = await messenger.rpcCall('main_getTokenBalance', [rootTokenAddress, publicKey], 'background');
+                    tokenBalance = await messenger.rpcCall('main_getTokenBalance', [rootTokenAddress, publicKey, userWalletAddress], 'background');
 
                     $('.tokenWalletBalance').text(Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals));
 
                     $('.ifTokenWalletNotExists').hide();
                     $('.ifTokenWalletExists').show();
                 } catch (e) {
+                    console.log(e);
                     $('.ifTokenWalletNotExists').show();
                     $('.ifTokenWalletExists').hide();
                 }
@@ -545,7 +815,7 @@ class Popups {
                 $('.sendTokenButton').click(async () => {
 
                     try {
-                        await popups.createTokenTransaction(walletAddress, rootTokenAddress, messenger);
+                        await popups.createTokenTransaction(walletAddress, rootTokenAddress, messenger, userWalletAddress);
                     } catch (e) {
                         //app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
                     }
@@ -553,7 +823,7 @@ class Popups {
                 });
 
                 $('.deployTokenWalletButton').click(async () => {
-                    let deployTokenWallet = await messenger.rpcCall('main_deployTokenWallet', [publicKey, userWalletAddress, rootTokenAddress], 'background');
+                    let deployTokenWallet = await messenger.rpcCall('main_deployTokenWallet', [publicKey, userWalletAddress, rootTokenAddress, userWalletAddress], 'background');
 
                 });
 
@@ -575,9 +845,9 @@ class Popups {
     accSettings(pubKey) {
         let self = this;
 
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             window.app.views.main.router.navigate("/accSettings", {animate: false});
-            app.once('pageInit', () => {
+            app.once('pageInit', async () => {
 
                 $("#submit").on("click", async () => {
                     let AccountValid = checkAccountName();
@@ -597,6 +867,13 @@ class Popups {
                 $("#forgetAccount").on("click", async () => {
                     try {
                         await this.messenger.rpcCall('main_deleteAccount', [pubKey], 'background');
+
+                        let keys = await this.messenger.rpcCall('main_getPublicKeys', undefined, 'background');
+
+                        if(keys.length != 0) {
+                            await this.messenger.rpcCall('main_changeAccount', [keys[keys.length - 1],], 'background');
+                        }
+
                         location.reload();
                         self.initPage();
                     } catch (e) {
@@ -609,9 +886,9 @@ class Popups {
                         let keyPair = await this.messenger.rpcCall('main_getAccountInfo', [pubKey], 'background');
 
                         let message =
-                            `Private key for 
-                         <a data-clipboard="${pubKey}" class="autoClipboard">${Utils.shortenPubkey(pubKey)}</a> account is 
-                        <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a> (click for copy)`
+                            `Public key: 
+                         <a data-clipboard="${pubKey}" class="autoClipboard">${Utils.shortenPubkey(pubKey)}</a> (click for copy) <br>
+                       Private key: <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a> (click for copy)`
 
                         // messenger.rpcCall('popup_alert', [text, publicKey], 'popup');
 

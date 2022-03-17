@@ -2,11 +2,11 @@
   "Enter address": "Ввести адрес",
   "Assets": "Активы",
   "History": "Операции",
-  "Create wallet": "Создать кошелёк",
-  "Deploy wallet": "Резвернуть кошелёк",
+  "Create wallet": "Получить адрес",
+  "Deploy wallet": "Активировать",
   "Swap": "Обмен",
   "Send": "Отправить",
-  "Get": "Получить",
+  "Get": "Купить",
   "Privacy policy": "Политика конфеденциальности",
   "privacy policy": "политикой конфеденциальности",
   "Accounts settings": "Настройки аккаунтов",
@@ -115,5 +115,7 @@
   "Transaction error": "Ошибка транзакции",
   "Rejected by user": "Отклонено пользователем",
   "": "",
-  "Select network": "Выбор сети"
+  "Select network": "Выбор сети",
+  "Seed phrase check": "Проверка seed фразы",
+  "Select word from seed on position": "Выберите слово из seed фразы на позиции"
 }

@@ -16,8 +16,9 @@
 import MESSAGES from "./const/Messages.mjs";
 import Utils from "./utils.mjs";
 
-if(!window.EventEmitter3){
-    window.EventEmitter3 = class Temp{};
+if(!window.EventEmitter3) {
+    window.EventEmitter3 = class Temp {
+    };
 }
 
 class TonClientWrapper extends EventEmitter3 {
@@ -327,10 +328,11 @@ class TonClientWrapper extends EventEmitter3 {
              * @param to
              * @param amount
              * @param payload
+             * @param bounce
              * @returns {Promise<void>}
              */
-            walletTransfer: async (publicKey, from, to, amount, payload = '') => {
-                return await that._extensionRPCCall('main_transfer', [from, publicKey, to, amount, payload]);
+            walletTransfer: async (publicKey, from, to, amount, payload = '', bounce = false) => {
+                return await that._extensionRPCCall('main_transfer', [from, publicKey, to, amount, payload, bounce]);
             }
         }
     }
@@ -347,11 +349,21 @@ class TonClientWrapper extends EventEmitter3 {
          * @type {{getVerision: (function(): *)}}
          */
         this.extension = {
+
+            /**
+             * TYPO VERSION
+             * @deprecated
+             * @returns {Promise<*>}
+             */
+            getVerision: async () => {
+                console.log('Deprecation warning: getVerision method was deprecated and will be deleted in future versions. Use getVersion instead')
+                return await that._extensionRPCCall('main_getMiscConstant', ['VERSION']);
+            },
             /**
              * Returns extension version
              * @returns {Promise<*>}
              */
-            getVerision: async () => {
+            getVersion: async () => {
                 return await that._extensionRPCCall('main_getMiscConstant', ['VERSION']);
             },
         }

@@ -27,11 +27,12 @@
                     <div class="item-inner">
                         <div class="item-title item-floating-label localization">Address *</div>
                         <div class="item-input-wrap">
-                            <input id="transferAddress" type="text"/>
+                            <input id="transferAddress" autocomplete="off" type="text"/>
                             <span class="input-clear-button"></span>
                         </div>
                     </div>
                 </li>
+
 
                 <li class="item-content item-input item-input-outline  item-input-with-value" id="resolvedAddressHolder" style="display: none">
                     <div class="item-inner">
@@ -43,12 +44,16 @@
                     </div>
                 </li>
 
+                <li class="item-content item-input item-input-outline transferTypeHolder" style="display: none; margin-top: -10px; font-size: 8pt;">
+                    Test
+                </li>
+
 
                 <li class="item-content item-input item-input-outline">
                     <div class="item-inner">
                         <div class="item-title item-floating-label localization">Amount *</div>
                         <div class="item-input-wrap">
-                            <input id="transferAmount" type="text"/>
+                            <input id="transferAmount" autocomplete="off" type="text"/>
                             <span class="input-clear-button"></span>
                         </div>
                     </div>
@@ -58,7 +63,7 @@
                     <div class="item-inner">
                         <div class="item-title item-floating-label localization">Comment</div>
                         <div class="item-input-wrap">
-                            <input id="transferComment" type="text" maxlength="120"/>
+                            <input id="transferComment" autocomplete="off" type="text" maxlength="120"/>
                             <span class="input-clear-button"></span>
                         </div>
                     </div>

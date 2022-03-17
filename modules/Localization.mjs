@@ -27,6 +27,8 @@ const LOCALES = {
 
 const SUPPORT_LOCALES = {'en_US': 'English (US)', "ru_RU": 'Russian'}
 
+let freezeLang = false;
+
 let currentLang = DETECTED_LANG;
 
 const LOCALIZATION = {
@@ -60,6 +62,7 @@ const LOCALIZATION = {
 
         return LOCALES[currentLang][string];
     },
+
     /**
      * Update plain class localization
      */
@@ -70,11 +73,28 @@ const LOCALIZATION = {
 
         localizeElements.forEach((locElement) => {
             locElement = $(locElement);
-            locElement.text(LOCALIZATION._(locElement.text()));
+
+            if(!freezeLang) {
+                locElement.data("original", `${locElement.text()}`);
+                
+            }
+
+            // locElement.attr("origin-en-text", `${locElement.text()}`);
+
+            // locElement.text(LOCALIZATION._(locElement.text()));
+
+
+            if (locElement.data("original")){
+                locElement.text(LOCALIZATION._( locElement.data("original") ));
+            }
+            else {
+                locElement.text(LOCALIZATION._(locElement.text()));
+            }
 
             locElement.addClass('localization-complete');
         });
 
+        freezeLang = true;
 
     },
     /**
@@ -102,6 +122,9 @@ const LOCALIZATION = {
         currentLang = lang;
         LOCALIZATION.resetPlainLocalization();
         LOCALIZATION.updateLocalization();
+
+        // In russian it means kostyl
+        // location.reload();
     }
 }
 

@@ -14,7 +14,7 @@
  */
 
 import LOCALIZATION from "../Localization.mjs";
-
+import Misc from "../const/Misc.mjs";
 
 
 const uiUtils = {
@@ -23,17 +23,22 @@ const uiUtils = {
      * Open extension popup
      * @returns {Promise<*>}
      */
-    openPopup: async () => {
+    openPopup: async (options = {}) => {
         console.log('OPEN POPUP');
 
-        return browser.windows.create({
+        let popupObject = {
             url: 'popup.html',
             type: 'popup',
-            width: 350,
-            height: 536,
+            /*width: 350,
+            height: 536,*/
+            ...Misc.POPUP_PARAMS,
             // left: position.x,
             //  top: position.y,
-        });
+            ...options
+        };
+
+
+        return browser.windows.create(popupObject);
     },
 
     /**
@@ -63,6 +68,10 @@ const uiUtils = {
                 }
 
                 if(typeof item === 'object') {
+                    let onClickB = item.onClick;
+                    item.onClick = async function () {
+                        resolve(await onClickB());
+                    }
                     buttons.push(item)
                 }
             }
@@ -74,7 +83,7 @@ const uiUtils = {
                     resolve();
                 }
             });
-            
+
             const actions = app.actions.create({
                 buttons
 

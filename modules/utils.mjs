@@ -150,7 +150,10 @@ const Utils = {
      * @returns {number}
      */
     numberToUnsignedNumber(num, decimals = 9) {
-        return Number(Number(num).toFixed(decimals).replace('.', ''))
+        if(decimals === 0) {
+            return BigNumber(num).toFixed(decimals);
+        }
+        return (BigNumber(num).toFixed(decimals).replace('.', ''))
     },
     /**
      * Raw unsigned number to js number
@@ -159,7 +162,10 @@ const Utils = {
      * @returns {number}
      */
     unsignedNumberToSigned(num, decimals = 9) {
-        return Number(Number(Number(num) / Math.pow(10, decimals)).toFixed(9));
+        if(decimals === 0) {
+            return BigNumber(num).toFixed(decimals);
+        }
+        return BigNumber(num).div(Math.pow(10, decimals)).toFixed(decimals);
     },
     /**
      * Big number to big string
@@ -315,6 +321,30 @@ const Utils = {
                 reject(e);
             }
         });
+    },
+    nFormatter(num, digits) {
+        if(num < 1) {
+            return Number(num).toFixed(digits);
+        }
+        const lookup = [
+            {value: 1, symbol: ""},
+            {value: 1e3, symbol: "k"},
+            {value: 1e6, symbol: "M"},
+            {value: 1e9, symbol: "G"},
+            {value: 1e12, symbol: "T"},
+            {value: 1e15, symbol: "P"},
+            {value: 1e18, symbol: "E"}
+        ];
+        const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+        let item = lookup.slice().reverse().find(function (item) {
+            return num >= item.value;
+        });
+        return item ? (this.floatToFixedFloor((num / item.value), digits)).replace(rx, "$1") + item.symbol : "0";
+    },
+    floatToFixedFloor(num, fixed) {
+        fixed = fixed || 0;
+        fixed = Math.pow(10, fixed);
+        return String(Math.floor(num * fixed) / fixed);
     }
 };
 

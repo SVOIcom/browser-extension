@@ -9,7 +9,7 @@
 
     <meta name="theme-color" content="#2196f3">
     <!-- Your app title -->
-    <title>TONWallet Popup</title>
+    <title>Everscale Wallet Popup</title>
     <!-- Path to Framework7 Library Bundle CSS -->
     <link rel="stylesheet" href="packages/core/css/framework7.bundle.min.css">
     <link rel="stylesheet" href="styles/popup.css">
@@ -35,9 +35,9 @@
                 <div class="navbar-bg"></div>
                 <div class="navbar-inner">
                     <div class="left title">
-                        TONWallet
+                        <img class="walletLogoTopLeft" src="./icons/128.png" alt="logo"/>
                     </div>
-                    <div class="title"><img class="walletLogoTopLeft" src="./icons/128.png" alt="logo"/></div>
+                    <div class="title"></div>
                     <div class="right">
 
                         <a href="#" id="openSettings" class="button button-small  display-flex" data-panel="right">
@@ -86,6 +86,31 @@
                                 </label>
                             </div>
 
+                            <!-- <div class="row">
+                                <p class="localization">Switch language</p>
+                                <div class="menu" style="z-index: 1001;">
+                                    <div class="menu-inner">
+                                       <div class="menu-item menu-item-dropdown menu-item-dropdown-opened">
+                                          <div class="menu-item-content">En</div>
+                                          <div class="menu-dropdown menu-dropdown-right">
+                                             <div class="menu-dropdown-content">
+                                                <a href="#" class="menu-dropdown-link menu-close">En</a>
+                                                <a href="#" class="menu-dropdown-link menu-close">Rus</a>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                            </div> -->
+
+
+
+
+                             <!-- style="color: blue" -->
+
+                             <!-- $('#translate-russian').attr("style", "color: red") -->
+
+
                             <p class="localization">Accounts settings</p>
 
                             <div class="list links-list">
@@ -94,10 +119,55 @@
                                 </ul>
                              </div>
 
+                            <p class="localization">Switch language</p>
+
+                            <div id="languageMenu" class="list media-list menu-list">
+                                <ul>
+                                    <li>
+                                        <a href="#" id="en_US" class="item-content item-link colour-change">
+                                            <div class="item-media"><img src="pictures/uk-16.png"></div>
+                                            <div class="item-inner">
+                                                <div class="item-title-wrap">
+                                                    <div id="en_US_" class="item-title" >English</div>
+                                                </div>
+                                                <!-- <div class="item-subtitle">subtitle</div> -->
+                                            </div>
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a href="#" id="ru_RU" class="item-content item-link colour-change">
+                                            <div class="item-media"><img src="pictures/russia-16.png"></div>
+                                            <div class="item-inner">
+                                                <div class="item-title-wrap">
+                                                    <div id="ru_RU_" class="item-title">Russian</div>
+                                                </div>
+                                                <!-- <div class="item-subtitle">subtitle</div> -->
+                                            </div>
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a href="#" id="es_ES" class="item-content item-link colour-change">
+                                            <div class="item-media"><img src="pictures/spain-16.png"></div>
+                                            <div class="item-inner">
+                                                <div class="item-title-wrap">
+                                                    <div id="es_ES_" class="item-title">Spanish</div>
+                                                </div>
+                                                <!-- <div class="item-subtitle">subtitle</div> -->
+                                            </div>
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </div>
+
                             <br><br><br>
-                            <a style="border: 0px;" class="panel-close" href="/about">TONWallet</a>
+                            <a style="border: 0px;" class="panel-close" href="/about">Everscale Wallet by SVOI.dev</a>
                             <br>
                             <a style="border: 0px;" class="panel-close localization" href="/policy">Privacy policy</a>
+                            <br>
+                            <span id="version"></span>
 
 
                             <!-- <button id="deleteAccounts" class="button button-large button-fill color-red">
@@ -121,7 +191,7 @@
                     <h1 class="walletTokenIcon">💎</h1>
                     <h1 class="walletBalance">0.0</h1>
                     <div class="">
-                        <h3 class="ifWalletNotDeployed"><span class="walletAddress">0:12312312312312312321</span>
+                        <h3 class="ifWalletNotDeployed"><span class="walletAddress"></span>
                             <a href="#" class="addressEditButton  editWalletButton" title="Change wallet contract type">
                                 <i class="material-icons buttonIcon">edit</i>
                             </a>
@@ -134,20 +204,25 @@
                             </a>
 
                             <a href="#" class="col walletButton sendMoneyButton">
-                                <i class="f7-icons buttonIcon">control</i>
+                                <i class="f7-icons buttonIcon everscalizeButton">control</i>
                                 <div class="localization">Send</div>
                             </a>
 
-                            <a href="#" class="col walletButton swapMoneyButton disabled">
+                            <!--<a href="#" class="col walletButton swapMoneyButton disabled">
                                 <i class="f7-icons buttonIcon">repeat</i>
                                 <div class="localization">Swap</div>
-                            </a>
+                            </a> -->
 
                         </div>
                     </div>
 
                     <div class="ifWalletNotExists " style="display: none">
                         <div class="row walletButtonsRow">
+
+                            <a href="#" class="col walletButton  getMoneyButton">
+                                <i class="material-icons buttonIcon">attach_money</i>
+                                <div class="localization">Get</div>
+                            </a>
 
                             <a href="#" class="col walletButton  createWalletButton">
                                 <i class="material-icons buttonIcon">done</i>
@@ -159,10 +234,10 @@
                                 <div class="localization">Deploy wallet</div>
                             </a>
 
-                            <a href="#" class="col walletButton enterWalletButton">
+                        <!--    <a href="#" class="col walletButton enterWalletButton">
                                 <i class="material-icons buttonIcon">edit</i>
                                 <div class="localization">Enter address</div>
-                            </a>
+                            </a> -->
                         </div>
                     </div>
 
@@ -217,8 +292,35 @@
 
 <script type="text/javascript" src="modules/ui/validators.mjs"></script>
 <!-- <script type="text/javascript" src="modules/ui/policyCheck.mjs"></script> -->
-
+<script src="modules/thirdparty/bignumber.min.js"></script>
+<script src="modules/thirdparty/tgs-player.js"></script>
 <script src="browser-polyfill.js"></script>
 <script type="module" src="popup.mjs"></script>
+
+
+
+
+
+<script>
+    export default (props, { $update }) => {
+      let selected = 'home';
+      let selectedMedia = 'home';
+  
+      const setItem = (newItem) => {
+        selected = newItem;
+        $update();
+      }
+      const setItemMedia = (newItem) => {
+        selectedMedia = newItem;
+        $update();
+      }
+      return $render;
+    }
+  </script>
+
+
+
+
+
 </body>
 </html>
