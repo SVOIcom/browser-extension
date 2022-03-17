@@ -16,8 +16,8 @@
 //const EMULATED_VERSION = {name: "extraton", version: "0.14.0"};
 const MAINNET_NAME = 'main';
 
-const EMULATED_VERSION = '0.2.26';
-const EMULATED_VERSION_NUMERIC = 2026;
+const EMULATED_VERSION = '0.2.27';
+const EMULATED_VERSION_NUMERIC = 2027;
 
 let that = null;
 
@@ -44,7 +44,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
      * @param request Params
      * @returns {Promise<*>}
      */
-     request(request) {
+    request(request) {
         let {method, params} = request;
         let address, publicKey;
 
@@ -103,16 +103,19 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                 address = (await that.ton.accounts.getWalletInfo()).address;
                                 publicKey = (await that.ton.accounts.getAccount()).public;
 
-
-                                console.log('requestPermissions', address, publicKey);
-                                return {
+                                let newPermissions = {
                                     "accountInteraction": {
                                         "address": address,
                                         "contractType": "SafeMultisigWallet",
                                         "publicKey": publicKey
                                     },
                                     "basic": true
-                                }
+                                };
+
+                                this.emit('permissionsChanged', {permissions: newPermissions});
+
+                                console.log('requestPermissions', address, publicKey);
+                                return newPermissions
                             case 'getFullContractState':
                                 return {
                                     "state": {
