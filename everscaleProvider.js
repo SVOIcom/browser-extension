@@ -1,28 +1,12 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name Everscale Wallet - Everscale browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
  */
 
 
-/*setTimeout(()=>{
-    console.log('MODIFY FREETON');
-    let _ = window.freeton.request;
-    window.freeton.request = async function(t,e){console.log(t,e); let result = await _(t,e); console.log('RESULT',result); return result; }
-
-}, 4)*/
-
-
-window._tonClient = null;
+window._everClient = null;
 
 /**
  * Get FreeTON provider
@@ -40,20 +24,20 @@ async function getTON() {
  */
 async function getTONWeb() {
     const TonClientWrapper = (await import("./modules/TonClientWrapper.mjs")).default;
-    if(window._tonClient) {
-        return window._tonClient;
+    if(window._everClient) {
+        return window._everClient;
     }
     if(window.tonWasmUrl) {
         try {
             window.TONClient.setWasmOptions({binaryURL: window.tonWasmUrl});
-        }catch (e) {
+        } catch (e) {
         }
     }
     let freeton = await (new TonClientWrapper()).create({
         servers: ['net.ton.dev']
     });
 
-    window._tonClient = freeton;
+    window._everClient = freeton;
 
     return freeton;
 }
@@ -74,7 +58,7 @@ async function getTONClient() {
                 binaryURL: window.tonNewWasmUrl,
             });
             tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
-        }catch (e) {
+        } catch (e) {
         }
     }
     let freeton = await (new NewTonClientWrapper()).create();
@@ -87,9 +71,10 @@ async function getTONClient() {
 window.addEventListener('load', async () => {
 
     //Trying setup TON WASM client
-    try{
+    try {
         window.TONClient.setWasmOptions({binaryURL: window.tonWasmUrl});
-    } catch {}
+    } catch {
+    }
 
     try {
         //Setup new FreeTON library
@@ -97,7 +82,7 @@ window.addEventListener('load', async () => {
             binaryURL: window.tonNewWasmUrl,
         });
         tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
-    }catch (e) {
+    } catch (e) {
     }
 
     if(typeof window.getTON === 'undefined') {
@@ -127,30 +112,33 @@ window.addEventListener('load', async () => {
 
 });
 
-window._emulateExtratonAccepted = null;
-if(typeof window.freeton === 'undefined') {
-    window.freeton = {
-        request: async (method, params) => {
-            let accept;
-            if(!window._emulateExtratonAccepted) {
-                accept = confirm('TONWallet detects requests to extraTON extension. TONWallet can emulate extraTON for some cases. \n \nAllow emulation?');
-            }
 
-            if(accept || window._emulateExtratonAccepted) {
-                window._emulateExtratonAccepted = true;
-                const ExtraTONEmulationProxy = (await import("./modules/ExtraTONEmulationProxy.mjs")).default;
+//EVERWallet emulation
+if(window._everscaleWalletConfig && window._everscaleWalletConfig.EVERWalletEmulation) {
+//Check if EVERWallet is not available
+    if(!window.__hasEverscaleProvider) {
+        window.__hasEverscaleProvider = true;
+    }
+    if(!window.hasTonProvider) {
+        window.hasTonProvider = true;
+    }
 
-                await ExtraTONEmulationProxy.init();
+    if(typeof window.ton === 'undefined') {
 
-                window.freeton = ExtraTONEmulationProxy;
-                return await ExtraTONEmulationProxy.request(method, params);
+        const EVERWalletEmulationProxy = (await import("./modules/EVERWalletEmulationProxy.mjs")).default;
 
-            } else {
-                window._emulateExtratonAccepted = false;
 
-                window.freeton = undefined;
-            }
+        window.ton = EVERWalletEmulationProxy;
+        if(!window.__ever) {
+            window.__ever = window.ton;
         }
-    };
-}
 
+
+        window.addEventListener('load', async () => {
+            await EVERWalletEmulationProxy.init();
+        });
+
+
+    }
+
+}

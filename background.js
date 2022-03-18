@@ -35,8 +35,14 @@ import MISC from "./modules/const/Misc.mjs";
 import LOCALIZATION from "./modules/Localization.mjs";
 import TIP3Contract from "./modules/const/TIP3Contract.mjs";
 import ActionProgressManager from "./modules/ActionProgressManager.mjs";
+import init, * as nt from './modules/freeton/nekoton/nekoton_wasm.js';
+import {unpackFromCell} from "./modules/freeton/nekoton/nekoton_wasm.js";
 
 const _ = LOCALIZATION._;
+
+import LocalStorage from "./modules/LocalStorage.mjs";
+
+let localStorage = new LocalStorage();
 
 console.log('IM BACKGROUND');
 
@@ -773,6 +779,65 @@ const RPC = {
         return actionManager.getActiveActions();
     },
 
+    async main_signDataRaw(publicKey, data = '') {
+        actionManager.startActionOnce('main_signDataRaw');
+        try {
+
+            let keyPair = await getKeysFromDeployAcceptence(publicKey, 'sign_data_raw', {
+                //address: tokenWalletAddress,
+                additionalMessage: `${_('You are signing data')}: ${_(data)}`, //TODO fix injection
+            }, 'Sign', false);
+
+            let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+
+            let sign = await ton.lowLevel.crypto.sign({unsigned: data, keys: keyPair});
+
+
+            actionManager.endAction('main_signDataRaw');
+
+            return {
+                signature: Buffer.from(sign.signature, 'hex').toString('base64'),
+                signatureFull: sign.signed,
+                signatureHex: sign.signature,
+                signatureParts: {
+                    high: `0x${sign.signature.slice(0, 64)}`,
+                    low: `0x${sign.signature.slice(64, 128)}`,
+                }
+            }
+
+        } catch (e) {
+            actionManager.endAction('main_signDataRaw');
+            throw e;
+        }
+    },
+
+    async main_packIntoCell(params) {
+        const {structure, data} = params;
+        return {boc: await nt.packIntoCell(structure, data)}
+    },
+
+    async main_unpackFromCell(params) {
+        const {structure, boc, allowPartial} = params;
+        return {data: nt.unpackFromCell(structure, boc, allowPartial)};
+    },
+
+    async main_verifySignature(params) {
+        const {publicKey, dataHash, signature} = params;
+        return {isValid: nt.verifySignature(publicKey, dataHash, signature)};
+    },
+
+    async main_decodeTransactionEvents(params) {
+        const {transaction, abi} = params;
+        return {events: nt.decodeTransactionEvents(transaction, abi)};
+    },
+
+    async main_base64toHex(data) {
+        return Buffer.from(data, 'base64').toString('hex');
+    },
+    async main_hex2Base64(data) {
+        return Buffer.from(data, 'hex').toString('base64');
+    },
+
     main_deployTokenWallet: async function (publicKey, walletAddress, tokenRootAddress, ownerAddress = null) {
 
         if(this.sender !== 'popup') {
@@ -792,7 +857,7 @@ const RPC = {
             let tokenWalletAddress = await token.getMultisigWalletAddress(ownerAddress);
 
             //if we create wallet for other user
-            if(!ownerAddress){
+            if(!ownerAddress) {
                 tokenWalletAddress = await token.getPubkeyWalletAddress(publicKey);
             }
 
@@ -879,6 +944,20 @@ const RPC = {
         }
 
     },
+
+    /**
+     * Returns inpage config script
+     * @returns {Promise<string>}
+     */
+    async main_getConfigScript() {
+        let config = {};
+        if(await localStorage.get('everWalletEmulation', true)) {
+            config.EVERWalletEmulation = true;
+        }
+        return `
+            window._everscaleWalletConfig = ${JSON.stringify(config)};
+        `;
+    }
 }
 
 
@@ -972,6 +1051,13 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
     let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
     //window.tip3 = await (new BroxusTIP3(ton, '0:0c4cad39cf61d92df6ab7c78552441b0524973e282f1e7a6acf5f06773cdc605')).init();
 
+    try {
+        await init();
+        window.nekoton = nt;
+    } catch (e) {
+        console.log('ERROR INITIALIZE NEKOTON', e);
+    }
+
     //If network changed, broadcast it to all tabs and popups
     networkManager.on(networkManager.EVENTS.networkChanged, async () => {
         await messenger.broadcastTabsMessage(MESSAGES.NETWORK_CHANGED);
@@ -988,7 +1074,7 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
 
 
     //Badge updater
-    const updateBadge = async ()=>{
+    const updateBadge = async () => {
         try {
             let account = await accountManager.getAccount();
             let network = await networkManager.getNetwork()
@@ -999,7 +1085,7 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
             let balance = Utils.nFormatter(Utils.unsignedNumberToSigned(await wallet.getBalance()), 1);
 
             chrome.browserAction.setBadgeText({text: balance + '💸'});
-        }catch (e) {
+        } catch (e) {
             chrome.browserAction.setBadgeText({text: 0 + '💸'});
         }
     }

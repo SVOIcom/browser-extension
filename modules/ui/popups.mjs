@@ -24,6 +24,7 @@ import SeedCheckUtils from "../seedCheckUtils.mjs"
 const $ = Dom7;
 const _ = LOCALIZATION._;
 
+
 class Popups {
 
     /**
@@ -228,6 +229,8 @@ class Popups {
                 $('#returnButton3').once('click', () => {
                     Utils.appBack();
                 });
+
+
 
             });
 
