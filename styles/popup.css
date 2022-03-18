@@ -235,6 +235,10 @@
     max-height: 20px;
 }
 
+.actions-button-text .tokenIcon {
+    max-height: 15px;
+}
+
 .tokenWalletHolder .tokenIcon {
     max-height: 48px;
 }
