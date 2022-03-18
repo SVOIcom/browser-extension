@@ -345,6 +345,24 @@ class TonClientWrapper extends EventEmitter3 {
                 return await that._extensionRPCCall('main_signDataRaw', [publicKey, data]);
             }
         }
+
+        this.everscale = {
+            async packIntoCell(params) {
+                return await that._extensionRPCCall('main_packIntoCell', [params]);
+            },
+            async unpackFromCell(params) {
+                return await that._extensionRPCCall('main_unpackFromCell', [params]);
+            },
+            async verifySignature(params) {
+                return await that._extensionRPCCall('main_verifySignature', [params]);
+            },
+            async base64toHex(data) {
+                return await that._extensionRPCCall('main_base64toHex', [data]);
+            },
+            async hex2Base64(data) {
+                return await that._extensionRPCCall('main_hex2Base64', [data]);
+            },
+        };
     }
 
     /**

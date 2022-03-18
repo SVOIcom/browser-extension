@@ -35,6 +35,8 @@ import MISC from "./modules/const/Misc.mjs";
 import LOCALIZATION from "./modules/Localization.mjs";
 import TIP3Contract from "./modules/const/TIP3Contract.mjs";
 import ActionProgressManager from "./modules/ActionProgressManager.mjs";
+import init, * as nt from './modules/freeton/nekoton/nekoton_wasm.js';
+import {unpackFromCell} from "./modules/freeton/nekoton/nekoton_wasm.js";
 
 const _ = LOCALIZATION._;
 
@@ -805,6 +807,28 @@ const RPC = {
         }
     },
 
+    async main_packIntoCell(params){
+        const { structure, data } = params;
+        return { boc: await nt.packIntoCell(structure, data) }
+    },
+
+    async main_unpackFromCell(params){
+        const { structure, boc, allowPartial } = params;
+        return { data: nt.unpackFromCell(structure, boc, allowPartial) };
+    },
+
+    async main_verifySignature(params){
+        const { publicKey, dataHash, signature } = params;
+        return { isValid: nt.verifySignature(publicKey, dataHash, signature) };
+    },
+
+    async main_base64toHex(data){
+        return Buffer.from(data, 'base64').toString('hex');
+    },
+    async main_hex2Base64(data){
+        return Buffer.from(data, 'hex').toString('base64');
+    },
+
     main_deployTokenWallet: async function (publicKey, walletAddress, tokenRootAddress, ownerAddress = null) {
 
         if(this.sender !== 'popup') {
@@ -1003,6 +1027,13 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
 
     let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
     //window.tip3 = await (new BroxusTIP3(ton, '0:0c4cad39cf61d92df6ab7c78552441b0524973e282f1e7a6acf5f06773cdc605')).init();
+
+    try {
+        await init();
+        window.nekoton = nt;
+    } catch (e) {
+        console.log('ERROR INITIALIZE NEKOTON', e);
+    }
 
     //If network changed, broadcast it to all tabs and popups
     networkManager.on(networkManager.EVENTS.networkChanged, async () => {

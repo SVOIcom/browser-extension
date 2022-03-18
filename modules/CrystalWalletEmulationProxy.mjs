@@ -23,6 +23,106 @@ const SUBSCRIPTIONS_INTERVAL = 10000;
 
 let that = null;
 
+
+class OutputDecoder {
+    constructor(output, functionAttributes, BigNumber) {
+        this.output = output;
+        this.functionAttributes = functionAttributes;
+        this.BigNumber = BigNumber;
+    }
+
+    decode_value(encoded_value, schema) {
+        switch (schema.type) {
+            case 'bytes':
+                return this.decodeBytes(encoded_value);
+            case 'bytes[]':
+                return this.decodeBytesArray(encoded_value);
+            case 'cell':
+                return encoded_value;
+            case 'uint256':
+            case 'uint160':
+            case 'uint128':
+            case 'uint64':
+            case 'uint32':
+            case 'uint16':
+            case 'uint8':
+            case 'int256':
+            case 'int160':
+            case 'int128':
+            case 'int64':
+            case 'int32':
+            case 'int16':
+            case 'int8':
+                return this.decodeInt(encoded_value);
+            case 'uint256[]':
+            case 'uint128[]':
+            case 'uint64[]':
+            case 'uint32[]':
+            case 'uint16[]':
+            case 'uint8[]':
+            case 'int256[]':
+            case 'int128[]':
+            case 'int64[]':
+            case 'int32[]':
+            case 'int16[]':
+            case 'int8[]':
+                return this.decodeIntArray(encoded_value);
+            case 'bool':
+                return this.decodeBool(encoded_value);
+            case 'address':
+            case 'address[]':
+                return encoded_value;
+            case 'tuple':
+                return this.decodeTuple(encoded_value, schema.components);
+        }
+    }
+
+    decodeBytes(value) {
+        return Buffer.from(value, 'hex').toString('base64');
+    }
+
+    decodeBytesArray(value) {
+        return value.map(v => this.decodeBytes(v));
+    }
+
+    decodeBool(value) {
+        return Boolean(value);
+    }
+
+    decodeInt(value) {
+        return this.BigNumber(value).toFixed();
+    }
+
+    decodeIntArray(value) {
+        return value.map(hexInt => BigInt(hexInt));
+    }
+
+    decode() {
+        const outputDecoded = this.decodeTuple(
+            this.output,
+            this.functionAttributes.outputs
+        );
+
+        // Return single output without array notation
+        /*if (Object.keys(outputDecoded).length === 1) {
+            return Object.values(outputDecoded)[0];
+        }*/
+
+        return outputDecoded;
+    }
+
+    decodeTuple(value, schema) {
+        const res_struct = {};
+
+        schema.forEach((field_value_schema) => {
+            const field_value = value[field_value_schema.name];
+            res_struct[field_value_schema.name] = this.decode_value(field_value, field_value_schema)
+        });
+
+        return res_struct;
+    }
+}
+
 /**
  * CrystalWallet emulation proxy
  */
@@ -36,6 +136,9 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
         if(that) {
             return that;
         }
+
+        this.BigNumber = (await import('https://unpkg.com/bignumber.js@latest/bignumber.mjs')).default;
+
         this.ton = await getTONWeb();
         this.everClient = await getEverClient();
         that = this;
@@ -92,11 +195,11 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                 try {
                                     //   console.log('!!! runLocal', params);
                                     let runLocalResults = await that._runLocal(params.functionCall.abi, params.address, params.functionCall.method, params.functionCall.params);
-                                    //      console.log('!!! runLocalRESULT', runLocalResults);
+                                    //console.log('!!! runLocalRESULT', runLocalResults);
                                     return {...runLocalResults, code: 0};
                                 } catch (e) {
                                     console.log('!!! runLocalERROR', e, params);
-                                    throw e;
+                                    throw {code: 3, message: e.message, data: {originalError: e}};
                                 }
 
                             /**
@@ -226,10 +329,10 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
 
                             case 'packIntoCell':
 
-                                //TODO implement packIntoCell. Not using mock for most of cases
-                                if(!params.data.data) {
-                                    return {boc: ''/*'te6ccgEBAgEABQABAAEAAA=='*/};
-                                }
+                                return await that.everClient.everscale.packIntoCell(params);
+
+                            case 'unpackFromCell':
+                                return await that.everClient.everscale.unpackFromCell(params);
                         }
 
                         throw new Error('Unsupported method ' + method);
@@ -516,7 +619,22 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
             },
         });
 
-        return response.decoded;
+        const functionAttributes = abi.functions.find(({name}) => name === functionName);
+
+
+        const outputDecoder = new OutputDecoder(
+            response.decoded.output,
+            functionAttributes,
+            this.BigNumber
+        );
+
+        let decodedOutput = {output: outputDecoder.decode()}
+
+        console.log('COMPARE', response.decoded, decodedOutput);
+
+        return decodedOutput;
+
+        //return response.decoded;
     }
 
 
@@ -551,7 +669,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                 args[keyOfArgs] = JSON.stringify(args[keyOfArgs]);
             }*/
 
-            if(Array.isArray(args[keyOfArgs]) && args[keyOfArgs].length === 0){
+            if(Array.isArray(args[keyOfArgs]) && args[keyOfArgs].length === 0) {
                 args[keyOfArgs] = {};
             }
         }
