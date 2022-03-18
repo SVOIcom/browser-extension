@@ -74,6 +74,14 @@ class OutputDecoder {
                 return encoded_value;
             case 'tuple':
                 return this.decodeTuple(encoded_value, schema.components);
+            case 'tuple[]':
+                let tuples = [];
+                for(let tuple of encoded_value) {
+                    tuples.push(this.decodeTuple(tuple, schema.components));
+                }
+                return tuples;
+            default:
+                console.log('Decoder gets WTF', schema.type, encoded_value);
         }
     }
 
@@ -199,7 +207,8 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                     return {...runLocalResults, code: 0};
                                 } catch (e) {
                                     console.log('!!! runLocalERROR', e, params);
-                                    throw {code: 3, message: e.message, data: {originalError: e}};
+                                    //throw {code: 2, message: e.message, data: {originalError: e}};
+                                    throw {code: 2, message:'runLocal: Account not found'};
                                 }
 
                             /**
@@ -630,7 +639,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
 
         let decodedOutput = {output: outputDecoder.decode()}
 
-        console.log('COMPARE', response.decoded, decodedOutput);
+       // console.log('COMPARE', response.decoded, decodedOutput);
 
         return decodedOutput;
 
