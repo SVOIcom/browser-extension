@@ -1,20 +1,11 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name Everscale Wallet EVERWallet emulation proxy
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
  */
 
-//const EMULATED_VERSION = {name: "extraton", version: "0.14.0"};
-const MAINNET_NAME = 'main';
+const MAINNET_NAME = 'mainnet';
 
 const EMULATED_VERSION = '0.2.27';
 const EMULATED_VERSION_NUMERIC = 2027;
@@ -99,7 +90,7 @@ class OutputDecoder {
                 return arrayMap;
 
             default:
-                console.log('Decoder gets WTF', schema.type, encoded_value);
+                console.log('EVERWALLET: Decoder gets WTF', schema.type, encoded_value);
                 debugger;
         }
     }
@@ -153,7 +144,12 @@ class OutputDecoder {
 /**
  * CrystalWallet emulation proxy
  */
-class CrystalWalletEmulationProxy extends EventEmitter3 {
+class EVERWalletEmulationProxy extends EventEmitter3 {
+
+    constructor() {
+        super();
+        this.verbose = false;
+    }
 
     /**
      * Initialize proxy
@@ -169,7 +165,6 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
         this.ton = await getTONWeb();
         this.everClient = await getEverClient();
         that = this;
-
 
         this.subscriptionsStates = {};
         this.subscriptionsTransactions = {};
@@ -192,12 +187,19 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
         let {method, params} = request;
         let address, publicKey;
 
+
         return new Promise(async (resolve, reject) => {
+            if(!that) {
+                await this.init();
+            }
             setTimeout(async () => {
+
 
                 try {
                     let result = await (async () => {
-                        console.log('CrystalWallet Emulation call:', method, params);
+                        if(that.verbose) {
+                            console.log('EVERWALLET: EMULATION CALL:', method, params);
+                        }
                         switch (method) {
                             case 'getVersion':
                                 return EMULATED_VERSION;
@@ -225,9 +227,11 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                     //console.log('!!! runLocalRESULT', runLocalResults);
                                     return {...runLocalResults, code: 0};
                                 } catch (e) {
-                                    console.log('!!! runLocalERROR', e, params);
+                                    if(that.verbose) {
+                                        console.log('EVERWALLET: !!! runLocalERROR', e, params);
+                                    }
                                     //throw {code: 2, message: e.message, data: {originalError: e}};
-                                    throw {code: 2, message: 'runLocal: Account not found'};
+                                    throw {code: 2, message: 'runLocal: Account not found', data: {originalError: e}};
                                 }
 
                             /**
@@ -242,7 +246,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                 return {
                                     "version": EMULATED_VERSION,
                                     "numericVersion": EMULATED_VERSION_NUMERIC,
-                                    "selectedConnection": "mainnet",
+                                    "selectedConnection": MAINNET_NAME,
                                     "supportedPermissions": [
                                         "basic",
                                         "accountInteraction"
@@ -276,7 +280,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
 
                                 that.emit('permissionsChanged', {permissions: newPermissions});
 
-                                console.log('requestPermissions', address, publicKey);
+                                //console.log('requestPermissions', address, publicKey);
                                 return newPermissions;
 
                             /**
@@ -303,7 +307,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                     //console.log('!!!Decoded transaction', decodedTransaction);
                                     return decodedTransaction;
                                 } catch (e) {
-                                    console.log('!!!Error in decodeTransaction', e, params);
+                                    //console.log('EVERWALLET: !!!Error in decodeTransaction', e, params);
                                     return {};
                                 }
 
@@ -327,7 +331,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
 
                                 let transaction = await that._getTransaction(transferResult.transaction.id);
 
-                                console.log('SEND MSG', messagePayload, transferResult, transaction);
+                                console.log('EVERWALLET: SendMSG:', messagePayload, transferResult, transaction);
                                 return {transaction};
 
                             case 'signDataRaw':
@@ -375,7 +379,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                     // console.log('LL', result)
                     return resolve(result);
                 } catch (e) {
-                    console.log('!!!Emulator error', e)
+                    console.log('EVERWALLET: !!!Emulator error', e)
                     reject(e);
                 }
             }, 10);
@@ -607,7 +611,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
             }
 
             let runLocalResult = await this.ton.contracts.runLocal(options);
-            console.log('RUN LOCAL RESULT', runLocalResult);
+            //console.log('RUN LOCAL RESULT', runLocalResult);
             return runLocalResult.output;
         } catch (e) {
             console.error(e);
@@ -665,7 +669,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
 
         let decodedOutput = {output: outputDecoder.decode()}
 
-        console.log('COMPARE', response.decoded, decodedOutput);
+        //console.log('COMPARE', response.decoded, decodedOutput);
 
         return decodedOutput;
 
@@ -807,4 +811,4 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
     }
 }
 
-export default new CrystalWalletEmulationProxy()
+export default new EVERWalletEmulationProxy()

@@ -25,6 +25,8 @@ import accountWidget from "./modules/ui/widgets/accountWidget.mjs";
 import Utils from "./modules/utils.mjs";
 import LOCALIZATION from "./modules/Localization.mjs";
 import MISC from "./modules/const/Misc.mjs";
+import LocalStorage from "./modules/LocalStorage.mjs";
+
 
 async function startPopup() {
     const _ = LOCALIZATION._;
@@ -211,6 +213,8 @@ async function startPopup() {
     });
     window.app = app;
 
+    let localStorage = new LocalStorage();
+
     await theme.updateState();
     await theme.loadState();
 
@@ -279,6 +283,14 @@ async function startPopup() {
             //app.dialog.alert(`Transaction error: <br> ${JSON.stringify(e)}`);
         }
         console.log('Transaction created');
+    })
+
+    //EVERWallet emulation
+    let everWalletEmulationToggle = app.toggle.get('#everWalletEmulation');
+    let everWalletEmulation = await localStorage.get('everWalletEmulation', true);
+    everWalletEmulationToggle.checked = !!everWalletEmulation;
+    everWalletEmulationToggle.on('change', async function () {
+        await localStorage.set('everWalletEmulation', everWalletEmulationToggle.checked);
     })
 
     /**

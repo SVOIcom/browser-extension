@@ -40,6 +40,10 @@ import {unpackFromCell} from "./modules/freeton/nekoton/nekoton_wasm.js";
 
 const _ = LOCALIZATION._;
 
+import LocalStorage from "./modules/LocalStorage.mjs";
+
+let localStorage = new LocalStorage();
+
 console.log('IM BACKGROUND');
 
 const wait = (timeout = 500) => {
@@ -807,30 +811,30 @@ const RPC = {
         }
     },
 
-    async main_packIntoCell(params){
-        const { structure, data } = params;
-        return { boc: await nt.packIntoCell(structure, data) }
+    async main_packIntoCell(params) {
+        const {structure, data} = params;
+        return {boc: await nt.packIntoCell(structure, data)}
     },
 
-    async main_unpackFromCell(params){
-        const { structure, boc, allowPartial } = params;
-        return { data: nt.unpackFromCell(structure, boc, allowPartial) };
+    async main_unpackFromCell(params) {
+        const {structure, boc, allowPartial} = params;
+        return {data: nt.unpackFromCell(structure, boc, allowPartial)};
     },
 
-    async main_verifySignature(params){
-        const { publicKey, dataHash, signature } = params;
-        return { isValid: nt.verifySignature(publicKey, dataHash, signature) };
+    async main_verifySignature(params) {
+        const {publicKey, dataHash, signature} = params;
+        return {isValid: nt.verifySignature(publicKey, dataHash, signature)};
     },
 
-    async main_decodeTransactionEvents(params){
-        const { transaction, abi } = params;
-        return { events: nt.decodeTransactionEvents(transaction, abi) };
+    async main_decodeTransactionEvents(params) {
+        const {transaction, abi} = params;
+        return {events: nt.decodeTransactionEvents(transaction, abi)};
     },
 
-    async main_base64toHex(data){
+    async main_base64toHex(data) {
         return Buffer.from(data, 'base64').toString('hex');
     },
-    async main_hex2Base64(data){
+    async main_hex2Base64(data) {
         return Buffer.from(data, 'hex').toString('base64');
     },
 
@@ -940,6 +944,20 @@ const RPC = {
         }
 
     },
+
+    /**
+     * Returns inpage config script
+     * @returns {Promise<string>}
+     */
+    async main_getConfigScript() {
+        let config = {};
+        if(await localStorage.get('everWalletEmulation', true)) {
+            config.EVERWalletEmulation = true;
+        }
+        return `
+            window._everscaleWalletConfig = ${JSON.stringify(config)};
+        `;
+    }
 }
 
 

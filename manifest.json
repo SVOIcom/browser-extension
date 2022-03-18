@@ -43,7 +43,7 @@
     "ton-client/tonclient.wasm",
     "ever-sdk-js/eversdk.wasm",
     "ever-sdk-js/main.js",
-    "freetonProvider.js",
+    "everscaleProvider.js",
     "modules/*",
     "packages/*"
   ]
