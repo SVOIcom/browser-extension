@@ -190,8 +190,8 @@ class walletWidget {
         }, 1000)
 
         //Set global methods
-        window.updateWalletWidget = async ()=>{
-            return await  this.updateWalletWidget();
+        window.updateWalletWidget = async () => {
+            return await this.updateWalletWidget();
         }
 
 
@@ -383,15 +383,27 @@ class walletWidget {
 
         let html = `<ul>`;
 
+        let tokenBalancesPromises = [];
+        let tokenBalances = {};
+
+        for (let tokenAddress of Object.keys(tokens)) {
+            tokenBalancesPromises.push((async () => {
+                try {
+                    let balance = await this.messenger.rpcCall('main_getTokenBalance', [tokenAddress, account.public, userWalletAddress], 'background');
+                    tokenBalances[tokenAddress] = balance;
+                } catch (e) {
+                    tokenBalances[tokenAddress] = null;
+                }
+            })())
+        }
+
+        await Promise.all(tokenBalancesPromises);
+
+
         for (let tokenAddress of Object.keys(tokens)) {
 
             let tokenInfo = tokens[tokenAddress];
-            let tokenBalance = null;
-
-            try {
-                tokenBalance = await this.messenger.rpcCall('main_getTokenBalance', [tokenAddress, account.public, userWalletAddress], 'background');
-            } catch (e) {
-            }
+            let tokenBalance = tokenBalances[tokenAddress];
 
             console.log(tokenInfo);
 
@@ -446,9 +458,16 @@ class walletWidget {
                 console.log('Error loading external tokens', e)
             }
 
+
             for (let token of tokenList) {
                 tokenClickList.push({
-                    text: token.name, onClick: async () => {
+                    text: `
+                            <div style="width: 100%">
+                                <div style="width: 5%;    display: inline-block;">${token.icon}</div>
+                                <div style="width: 70%; text-align: center;     display: inline-block;">${token.name}</div>
+                                <div style="width: 25%;text-align: left; opacity: 60%; display: inline-block;">${token.symbol}</div>
+                            </div>
+                            `, onClick: async () => {
                         await addTokenToAccount(token.rootAddress);
                     }
                 });

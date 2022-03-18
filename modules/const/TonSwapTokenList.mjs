@@ -61,12 +61,12 @@ class TonSwapTokenList {
 
         let processedExplorerTokens = [];
 
-        for(let rawToken of explorerTokens){
-            if(await this.tokenExists(rawToken.tokenRoot)){
+        for (let rawToken of explorerTokens) {
+            if(await this.tokenExists(rawToken.tokenRoot)) {
                 continue;
             }
 
-            rawToken.name = rawToken.name +' (OLD)';
+            rawToken.name = rawToken.name + ' (OLD)';
             rawToken.deprecated = true;
             processedExplorerTokens.push(rawToken);
         }
@@ -81,15 +81,15 @@ class TonSwapTokenList {
             let tokens = broxusFile.tokens;
             let processedTokens = [];
             for (let rawToken of tokens) {
-                if(await this.tokenExists(rawToken.address)){
+                if(await this.tokenExists(rawToken.address)) {
                     continue;
                 }
                 let token = {
                     rootAddress: rawToken.address,
                     tokenRoot: rawToken.address,
                     decimals: rawToken.decimals,
-                    icon: rawToken.logoURI?`<img src="${rawToken.logoURI}" class="tokenIcon">`:null,
-                    tokenIcon: rawToken.logoURI?`<img src="${rawToken.logoURI}" class="tokenIcon">`:null,
+                    icon: rawToken.logoURI ? `<img src="${rawToken.logoURI}" class="tokenIcon">` : null,
+                    tokenIcon: rawToken.logoURI ? `<img src="${rawToken.logoURI}" class="tokenIcon">` : null,
                     symbol: rawToken.symbol,
                     name: rawToken.name,
                     deprecated: false,
@@ -106,7 +106,9 @@ class TonSwapTokenList {
         }
 
 
-        this.tokens.sort((a, b) => { return a.name.localeCompare(b.name) });
+        this.tokens.sort((a, b) => {
+            return a.name.localeCompare(b.name)
+        });
 
 
         return this;
@@ -126,12 +128,13 @@ class TonSwapTokenList {
         let usedAddresses = {};
 
         for (let token of await this.getTokens()) {
+            //console.log(token.icon)
             formattedTokens.push({
                 classType: "BroxusTIP3",
                 name: token.name,
                 symbol: token.symbol,
                 decimals: token.decimals,
-                icon: `<img src="${token.icon}" class="tokenIcon">`,
+                icon: typeof token.icon === 'string' ? (token.icon.includes('tokenIcon') ? token.icon : `<img src="${token.icon}" class="tokenIcon">`) : '',
                 rootAddress: token.rootAddress,
                 //network: token.network,
             });
@@ -148,7 +151,7 @@ class TonSwapTokenList {
         return formattedTokens;
     }
 
-    async tokenExists(rootAddress){
+    async tokenExists(rootAddress) {
         for (let token of this.tokens) {
             if(token.rootAddress === rootAddress) {
                 return true;
