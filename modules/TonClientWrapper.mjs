@@ -362,6 +362,9 @@ class TonClientWrapper extends EventEmitter3 {
             async hex2Base64(data) {
                 return await that._extensionRPCCall('main_hex2Base64', [data]);
             },
+            async decodeTransactionEvents(params){
+            return await that._extensionRPCCall('main_decodeTransactionEvents', [params]);
+        }
         };
     }
 

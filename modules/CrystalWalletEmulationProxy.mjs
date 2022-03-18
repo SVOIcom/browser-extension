@@ -31,7 +31,7 @@ class OutputDecoder {
         this.BigNumber = BigNumber;
     }
 
-    decode_value(encoded_value, schema) {
+    decode_value(encoded_value, schema, value) {
         switch (schema.type) {
             case 'bytes':
                 return this.decodeBytes(encoded_value);
@@ -76,12 +76,31 @@ class OutputDecoder {
                 return this.decodeTuple(encoded_value, schema.components);
             case 'tuple[]':
                 let tuples = [];
-                for(let tuple of encoded_value) {
+                for (let tuple of encoded_value) {
                     tuples.push(this.decodeTuple(tuple, schema.components));
                 }
                 return tuples;
+            case 'string':
+                return encoded_value;
+
+            //Дополнительные случаи-исключения TODO требует доработки для поддержки всех типов
+            case 'map(address,uint128)':
+            case 'map(address,address)':
+                if(Object.keys({}).length === Object.keys(encoded_value).length) {
+                    return [];
+                }
+
+                let arrayMap = [];
+                for (let key of Object.keys(encoded_value)) {
+                    arrayMap.push([key, encoded_value[key]]);
+                }
+
+                //debugger;
+                return arrayMap;
+
             default:
                 console.log('Decoder gets WTF', schema.type, encoded_value);
+                debugger;
         }
     }
 
@@ -124,7 +143,7 @@ class OutputDecoder {
 
         schema.forEach((field_value_schema) => {
             const field_value = value[field_value_schema.name];
-            res_struct[field_value_schema.name] = this.decode_value(field_value, field_value_schema)
+            res_struct[field_value_schema.name] = this.decode_value(field_value, field_value_schema, value)
         });
 
         return res_struct;
@@ -208,7 +227,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                 } catch (e) {
                                     console.log('!!! runLocalERROR', e, params);
                                     //throw {code: 2, message: e.message, data: {originalError: e}};
-                                    throw {code: 2, message:'runLocal: Account not found'};
+                                    throw {code: 2, message: 'runLocal: Account not found'};
                                 }
 
                             /**
@@ -337,11 +356,18 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
                                 return {};
 
                             case 'packIntoCell':
-
-                                return await that.everClient.everscale.packIntoCell(params);
+                                let packed = await that.everClient.everscale.packIntoCell(params);
+                                //TODO Это костыль но почему то пейлоад в Burn токена не проходит
+                                if(packed.boc === 'te6ccgEBAgEABQABAAEAAA==') {
+                                    return {boc: ''}
+                                }
+                                return packed;
 
                             case 'unpackFromCell':
                                 return await that.everClient.everscale.unpackFromCell(params);
+
+                            case 'decodeTransactionEvents':
+                                return await that.everClient.everscale.decodeTransactionEvents(params);
                         }
 
                         throw new Error('Unsupported method ' + method);
@@ -639,7 +665,7 @@ class CrystalWalletEmulationProxy extends EventEmitter3 {
 
         let decodedOutput = {output: outputDecoder.decode()}
 
-       // console.log('COMPARE', response.decoded, decodedOutput);
+        console.log('COMPARE', response.decoded, decodedOutput);
 
         return decodedOutput;
 

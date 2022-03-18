@@ -822,6 +822,11 @@ const RPC = {
         return { isValid: nt.verifySignature(publicKey, dataHash, signature) };
     },
 
+    async main_decodeTransactionEvents(params){
+        const { transaction, abi } = params;
+        return { events: nt.decodeTransactionEvents(transaction, abi) };
+    },
+
     async main_base64toHex(data){
         return Buffer.from(data, 'base64').toString('hex');
     },
