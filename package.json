@@ -1,7 +1,7 @@
 {
   "name": "everscalewallet",
-  "version": "0.0.11",
-  "description": "Everscale (ex. FreeTON) network wallet and dapps connectivity provider",
+  "version": "0.0.12",
+  "description": "Everscale network wallet and dapps connectivity provider",
   "main": "index.js",
   "repository": {
     "type": "git",

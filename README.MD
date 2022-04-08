@@ -1,10 +1,10 @@
-![Everscale Wallet](icons/128.png?raw=true)
+![ScaleWallet](icons/128.png?raw=true)
 
-# Everscale Wallet
+# ScaleWallet
 
-FreeTON network wallet and dapps connectivity provider
+Everscale network wallet and dapps connectivity provider
 
-[everscalewallet.com](https://everscalewallet.com/)
+[scalewallet.com](https://scalewallet.com/)
 
 ## Features
 
@@ -45,6 +45,6 @@ You can install extension directly from Chrome Web Store.
 ## Developers
 
 Developed by [SVOI.dev team](https://svoi.dev). 
-Sorce code licensed under the Apache-2.0 license
+Source code licensed under the Apache-2.0 license
 
 support@tonwallet.io
