@@ -1078,7 +1078,9 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
 
             chrome.browserAction.setBadgeText({text: balance + '💸'});
         } catch (e) {
-            chrome.browserAction.setBadgeText({text: 0 + '💸'});
+            try {
+                chrome.browserAction.setBadgeText({text: 0 + '💸'});
+            }catch(e){}
         }
     }
     setInterval(updateBadge, 60000);

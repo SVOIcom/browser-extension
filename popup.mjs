@@ -18,6 +18,7 @@ import Utils from "./modules/utils.mjs";
 import LOCALIZATION from "./modules/Localization.mjs";
 import MISC from "./modules/const/Misc.mjs";
 import LocalStorage from "./modules/LocalStorage.mjs";
+import Browser from "./modules/internalBrowser/Browser.mjs";
 
 
 async function startPopup() {
@@ -378,6 +379,10 @@ if(!window._isApp) {
 
     startPopup();
 
+} else {
+    //If app is started from popup, start popup
+    let internalBrowser = new Browser();
+    window.internalBrowser = internalBrowser;
 }
 
 export default startPopup;

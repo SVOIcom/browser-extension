@@ -9,7 +9,7 @@
 
     <meta name="theme-color" content="#2196f3">
 
-    <base href="file:///android_asset/www/">
+   <!-- <base href="file:///android_asset/www/"> -->
 
     <!-- Your app title -->
     <title>Everscale Wallet Popup</title>
@@ -34,191 +34,8 @@
 </head>
 <body>
 <!-- App root element -->
-<div id="app">
+<div id="appOuter" style="width: 100%;  height: 100%;">
 
-    <!-- Your main view, should have "view-main" class -->
-    <div class="view view-main view-init">
-        <!-- Initial Page, "data-name" contains page name -->
-        <div data-name="home" class="page">
-
-            <!-- Top Navbar -->
-            <div class="navbar">
-                <div class="navbar-bg"></div>
-                <div class="navbar-inner">
-                    <div class="left title">
-                        TONWallet
-                    </div>
-                    <div class="title"><img class="walletLogoTopLeft" src="./icons/128.png" alt="logo"/></div>
-                    <div class="right">
-
-                        <a href="#" id="openSettings" class="button button-small  display-flex" data-panel="right">
-                            <i class="f7-icons">bars</i>
-                        </a>
-
-
-                        <!-- <span>Dark mode</span> -->
-                        <!-- <label class="toggle toggle-init" id="toggleDarkmode"> -->
-                        <!-- Toggle input -->
-                        <!-- <input type="checkbox"> -->
-                        <!-- Toggle icon -->
-                        <!-- <span class="toggle-icon"></span> -->
-                        <!-- </label> -->
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- Scrollable page content -->
-            <div class="page-content">
-
-                <div class="panel panel-right panel-right-2 panel-cover panel-init theme-dark">
-                    <div class="page-content">
-                        <div class="block">
-
-                            <div class="navbar">
-                                <div class="navbar-inner">
-
-                                    <div style="text-align: center;" class="block-title">
-                                        <h3 class="localization">Settings</h3>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <p class="localization">Toggle darkmode</p>
-                                <label class="toggle toggle-init" id="toggleDarkmode">
-                                    <!-- Toggle input -->
-                                    <input type="checkbox">
-                                    <!-- Toggle icon -->
-                                    <span class="toggle-icon"></span>
-                                </label>
-                            </div>
-
-                            <p class="localization">Accounts settings</p>
-
-                            <div class="list links-list">
-                                <ul id="accountList">
-                                    <div class="preloader"></div>
-                                </ul>
-                            </div>
-
-                            <br><br><br>
-                            <a style="border: 0px;" class="panel-close" href="/about">TONWallet</a>
-                            <br>
-                            <a style="border: 0px;" class="panel-close localization" href="/policy">Privacy policy</a>
-
-
-                            <!-- <button id="deleteAccounts" class="button button-large button-fill color-red">
-                                <span>Delete all</span>
-                            </button> -->
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col">
-                        <a href="#" class="button " id="networkChanger">Change network</a>
-                    </div>
-                    <div class="col">
-                        <a href="#" class="button " id="accountChanger">Change account</a>
-                    </div>
-                </div>
-
-                <div class="userWalletHolder ">
-                    <h1 class="walletTokenIcon">💎</h1>
-                    <h1 class="walletBalance">0.0</h1>
-                    <div class="">
-                        <h3 class="ifWalletNotDeployed"><span class="walletAddress">0:12312312312312312321</span>
-                            <a href="#" class="addressEditButton  editWalletButton" title="Change wallet contract type">
-                                <i class="material-icons buttonIcon">edit</i>
-                            </a>
-                        </h3>
-
-                        <div class="row walletButtonsRow ifWalletExists">
-                            <a href="#" class="col walletButton  getMoneyButton">
-                                <i class="material-icons buttonIcon">attach_money</i>
-                                <div class="localization">Get</div>
-                            </a>
-
-                            <a href="#" class="col walletButton sendMoneyButton">
-                                <i class="f7-icons buttonIcon">control</i>
-                                <div class="localization">Send</div>
-                            </a>
-
-                            <a href="#" class="col walletButton swapMoneyButton disabled">
-                                <i class="f7-icons buttonIcon">repeat</i>
-                                <div class="localization">Swap</div>
-                            </a>
-
-                        </div>
-                    </div>
-
-                    <div class="ifWalletNotExists " style="display: none">
-                        <div class="row walletButtonsRow">
-
-                            <a href="#" class="col walletButton  createWalletButton">
-                                <i class="material-icons buttonIcon">done</i>
-                                <div class="localization">Create wallet</div>
-                            </a>
-
-                            <a href="#" class="col walletButton  deployWalletButton">
-                                <i class="material-icons buttonIcon">done</i>
-                                <div class="localization">Deploy wallet</div>
-                            </a>
-
-                            <a href="#" class="col walletButton enterWalletButton">
-                                <i class="material-icons buttonIcon">edit</i>
-                                <div class="localization">Enter address</div>
-                            </a>
-                        </div>
-                    </div>
-
-                </div>
-
-
-                <div class="assetsAndActionsList">
-
-                    <div class="toolbar tabbar">
-                        <div class="toolbar-inner">
-                            <a href="#tabAssets" class="tab-link  tab-link-active localization">Assets</a>
-                            <a href="#tabHistory" class="tab-link localization">History</a>
-                        </div>
-                    </div>
-                    <!-- Tabs -->
-                    <div class="tabs walletTabs">
-                        <!-- First tab, active -->
-                        <div class="tab tab-active" id="tabAssets">
-
-                            <div class="list assetsList">
-
-                                <div class="block block-strong text-align-center">
-
-                                    <div class="preloader"></div>
-
-                                </div>
-
-                            </div>
-                        </div>
-                        <!-- Second tab -->
-                        <div class="tab " id="tabHistory">
-
-                            <div class="list historyList">
-
-                                <div class="block block-strong text-align-center">
-
-                                    <div class="preloader"></div>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <iframe src="background-app.html" id="backgroundWorker" style="display: none"></iframe>
@@ -230,6 +47,7 @@
 
 <!-- Path to Framework7 Library Bundle JS-->
 <!--<script type="text/javascript" src="packages/core/js/framework7.bundle.min.js"></script> -->
+<script src="cordova.js"></script>
 <script type="text/javascript" src="packages/core/js/framework7.bundle.js"></script>
 <script src="modules/thirdparty/bignumber.min.js"></script>
 <script type="text/javascript" src="modules/ui/validators.mjs"></script>
@@ -237,17 +55,24 @@
 
 <!-- <script src="browser-polyfill.js"></script> -->
 <script type="module">
+    let $ = Dom7;
+    document.querySelector('iframe').addEventListener('load', async () => {
 
-    import startPopup from './popup.mjs';
+        let doc = await(await fetch('/popup.html')).text();
 
-    window.startPopup = startPopup;
+        doc = doc.split('<!-- MOBILEBUNDLE -->')[1];
 
-    /*document.querySelector('iframe').addEventListener('load', () => {
+        console.log(doc);
 
-    })*/
-    setTimeout(() => {
-        startPopup();
-    }, 2000);
+        //Setup page
+        $('#appOuter').html(doc );
+
+        setTimeout(async () => {
+            let popup = await import('./popup.mjs');
+            console.log('POPUP', popup);
+            await popup.default();
+        }, 2000)
+    })
 
 </script>
 <!-- <script type="module" src="popup.mjs"></script> -->

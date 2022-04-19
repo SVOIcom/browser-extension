@@ -92,7 +92,15 @@ const uiUtils = {
      * @returns {Promise<void>}
      */
     copyToClipboard: async (text) => {
-        await navigator.clipboard.writeText(text);
+        try {
+            await navigator.clipboard.writeText(text);
+        }catch (e) {
+            try{
+                cordova.plugins.clipboard.copy(text);
+            }catch (e) {
+
+            }
+        }
         app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: LOCALIZATION._('Copied!')}).open();
     },
 
