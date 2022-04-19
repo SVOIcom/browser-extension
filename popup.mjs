@@ -383,6 +383,18 @@ if(!window._isApp) {
     //If app is started from popup, start popup
     let internalBrowser = new Browser();
     window.internalBrowser = internalBrowser;
+
+    $('.mobileHide').hide();
+    $('.mobileShow').show();
+
+    $('#openBrowser').click(() => {
+        if(internalBrowser.tabs.length === 0) {
+            internalBrowser.newTab();
+        } else {
+            internalBrowser.showBrowser();
+        }
+
+    })
 }
 
 export default startPopup;

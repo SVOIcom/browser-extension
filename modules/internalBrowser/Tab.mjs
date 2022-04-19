@@ -1,3 +1,7 @@
+import Utils from "../utils.mjs";
+
+const DUCKDUCKGO_SEARCH_URL = 'https://duckduckgo.com/?q=';
+
 class Tab extends EventEmitter3 {
     constructor(config = {provider: 'cordova'}) {
         super();
@@ -48,13 +52,13 @@ class Tab extends EventEmitter3 {
                 event: 'closePressed'
             },*/
             customButtons: [
-               /* {
-                    wwwImage: 'mobile_resources/icons/share.png',
-                    wwwImageDensity: 2,
-                    wwwImagePressed: 'mobile_resources/icons/share_pressed.png',
-                    align: 'right',
-                    event: 'sharePressed'
-                },*/
+                /* {
+                     wwwImage: 'mobile_resources/icons/share.png',
+                     wwwImageDensity: 2,
+                     wwwImagePressed: 'mobile_resources/icons/share_pressed.png',
+                     align: 'right',
+                     event: 'sharePressed'
+                 },*/
                 {
                     wwwImage: 'mobile_resources/icons/tabs.png',
                     wwwImageDensity: 2,
@@ -76,13 +80,17 @@ class Tab extends EventEmitter3 {
                         label: 'Reload page'
                     },
                     {
+                        event: 'gotoPressed',
+                        label: 'Goto URL'
+                    },
+                    {
                         event: 'hidePressed',
                         label: 'Hide browser'
                     }
                 ]
             },
             backButtonCanClose: false,
-            disableAnimation: true,
+            // disableAnimation: true,
         });
 
         this.browserPage.addEventListener('backPressed', function (e) {
@@ -104,6 +112,41 @@ class Tab extends EventEmitter3 {
 
         this.browserPage.addEventListener('tabsPressed', function (e) {
             that.emit('tabsPressed', that.url, that);
+        });
+
+
+        this.browserPage.addEventListener('loadstart', function (e) {
+            that.emit('loadstart', e, that.url, that);
+            if(e.url !== that.url) {
+                that.url = e.url;
+                that.emit('urlChanged', that.url, that);
+            }
+        });
+
+        this.browserPage.addEventListener('gotoPressed', function (e) {
+            that.emit('gotoPressed', that.url, that);
+            let newUrl = prompt('Enter URL', that.url);
+
+            //Resolve relative URLs
+            if(newUrl) {
+                try {
+                    let url = new URL(newUrl);
+                    newUrl = url.toString();
+                } catch (e) {
+                    try {
+                        if(Utils.isValidDomain(newUrl)) {
+                            newUrl = 'https://' + newUrl;
+                        }
+                        let url = new URL(newUrl);
+                        newUrl = url.toString();
+                    } catch (e) {
+                        newUrl = DUCKDUCKGO_SEARCH_URL + encodeURIComponent(newUrl);
+                    }
+
+                }
+                that.goto(newUrl);
+
+            }
         });
 
         this.browserPage.addEventListener('message', function (e) {
@@ -168,6 +211,12 @@ class Tab extends EventEmitter3 {
     reload() {
         if(this.config.provider === 'cordova') {
             this.browserPage.reload();
+        }
+    }
+
+    injectScript(script) {
+        if(this.config.provider === 'cordova') {
+            this.browserPage.executeScript({code: script});
         }
     }
 

@@ -1,5 +1,7 @@
 import Tab from "./Tab.mjs";
 
+const DEFAULT_PAGE = 'file:///android_asset/www/mobile_resources/index.html';
+
 class Browser {
     constructor() {
         this.tabs = [];
@@ -15,7 +17,7 @@ class Browser {
      * Add new tab
      * @param {string} url
      */
-    async newTab(url) {
+    async newTab(url = DEFAULT_PAGE) {
         let tab = new Tab();
         this.tabs.push(tab);
 

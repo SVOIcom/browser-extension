@@ -273,3 +273,7 @@ a{
     transform: rotate(45deg);
     font-weight: 900;
 }
+
+.mobileShow{
+    display: none;
+}

@@ -348,7 +348,17 @@ const Utils = {
         fixed = fixed || 0;
         fixed = Math.pow(10, fixed);
         return String(Math.floor(num * fixed) / fixed);
-    }
+    },
+
+    /**
+     * Check is valid domain
+     * @param str
+     * @returns {boolean}
+     */
+    isValidDomain(str){
+        return /^(((?!\-))(xn\-\-)?[a-z0-9\-_]{0,61}[a-z0-9]{1,1}\.)*(xn\-\-)?([a-z0-9\-]{1,61}|[a-z0-9\-]{1,30})\.[a-z]{2,}$/.test(str);
+
+    },
 };
 
 window._utils = Utils;
