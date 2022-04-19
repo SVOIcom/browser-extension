@@ -15,9 +15,9 @@ class Browser {
         let tab = new Tab();
         this.tabs.push(tab);
 
-        if(this.activeTab === null) {
+        //if(this.activeTab === null) {
             this.activeTab = tab;
-        }
+        //}
 
         await tab.open(url);
 

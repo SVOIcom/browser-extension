@@ -22,7 +22,8 @@ class Tab extends EventEmitter3 {
             },
             title: {
                 color: '#003264ff',
-                showPageTitle: true
+                showPageTitle: true,
+                //staticText: '',
             },
             backButton: {
                 wwwImage: 'mobile_resources/icons/back.png',
