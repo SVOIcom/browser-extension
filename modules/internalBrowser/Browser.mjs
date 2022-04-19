@@ -11,19 +11,36 @@ class Browser {
         return this.tabs.indexOf(this.activeTab);
     }
 
+    /**
+     * Add new tab
+     * @param {string} url
+     */
     async newTab(url) {
         let tab = new Tab();
         this.tabs.push(tab);
 
         //if(this.activeTab === null) {
-            this.activeTab = tab;
+        this.activeTab = tab;
         //}
 
         await tab.open(url);
 
-        return {tab, index: this.tabs.length - 1};
+        let index = this.tabs.length - 1;
+
+        tab.index = index;
+
+        //Add tabs icon click handler
+        tab.on('tabsPressed', () => {
+            this._processTabsClick();
+        });
+
+        return {tab, index};
     }
 
+    /**
+     * Close tab at index
+     * @param index
+     */
     closeTab(index) {
         this.tabs[index].close();
         if(this.activeTab === this.tabs[index]) {
@@ -36,6 +53,10 @@ class Browser {
         this.tabs.splice(index, 1);
     }
 
+    /**
+     * Switch to tab to index
+     * @param index
+     */
     switchTab(index) {
         this.activeTab.hide();
 
@@ -58,6 +79,25 @@ class Browser {
             index = this.tabs.length - 1;
         }
         this.switchTab(index);
+    }
+
+    hideBrowser() {
+        this.tabs.forEach(tab => {
+            tab.hide();
+        });
+    }
+
+    showBrowser() {
+        this.activeTab.show();
+    }
+
+    /**
+     * Process tabs click and show tabs switcher
+     * @private
+     */
+    _processTabsClick() {
+        this.hideBrowser();
+
     }
 
 

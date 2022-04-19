@@ -4,6 +4,7 @@ class Tab extends EventEmitter3 {
         this.config = config;
         this.browserPage = null;
         this.url = '';
+        this.index = null;
     }
 
     _openBrowserCordova(url) {
@@ -25,7 +26,7 @@ class Tab extends EventEmitter3 {
                 showPageTitle: true,
                 //staticText: '',
             },
-            backButton: {
+            /*backButton: {
                 wwwImage: 'mobile_resources/icons/back.png',
                 wwwImageDensity: 2,
                 wwwImagePressed: 'mobile_resources/icons/back_pressed.png',
@@ -38,52 +39,88 @@ class Tab extends EventEmitter3 {
                 wwwImagePressed: 'mobile_resources/icons/forward_pressed.png',
                 align: 'left',
                 event: 'forwardPressed'
-            },
-            closeButton: {
+            },*/
+            /*closeButton: {
                 wwwImage: 'mobile_resources/icons/close.png',
                 wwwImageDensity: 2,
                 wwwImagePressed: 'mobile_resources/icons/close_pressed.png',
                 align: 'left',
                 event: 'closePressed'
-            },
+            },*/
             customButtons: [
-                {
+               /* {
                     wwwImage: 'mobile_resources/icons/share.png',
                     wwwImageDensity: 2,
                     wwwImagePressed: 'mobile_resources/icons/share_pressed.png',
                     align: 'right',
                     event: 'sharePressed'
+                },*/
+                {
+                    wwwImage: 'mobile_resources/icons/tabs.png',
+                    wwwImageDensity: 2,
+                    wwwImagePressed: 'mobile_resources/icons/tabs.png',
+                    align: 'right',
+                    event: 'tabsPressed'
                 }
             ],
             menu: {
                 wwwImage: 'mobile_resources/icons/menu.png',
                 wwwImageDensity: 2,
                 wwwImagePressed: 'mobile_resources/icons/menu_pressed.png',
-                title: 'Test',
+                title: 'Menu',
                 cancel: 'Cancel',
                 align: 'right',
                 items: [
                     {
-                        event: 'helloPressed',
-                        label: 'Hello World!'
+                        event: 'reloadPressed',
+                        label: 'Reload page'
                     },
                     {
-                        event: 'testPressed',
-                        label: 'Test!'
+                        event: 'hidePressed',
+                        label: 'Hide browser'
                     }
                 ]
             },
-            backButtonCanClose: true
-        }).addEventListener('backPressed', function (e) {
+            backButtonCanClose: false,
+            disableAnimation: true,
+        });
+
+        this.browserPage.addEventListener('backPressed', function (e) {
             that.emit('backPressed', that.url, that);
-        }).addEventListener('forwardPressed', function (e) {
+        });
+
+        this.browserPage.addEventListener('forwardPressed', function (e) {
             that.emit('forwardPressed', that.url, that);
-        }).addEventListener('sharePressed', function (e) {
+        });
+
+        this.browserPage.addEventListener('sharePressed', function (e) {
             that.emit('sharePressed', that.url, that);
-        }).addEventListener(cordova.ThemeableBrowser.EVT_ERR, function (e) {
+        });
+
+        this.browserPage.addEventListener('reloadPressed', function (e) {
+            that.emit('reloadPressed', that.url, that);
+            that.reload();
+        });
+
+        this.browserPage.addEventListener('tabsPressed', function (e) {
+            that.emit('tabsPressed', that.url, that);
+        });
+
+        this.browserPage.addEventListener('message', function (e) {
+            that.emit('message', e, that.url, that);
+        });
+
+        this.browserPage.addEventListener('hidePressed', function (e) {
+            that.emit('hide', that.url, that);
+            that.hide();
+        });
+
+        this.browserPage.addEventListener(cordova.ThemeableBrowser.EVT_ERR, function (e) {
             console.error(e.message);
             that.emit('error', e, that);
-        }).addEventListener(cordova.ThemeableBrowser.EVT_WRN, function (e) {
+        });
+
+        this.browserPage.addEventListener(cordova.ThemeableBrowser.EVT_WRN, function (e) {
             that.emit('warning', e, that);
             console.log(e.message);
         });
@@ -125,6 +162,12 @@ class Tab extends EventEmitter3 {
     show() {
         if(this.config.provider === 'cordova') {
             this.browserPage.show();
+        }
+    }
+
+    reload() {
+        if(this.config.provider === 'cordova') {
+            this.browserPage.reload();
         }
     }
 
