@@ -11,6 +11,11 @@ class Tab extends EventEmitter3 {
         this.index = null;
     }
 
+    /**
+     * Open page in cordova browser
+     * @param url
+     * @private
+     */
     _openBrowserCordova(url) {
 
         let that = this;
@@ -171,6 +176,10 @@ class Tab extends EventEmitter3 {
         that.emit('urlChanged', that.url, that);
     }
 
+    /**
+     * Open url in tab
+     * @param url
+     */
     open(url) {
         if(this.browserPage) {
             this.goto(url);
@@ -181,6 +190,10 @@ class Tab extends EventEmitter3 {
         }
     }
 
+    /**
+     * Change tab url
+     * @param url
+     */
     goto(url) {
         if(this.config.provider === 'cordova') {
             this.browserPage.executeScript({code: `window.location.href = '${url}'`});
@@ -190,9 +203,12 @@ class Tab extends EventEmitter3 {
 
     close() {
         if(this.config.provider === 'cordova') {
-            this.browserPage.close();
+            this.hide();
+            this.goto('about:blank');
+            //this.browserPage.close(); //TODO fix correct closing of one tab
             this.browserPage = null;
             this.url = '';
+            this.index = null;
         }
     }
 
@@ -214,10 +230,40 @@ class Tab extends EventEmitter3 {
         }
     }
 
-    injectScript(script) {
+    /**
+     * Run script
+     * @async
+     * @param script
+     * @returns {Promise<[]>}
+     */
+    runScript(script) {
         if(this.config.provider === 'cordova') {
-            this.browserPage.executeScript({code: script});
+            return new Promise((resolve, reject) => {
+                this.browserPage.executeScript({code: script}, resolve);
+            });
         }
+    }
+
+    /**
+     * Returns page title
+     * @returns {Promise<string>}
+     */
+    async getTitle() {
+        if(this.config.provider === 'cordova') {
+            return (await this.runScript('document.title;'))[0];
+        }
+    }
+
+    /**
+     * Returns page favicon url
+     * @returns {string}
+     */
+    faviconUrl() {
+        if(this.url.includes('http')) {
+            return `https://www.google.com/s2/favicons?domain=${this.url}`;
+        }
+
+        return '';
     }
 
 }

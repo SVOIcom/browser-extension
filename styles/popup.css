@@ -252,28 +252,33 @@
     display: none;
 }
 
-.walletTokenIcon tgs-player{
-    width: 50px!important;
-    height: 50px!important;
+.walletTokenIcon tgs-player {
+    width: 50px !important;
+    height: 50px !important;
     display: inline-block;
 }
 
-.walletTokenIcon .walletIconImage{
-    width: 50px!important;
-    height: 50px!important;
+.walletTokenIcon .walletIconImage {
+    width: 50px !important;
+    height: 50px !important;
     display: inline-block;
 }
 
-a{
+a {
 
     color: #7355fc;
 }
 
-.everscalizeButton{
+.everscalizeButton {
     transform: rotate(45deg);
     font-weight: 900;
 }
 
-.mobileShow{
+.mobileShow {
+    display: none;
+}
+
+#browserTabs .item-inner:before {
+    content: "";
     display: none;
 }
