@@ -1,19 +1,12 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name ScaleWallet - Everscale browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
  */
 
 import FreetonInstance from "./FreetonInstance.mjs";
+
 export const MNEMONIC_DICTIONARY = {
     TON: 0,
     ENGLISH: 1,
@@ -35,19 +28,52 @@ export const HD_PATH = "m/44'/396'/0'/0/0";
 
 class FreetonCrypto {
 
+    /**
+     * Create SEED phrase
+     * @param dict
+     * @param length
+     * @returns {Promise<*>}
+     */
     static async generateSeed(dict = MNEMONIC_DICTIONARY.ENGLISH, length = SEED_LENGTH.w12) {
         const ton = await FreetonInstance.getFreeTON();
         return await ton.crypto.mnemonicFromRandom({dictionary: dict, wordCount: length});
     }
 
-    static async seedToKeypair(seed, dict = MNEMONIC_DICTIONARY.ENGLISH, length = SEED_LENGTH.w12) {
+    /**
+     * Seed phrase or private key to keypair
+     * @param seed
+     * @param dict
+     * @param length
+     * @returns {Promise<*>}
+     */
+    static async seedOrPrivateToKeypair(seed, dict = MNEMONIC_DICTIONARY.ENGLISH, length = SEED_LENGTH.w12) {
         const ton = await FreetonInstance.getFreeTON();
-        return await ton.crypto.mnemonicDeriveSignKeys({
-            dictionary: dict,
-            wordCount: length,
-            phrase: seed,
-            path: HD_PATH
-        });
+        //Is a private key
+        if(seed.length === 64) {
+            return await ton.crypto.naclBoxKeypairFromSecretKey(seed);
+        }
+
+        //TODO Даня делает регулярку
+        if(seed.split(' ').length === 24) {
+            length = SEED_LENGTH.w24;
+        }
+
+        for (let dictKey in MNEMONIC_DICTIONARY) {
+            dict = MNEMONIC_DICTIONARY[dictKey];
+            try {
+                return await ton.crypto.mnemonicDeriveSignKeys({
+                    dictionary: dict,
+                    wordCount: length,
+                    phrase: seed,
+                    path: HD_PATH
+                });
+            } catch (e) {
+
+            }
+        }
+
+        throw new Error('Invalid seed phrase or private key')
+
     }
 
 }

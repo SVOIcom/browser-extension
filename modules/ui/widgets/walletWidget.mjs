@@ -1,26 +1,19 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name ScaleWallet - Everscale browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
  */
 
 import Utils from "../../utils.mjs";
+import TonSwapTokenList from "../../const/TonSwapTokenList.mjs";
 import uiUtils from "../uiUtils.mjs";
 import WalletContract from "../../const/WalletContract.mjs";
 import TOKEN_LIST from "../../const/TokenList.mjs";
 import popups from "../popups.mjs";
 import LOCALIZATION from "../../Localization.mjs";
 
-const UPDATE_INTERVAL = 10000;
+const UPDATE_INTERVAL = 30000;
 
 
 const _ = LOCALIZATION._;
@@ -35,8 +28,15 @@ class walletWidget {
         this.app = app;
         this.wallet = null;
 
+        /*$(window).on('focus', async ()=>{
+            $('.walletTokenIcon tgs-player')[0].getLottie().play();
+        })
 
-        $('.enterWalletButton').click(async () => {
+        $(window).on('blur', async ()=>{
+            $('.walletTokenIcon tgs-player')[0].getLottie().stop();
+        })*/
+
+        const enterWallet = async () => {
 
             let address = await this.promptWalletAddress();
             let currentNetwork = await messenger.rpcCall('main_getNetwork', undefined, 'background');
@@ -65,12 +65,34 @@ class walletWidget {
 
             await this.updateWalletWidget();
 
-        });
+        }
+
+        $('.enterWalletButton').click(enterWallet);
 
         $('.createWalletButton, .editWalletButton').click(async () => {
-            let walletType = await uiUtils.popupSelector([...WalletContract.WALLET_TYPES_LIST, {
+
+            app.preloader.showIn($('.userWalletHolder'));
+            let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
+            let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
+
+            let walletsWithBalances = [];
+
+            for (let walletType of WalletContract.WALLET_TYPES_LIST) {
+                let newWallet = await this.messenger.rpcCall('main_createWallet', [account.public, walletType], 'background');
+                let balance = 0;
+                try {
+                    balance = await this.messenger.rpcCall('main_getWalletBalance', [newWallet], 'background');
+                } catch (e) {
+                }
+
+                walletsWithBalances.push(`${walletType} - ${Utils.nFormatter(Utils.unsignedNumberToSigned(balance), 2)} ${currentNetwork.network.tokenIcon}`)
+            }
+
+            app.preloader.hideIn($('.userWalletHolder'));
+
+            let walletType = await uiUtils.popupSelector([...walletsWithBalances, {
                 text: _('Enter custom address'), onClick: async () => {
-                    $('.enterWalletButton').click();
+                    await enterWallet();
                 }
             }], _('Wallet type'));
 
@@ -78,8 +100,9 @@ class walletWidget {
                 return;
             }
 
-            let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
-            let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
+            //Parse wallet type
+            walletType = walletType.split(' - ')[0];
+
 
             let newWallet = await this.messenger.rpcCall('main_createWallet', [account.public, walletType], 'background');
 
@@ -91,9 +114,20 @@ class walletWidget {
                 config: {},
             }
 
-            await this.messenger.rpcCall('main_setNetworkWallet', [account.public, currentNetwork.name, walletObj], 'background');
+            app.preloader.showIn($('.userWalletHolder'));
+            try {
+                await this.messenger.rpcCall('main_setNetworkWallet', [account.public, currentNetwork.name, walletObj], 'background');
 
-            await this.updateWalletWidget();
+                await this.updateWalletWidget();
+            } catch (e) {
+                app.toast.create({
+                    closeTimeout: 3000,
+                    destroyOnClose: true,
+                    text: LOCALIZATION._('Wallet change error')
+                }).open();
+                console.log('Wallet change error', e);
+            }
+            app.preloader.hideIn($('.userWalletHolder'));
 
 
         });
@@ -120,7 +154,7 @@ class walletWidget {
                 try {
                     await this.messenger.rpcCall('main_deployWallet', [account.public, wallet.type], 'background');
                 } catch (e) {
-                    app.dialog.alert(_('Wallet deploy error') + `: ${JSON.stringify(e)}`);
+                    app.dialog.alert(_('Wallet deploy error') + ':' + e.message);
                 }
 
                 await this.updateWalletWidget();
@@ -146,6 +180,11 @@ class walletWidget {
             }).addClass('action-hooked');
 
         }, 1000)
+
+        //Set global methods
+        window.updateWalletWidget = async () => {
+            return await this.updateWalletWidget();
+        }
 
 
     }
@@ -179,13 +218,7 @@ class walletWidget {
         if(currentNetwork.network.faucet) {
             if(currentNetwork.network.faucet.type === 'url') {
                 $('.getMoneyButton').show();
-                $('.getMoneyButton').click(function () {
-                    window.open(currentNetwork.network.faucet.address);
-                });
-            }
-
-            if(currentNetwork.network.faucet.type === 'url') {
-                $('.getMoneyButton').show();
+                $('.getMoneyButton').off('click');
                 $('.getMoneyButton').click(function () {
                     window.open(currentNetwork.network.faucet.address);
                 });
@@ -196,7 +229,10 @@ class walletWidget {
         }
 
         //console.log(account);
-        $('.walletTokenIcon').html(currentNetwork.network.tokenIcon);
+        if(this.lastNetwork !== currentNetwork.name) {
+            this.lastNetwork = currentNetwork.name;
+            $('.walletTokenIcon').html(currentNetwork.network.tokenIcon);
+        }
 
         //console.log(account.wallets[currentNetwork.name], currentNetwork.name);
 
@@ -236,11 +272,11 @@ class walletWidget {
             $('.ifWalletNotExists').show();
             $('.createWalletButton').show();
             $('.deployWalletButton').hide();
-            $('.ifWalletNotDeployed').hide();
+            $('.ifWalletNotDeployed').show();
         }
 
 
-        await this.updateAssetsList();
+        await this.updateAssetsList(this.wallet?.address);
 
         await this.updateHistoryList();
 
@@ -265,6 +301,7 @@ class walletWidget {
      */
     async updateHistoryList() {
 
+        app.preloader.showIn($('.historyList'));
         let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
         let account = await this.messenger.rpcCall('main_getAccount', undefined, 'background');
         if(account.wallets[currentNetwork.name]) {
@@ -304,6 +341,8 @@ class walletWidget {
 
                 $('.historyList').html(html);
 
+                app.preloader.hideIn($('.historyList'));
+
                 $('.externalHref').click(function () {
                     window.open($(this).attr('href'));
                 })
@@ -324,7 +363,9 @@ class walletWidget {
      * Update UI assets list
      * @returns {Promise<void>}
      */
-    async updateAssetsList() {
+    async updateAssetsList(userWalletAddress) {
+
+        app.preloader.showIn($('.assetsList'));
 
         const that = this;
         let currentNetwork = await this.messenger.rpcCall('main_getNetwork', undefined, 'background');
@@ -334,24 +375,36 @@ class walletWidget {
 
         let html = `<ul>`;
 
+        let tokenBalancesPromises = [];
+        let tokenBalances = {};
+
+        for (let tokenAddress of Object.keys(tokens)) {
+            tokenBalancesPromises.push((async () => {
+                try {
+                    let balance = await this.messenger.rpcCall('main_getTokenBalance', [tokenAddress, account.public, userWalletAddress], 'background');
+                    tokenBalances[tokenAddress] = balance;
+                } catch (e) {
+                    tokenBalances[tokenAddress] = null;
+                }
+            })())
+        }
+
+        await Promise.all(tokenBalancesPromises);
+
+
         for (let tokenAddress of Object.keys(tokens)) {
 
             let tokenInfo = tokens[tokenAddress];
-            let tokenBalance = null;
-
-            try {
-                tokenBalance = await this.messenger.rpcCall('main_getTokenBalance', [tokenAddress, account.public], 'background');
-            } catch (e) {
-            }
+            let tokenBalance = tokenBalances[tokenAddress];
 
             console.log(tokenInfo);
 
             html += ` <li>
                         <a href="#" data-address="${tokenAddress}" class="item-link item-content tokenButton">
-                            <div class="item-media">${tokenInfo.icon}</div>
+                            <div class="item-media">${tokenInfo.icon ? tokenInfo.icon : ''}${tokenInfo.deprecated ? '<span style="color: white;background: red;position: absolute;left: 0;z-index: 10000;font-size: 7px;/* top: 10px; */border-radius: 5px;opacity: 80%;padding: 2px;">OLD</span>' : ''}</div>
                             <div class="item-inner">
-                                <div class="item-title">${tokenInfo.name} (${tokenInfo.symbol})</div>
-                                <div class="item-after">${tokenInfo.fungible ? (tokenBalance !== null ? Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals) : 'Not deployed') : 'NFT'}</div>
+                                <div class="item-title">  ${tokenInfo.name} (${tokenInfo.symbol})</div>
+                                <div class="item-after">${tokenInfo.fungible ? (tokenBalance !== null ? Utils.nFormatter(Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals), 1) : 'Not deployed') : 'NFT'}</div>
                             </div>
                         </a>
                     </li>`;
@@ -372,6 +425,8 @@ class walletWidget {
 
         $('.assetsList').html(html);
 
+        app.preloader.hideIn($('.assetsList'));
+
         $('.addTokenToAccount').click(async () => {
             let tokenClickList = [];
 
@@ -383,13 +438,28 @@ class walletWidget {
                     app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: _('Token adding error')}).open();
                 }
 
-                await that.updateAssetsList();
+                await that.updateAssetsList(that.wallet?.address);
 
             }
 
-            for (let token of TOKEN_LIST.TIP3_FUNGIBLE) {
+            let tokenList = TOKEN_LIST.TIP3_FUNGIBLE;
+            try {
+                let externalList = await (new TonSwapTokenList(null, null)).load();
+                tokenList = await externalList.getTokensInWalletFormat(tokenList);
+            } catch (e) {
+                console.log('Error loading external tokens', e)
+            }
+
+
+            for (let token of tokenList) {
                 tokenClickList.push({
-                    text: token.name, onClick: async () => {
+                    text: `
+                            <div style="width: 100%">
+                                <div style="width: 5%;    display: inline-block;">${token.icon}</div>
+                                <div style="width: 70%; text-align: center;     display: inline-block;">${token.name}</div>
+                                <div style="width: 25%;text-align: left; opacity: 60%; display: inline-block;">${token.symbol}</div>
+                            </div>
+                            `, onClick: async () => {
                         await addTokenToAccount(token.rootAddress);
                     }
                 });
@@ -411,7 +481,7 @@ class walletWidget {
 
                     }
                 },
-                {
+                /*{
                     text: _('Create TIP3 token'),
                     onClick: async () => {
 
@@ -419,7 +489,7 @@ class walletWidget {
 
 
                     }
-                }
+                }*/
             ], _('Select token'));
         });
 
@@ -429,7 +499,7 @@ class walletWidget {
             if(account.wallets[currentNetwork.name]) {
                 let wallet = account.wallets[currentNetwork.name];
                 await popups.tokenWallet(tokenAddress, account.public, that.messenger, wallet.address);
-            }else{
+            } else {
 
             }
         })

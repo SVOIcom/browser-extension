@@ -1,0 +1,42 @@
+{
+  "_from": "nekoton-wasm@^0.1.12",
+  "_id": "nekoton-wasm@0.1.12",
+  "_inBundle": false,
+  "_integrity": "sha512-9aUVaHbW9gxWvmhIcPosbwDR7AdScX56vthEI97ecC7nYKrchjtfcwRM/6qUfQIeS2cu5Qw+OyIM5YcTuRPyWw==",
+  "_location": "/nekoton-wasm",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "nekoton-wasm@^0.1.12",
+    "name": "nekoton-wasm",
+    "escapedName": "nekoton-wasm",
+    "rawSpec": "^0.1.12",
+    "saveSpec": null,
+    "fetchSpec": "^0.1.12"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/nekoton-wasm/-/nekoton-wasm-0.1.12.tgz",
+  "_shasum": "575560a43bec628fa52df592ffef84bdde30a894",
+  "_spec": "nekoton-wasm@^0.1.12",
+  "_where": "C:\\Users\\jhony\\Desktop\\projects\\everscale-standalone-client",
+  "bundleDependencies": false,
+  "collaborators": [
+    "Ivan Kalinin <i.kalinin@dexpa.io>"
+  ],
+  "deprecated": false,
+  "description": "Nekoton bindings for WASM",
+  "files": [
+    "nekoton_wasm_bg.wasm",
+    "nekoton_wasm.js",
+    "nekoton_wasm.d.ts"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "module": "nekoton_wasm.js",
+  "name": "nekoton-wasm",
+  "sideEffects": false,
+  "types": "nekoton_wasm.d.ts",
+  "version": "0.1.12"
+}

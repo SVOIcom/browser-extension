@@ -18,29 +18,55 @@
 
 
             <div class="tokenWalletHolder ">
-                <h1 class="tokenName">SomeToken</h1>
-                <h1 class="tokenWalletTokenIcon">💎</h1>
+
+                <h1 class="tokenWalletTokenIcon"> </h1>
+
+                <h1 class="tokenName" style="margin-bottom: 5px;">     <div class="preloader"></div></h1>
+
+
                 <h1 class="tokenWalletBalance">0.0</h1>
                 <div class="">
-                    <h3 class="">
-                        <span class="tokenWalletAddress">0:12312312312312312321</span>
-                    </h3>
+
+                    <div class="accordion-list accordion-opposite">
+                        <div class="accordion-item">
+                            <div class="accordion-item-toggle localization" style="color: #7355fc">More info</div>
+                            <div class="accordion-item-content">
+                                <h3 style="margin-bottom: -5px;">
+                                    <span class="tokenWalletAddress">0:0</span>
+                                </h3>
+                                <div style="font-size: 8pt">
+                                    <span class="tokenTonBalance">0</span>
+                                </div>
+                                <div style="font-size: 8pt">
+                                    <span class="localization">Token root address</span>:
+                                    <span class="tokenRootAddress">0:0</span>
+                                </div>
+
+                                <!-- main_removeAccountToken -->
+                                <br>
+                                <a href="#" class="button removeTokenButton" >Remove</a>
+                            </div>
+                        </div>
+                    </div>
+
+
+
 
                     <div class="row walletButtonsRow ifTokenWalletExists">
-                        <a href="#" class="col walletButton  getTokenButton" >
+                      <!--  <a href="#" class="col walletButton  getTokenButton" >
                             <i class="material-icons buttonIcon">attach_money</i>
                             <div class="localization">Get</div>
-                        </a>
+                        </a> -->
 
                         <a href="#" class="col walletButton sendTokenButton">
-                            <i class="f7-icons buttonIcon">control</i>
+                            <i class="f7-icons buttonIcon everscalizeButton">control</i>
                             <div class="localization">Send</div>
                         </a>
 
-                        <a href="#" class="col walletButton swapMoneyButton disabled">
+                       <!-- <a href="#" class="col walletButton swapMoneyButton disabled">
                             <i class="f7-icons buttonIcon">repeat</i>
                             <div class="localization">Swap</div>
-                        </a>
+                        </a> -->
 
 
                     </div>

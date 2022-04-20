@@ -1,13 +1,5 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name ScaleWallet - Everscale browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
@@ -84,6 +76,16 @@ class Wallet {
         }, keyPair);
     }
 
+    async transferNew(to, amount, payload = '', bounce = false, keyPair) {
+        return await this.contract.submitTransaction.deploy({
+            dest: to,
+            value: amount,
+            bounce: bounce,
+            allBalance: false,
+            payload: payload
+        }, keyPair);
+    }
+
     /**
      * Return messages for current wallet by filter
      * @param filter
@@ -99,7 +101,7 @@ class Wallet {
                 {path:"lt",direction:"ASC"}
             ],*/
             orderBy: [
-                {path: "now", direction: "DESC"}],
+                {path: "created_at", direction: "DESC"}],
             limit: limit,
             result: 'id created_at dst src boc value'
         })
@@ -111,29 +113,34 @@ class Wallet {
      * @returns {Promise<this>}
      */
     async getHistory(limit = 20) {
-        let outcomes = await this.getWalletMessages({
-            src: {
-                eq: this.address
+        try {
+            window.getWalletMessages = this.getWalletMessages;
+            let outcomes = await this.getWalletMessages({
+                src: {
+                    eq: this.address
+                }
+            }, limit);
+            let incomes = await this.getWalletMessages({
+                dst: {
+                    eq: this.address
+                }
+            }, limit);
+            let messages = [...outcomes, ...incomes];
+
+            messages = messages.sort((a, b) => b.created_at - a.created_at);
+
+            console.log('Messages', messages);
+
+            for (let i in messages) {
+                if(messages[i].value !== null) {
+                    messages[i].value = Number(messages[i].value);
+                }
             }
-        }, limit);
 
-        let incomes = await this.getWalletMessages({
-            dst: {
-                eq: this.address
-            }
-        }, limit);
-
-        let messages = [...outcomes, ...incomes];
-
-        messages = messages.sort((a, b) =>  b.created_at - a.created_at);
-
-        for (let i in messages) {
-            if(messages[i].value !== null) {
-                messages[i].value = Number(messages[i].value);
-            }
+            return messages;
+        } catch (e) {
+            console.log(e);
         }
-
-        return messages;
 
     }
 }

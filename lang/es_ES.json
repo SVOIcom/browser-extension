@@ -47,7 +47,9 @@
   "Import seed phrase": "Importar una seed frase",
   "Restoring your wallet from seed": "Restaurar una billetera usando una seed frase",
   "Enter your seed phrase": "Ingrese su seed frase",
+  "Enter your seed phrase or private key": "Ingrese su seed frase o la clave privada",
   "Seed phrase": "Seed frase",
+  "Seed phrase or private key": "Seed frase o la clave privada",
   "Import": "Importar",
   "Are you here for the first time?": "Bienvenidos",
   "Let's get started!": "¡Empecemos!",
@@ -115,5 +117,7 @@
   "Transaction error": "Error de transacción",
   "Rejected by user": "Rechazado por el usuario",
   "": "",
-  "Select network": "Seleccione la red"
+  "Select network": "Seleccione la red",
+  "Seed phrase check": "Verificación de frase seed",
+  "Select word from seed on position": "Seleccionar palabra de la seed frase en la posición"
 }

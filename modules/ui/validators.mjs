@@ -1,13 +1,5 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name ScaleWallet - Everscale browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
@@ -125,7 +117,7 @@ function validatePassword() {
 
 
 /**
- * validate policy checkbox field
+ * check seed field not empty
  * @returns {Boolean}
  */
  function checkSeedPhraseExist() {
@@ -147,6 +139,108 @@ function validatePassword() {
     }
 }
 
+
+/**
+ * check key fields not empty
+ * @returns {Boolean}
+ */
+ function checkKeyPairExist(){
+    
+
+    let keysAreaLabel = $("#keysAreaLabel");
+    let keysAreaLabel2 = $("#keysAreaLabel2");
+    let keysAreaLi = $("#keysAreaLi");
+    let keysAreaLi2 = $("#keysAreaLi2");
+    let publicKeyField = $("#publicKeyField");
+    let privateKeyField = $("#privateKeyField");
+
+    if (publicKeyField.val() === "" || privateKeyField.val() === ""){
+        keysAreaLi.addClass('item-input-invalid');
+        keysAreaLi2.addClass('item-input-invalid');
+
+        publicKeyField.addClass("input-invalid");
+        privateKeyField.addClass("input-invalid");
+
+        keysAreaLabel.text("Please enter your account keys");
+
+        return 0
+    } else {
+        keysAreaLi.removeClass('item-input-invalid');
+        keysAreaLi2.removeClass('item-input-invalid');
+
+        publicKeyField.removeClass("input-invalid");
+        privateKeyField.removeClass("input-invalid");
+        return 1
+    }
+
+ }
+
+ /**
+ * validate policy checkbox field
+ * @returns {Boolean}
+ */
+  function keysInvalid(errCode) {
+
+    let keysAreaLabel = $("#keysAreaLabel");
+    let keysAreaLabel2 = $("#keysAreaLabel2");
+    let keysAreaLi = $("#keysAreaLi");
+    let keysAreaLi2 = $("#keysAreaLi2");
+    let publicKeyField = $("#publicKeyField");
+    let privateKeyField = $("#privateKeyField");
+
+    let validFlag = 1
+
+    if (errCode == 15001){
+        keysAreaLi.addClass('item-input-invalid');
+        keysAreaLi2.addClass('item-input-invalid');
+
+        publicKeyField.addClass("input-invalid");
+        privateKeyField.addClass("input-invalid");
+
+        keysAreaLabel.text("Keys must be 64 characters long");
+
+        validFlag = 0;
+
+    }  else if (errCode == 15002){
+        keysAreaLi.addClass('item-input-invalid');
+        keysAreaLi2.addClass('item-input-invalid');
+
+        publicKeyField.addClass("input-invalid");
+        privateKeyField.addClass("input-invalid");
+
+        keysAreaLabel.text("This public key is invalid");
+
+        validFlag = 0;
+
+
+
+    }  else if (errCode == 10004){
+        keysAreaLi.addClass('item-input-invalid');
+        keysAreaLi2.addClass('item-input-invalid');
+
+        publicKeyField.addClass("input-invalid");
+        privateKeyField.addClass("input-invalid");
+
+        keysAreaLabel.text("This keys is already in your wallet");
+
+        validFlag = 0
+
+        } else if (errCode) {
+
+        keysAreaLi.addClass('item-input-invalid');
+        keysAreaLi2.addClass('item-input-invalid');
+
+        publicKeyField.addClass("input-invalid");
+        privateKeyField.addClass("input-invalid");
+
+        keysAreaLabel.text("This keys is invalid");
+
+        validFlag = 0
+    }
+
+    return validFlag;
+
+}
 
 /**
  * validate policy checkbox field

@@ -15,14 +15,25 @@
    </div>
    <div class="page-content">
       <div style="text-align: center;" class="block-title">
-         <h3 style="margin: 0px;" class="localization">Restoring your wallet from seed</h3>
+         <h3 style="margin: 0px;" class="localization">Restoring your wallet</h3>
       </div>
-      <div class="block-title localization">Enter your seed phrase</div>
-      <div class="list inset">
+
+      <div class="block block-strong">
+         <p class="segmented">
+           <button id="restoreBySeed" class="button button-outline button-active">Seed</button>
+           <button id="restoreByKeys" class="button button-outline">Keys</button>
+         </p>
+      </div>
+
+      <!-- style="display: none;" -->
+
+      <div class="block-title localization">Enter your seed phrase or private key</div>
+
+      <div id="restoreBySeedField" class="list inset">
          <ul>
             <li id="seedPhaseAreaLi" class="item-content item-input item-input-outline">
                <div class="item-inner">
-                  <div id="seedPhaseAreaLabel" class="item-title item-floating-label localization">Seed phrase</div>
+                  <div id="seedPhaseAreaLabel" class="item-title item-floating-label localization">Seed phrase or private key</div>
                   <div class="item-input-wrap">
                      <textarea id="seedPhaseArea" style="--f7-textarea-height: 80px; --f7-textarea-padding-vertical: 10px;"></textarea>
                   </div>
@@ -30,6 +41,30 @@
             </li>
          </ul>
       </div>
+
+      <div id="restoreByKeysField" class="list inset" style="display: none;" >
+         <ul>
+            <li id="keysAreaLi" class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                  <div id="keysAreaLabel" class="item-title item-floating-label localization">Enter public key</div>
+                  <div class="item-input-wrap">
+                     <input id="publicKeyField" type="text"/>
+                     <span class="input-clear-button"></span>
+                  </div>
+               </div>
+            </li>
+            <li id="keysAreaLi2" class="item-content item-input item-input-outline">
+               <div class="item-inner">
+                  <div id="keysAreaLabel2" class="item-title item-floating-label localization">Enter private key</div>
+                  <div class="item-input-wrap">
+                     <input id="privateKeyField" type="text"/>
+                     <span class="input-clear-button"></span>
+                  </div>
+               </div>
+            </li>
+         </ul>
+      </div>
+
       <div class="block-title localization">Enter your password</div>
       <div class="list inset">
          <ul>
@@ -46,7 +81,7 @@
                <div class="item-inner">
                   <div id="PVlabel" class="item-title item-floating-label localization">Repeat password</div>
                   <div class="item-input-wrap">
-                     <input id="passwordValidation" id="passwordValidation" type="password"/>
+                     <input id="passwordValidation" type="password"/>
                      <span class="input-clear-button"></span>
                   </div>
                </div>

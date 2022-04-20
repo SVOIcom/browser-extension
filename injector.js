@@ -1,19 +1,12 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name ScaleWallet - Everscale browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
  */
 
-//console.log('FreeTON injector')
+const CONFIG_REQUEST_ID = Math.random();
+
 
 //Message proxy
 window.addEventListener("message", function (event) {
@@ -33,6 +26,11 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
     if(msg.target === '*') {
         window.postMessage(msg, "*");
     }
+
+    //If we receive config response
+    if(msg.requestId && msg.requestId === CONFIG_REQUEST_ID) {
+        evalScript(msg.result);
+    }
 });
 
 
@@ -49,7 +47,7 @@ function injectScriptUrl(urlExt) {
         container.insertBefore(scriptTag, container.children[0]);
         container.removeChild(scriptTag);
     } catch (error) {
-        console.error('FreeTON: injector failed', error);
+        console.error('EverscaleWallet: injector failed', error);
     }
 }
 
@@ -67,7 +65,7 @@ function injectModuleUrl(urlExt) {
         container.insertBefore(scriptTag, container.children[0]);
         container.removeChild(scriptTag);
     } catch (error) {
-        console.error('FreeTON: injector failed', error);
+        console.error('EverscaleWallet: injector failed', error);
     }
 }
 
@@ -84,7 +82,7 @@ function evalScript(source) {
         container.insertBefore(scriptTag, container.children[0]);
         container.removeChild(scriptTag);
     } catch (error) {
-        console.error('FreeTON: injector failed', error);
+        console.error('EverscaleWallet: injector failed', error);
     }
 }
 
@@ -93,16 +91,32 @@ function evalScript(source) {
 injectScriptUrl(browser.extension.getURL("ton-client/main.js"));
 
 //Inject new TON lib
-injectScriptUrl(browser.extension.getURL("ton-client-js/main.js"));
+injectScriptUrl(browser.extension.getURL("ever-sdk-js/main.js"));
 
-//Set FreeTON binary url
+//Set Everscale binary url
 evalScript(`window.tonWasmUrl = "${browser.extension.getURL("ton-client/tonclient.wasm")}"`);
 
-//Set new FreeTON binary url
-evalScript(`window.tonNewWasmUrl = "${browser.extension.getURL("ton-client-js/tonclient.wasm")}"`);
+//Set new Everscale binary url
+evalScript(`window.tonNewWasmUrl = "${browser.extension.getURL("ever-sdk-js/eversdk.wasm")}"`);
 
 //Thridrparty modules
 injectModuleUrl(browser.extension.getURL("modules/thirdparty/eventemitter3.min.js"));
 
-//Start Freeton provider
-injectModuleUrl(browser.extension.getURL("freetonProvider.js"));
+//Start Everscale provider
+injectModuleUrl(browser.extension.getURL("everscaleProvider.js"));
+
+
+//Get configuring script
+try {
+    browser.runtime.sendMessage({
+        rpc: true,
+        requestId: CONFIG_REQUEST_ID,
+        target: 'background',
+        method: 'main_getConfigScript',
+        params: [],
+        sender: 'page',
+        senderMore: {url: window.location}
+    });
+} catch (e) {
+    console.log(e);
+}

@@ -1,23 +1,17 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name ScaleWallet - Everscale browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
  */
 
 import BroxusTIP3 from "./tip3-fungible/broxus/BroxusTIP3.mjs";
+import BroxusTIP3_1 from "./tip3_1-fungible/broxus/BroxusTIP3_1.mjs";
 
 class Tokens {
     static  TIP3_FUNGIBLE_TOKENS = {
-        broxus: 'BroxusTIP3'
+        broxus: 'BroxusTIP3',
+        tip31: 'BroxusTIP3_1',
     };
 
     static  TIP3_NONFUNGIBLE_TOKENS = {};
@@ -43,7 +37,8 @@ class Tokens {
                 {
                     fungible:
                         {
-                            BroxusTIP3: BroxusTIP3
+                            BroxusTIP3: BroxusTIP3,
+                            BroxusTIP3_1: BroxusTIP3_1
                         },
                     nonfungible: {}
                 },
@@ -61,6 +56,8 @@ class Tokens {
         switch (tokenType) {
             case 'BroxusTIP3':
                 return BroxusTIP3;
+            case 'BroxusTIP3_1':
+                return BroxusTIP3_1;
             default:
                 return null;
         }

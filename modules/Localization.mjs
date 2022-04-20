@@ -1,13 +1,5 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name ScaleWallet - Everscale browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
@@ -26,6 +18,8 @@ const LOCALES = {
 }
 
 const SUPPORT_LOCALES = {'en_US': 'English (US)', "ru_RU": 'Russian'}
+
+let freezeLang = false;
 
 let currentLang = DETECTED_LANG;
 
@@ -60,6 +54,7 @@ const LOCALIZATION = {
 
         return LOCALES[currentLang][string];
     },
+
     /**
      * Update plain class localization
      */
@@ -70,11 +65,28 @@ const LOCALIZATION = {
 
         localizeElements.forEach((locElement) => {
             locElement = $(locElement);
-            locElement.text(LOCALIZATION._(locElement.text()));
+
+            if(!freezeLang) {
+                locElement.data("original", `${locElement.text()}`);
+                
+            }
+
+            // locElement.attr("origin-en-text", `${locElement.text()}`);
+
+            // locElement.text(LOCALIZATION._(locElement.text()));
+
+
+            if (locElement.data("original")){
+                locElement.text(LOCALIZATION._( locElement.data("original") ));
+            }
+            else {
+                locElement.text(LOCALIZATION._(locElement.text()));
+            }
 
             locElement.addClass('localization-complete');
         });
 
+        freezeLang = true;
 
     },
     /**
@@ -102,6 +114,9 @@ const LOCALIZATION = {
         currentLang = lang;
         LOCALIZATION.resetPlainLocalization();
         LOCALIZATION.updateLocalization();
+
+        // In russian it means kostyl
+        // location.reload();
     }
 }
 

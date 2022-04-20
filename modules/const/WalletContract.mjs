@@ -1,13 +1,5 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name ScaleWallet - Everscale browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
@@ -20,12 +12,16 @@ class WalletContract {
 
     static WALLET_TYPES = {
         SafeMultisig: 'SafeMultisig',
-        SurfMultisig: 'SurfMultisig'
+        SurfMultisig: 'SurfMultisig',
+        SurfMultisigOld: 'SurfMultisigOld',
+        TONCrystal: 'TONCrystal',
     }
 
     static WALLET_TYPES_LIST = [
         'SafeMultisig',
-        'SURF'
+        'SURF',
+        'SURF old'
+        //  'TONCrystal',
     ];
 
     /**
@@ -47,6 +43,20 @@ class WalletContract {
         }
     }
 
+    static async SurfMultisigOld() {
+        return {
+            abi: await Utils.fetchJSON('/abi/SurfMultisigWalletold.abi.json', true),
+            imageBase64: await Utils.fetchJSON('/abi/contracts/SurfMultisigWalletold.base64.json', true)
+        }
+    }
+
+    static async TONCrystal() {
+        return {
+            abi: await Utils.fetchJSON('/abi/TONCrystalWallet.abi.json', true),
+            imageBase64: await Utils.fetchJSON('/abi/contracts/TONCrystalWallet.base64.json', true)
+        }
+    }
+
     /**
      * Get wallet
      * @param type
@@ -65,6 +75,11 @@ class WalletContract {
             case 'SURF':
             case 'surf':
                 return WalletContract.SurfMultisig();
+            case 'TONCrystal':
+                return WalletContract.TONCrystal();
+            case 'SurfMultisigOld':
+            case 'SURF old':
+                return WalletContract.SurfMultisigOld();
         }
     }
 }

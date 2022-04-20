@@ -6,6 +6,8 @@
    |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
 
  */
+import FreetonInstance from "./freeton/FreetonInstance.mjs";
+
 /**
  * @name FreeTON browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
@@ -56,6 +58,41 @@ const Utils = {
         ],
         "events": [],
         "data": []
+    },
+    TRANSFER_ABI: {
+        "ABI version": 2,
+        "functions": [
+            {
+                "name": "transfer",
+                "id": "0x00000000",
+                "inputs": [
+                    {
+                        "name": "comment",
+                        "type": "bytes"
+                    }
+                ],
+                "outputs": []
+            }
+        ],
+        "events": [],
+        "data": []
+    },
+
+    /**
+     * Encode payload comment
+     * @param comment
+     * @returns {Promise<*>}
+     */
+    async encodePayloadComment(comment) {
+        comment = Utils.string2Hex(comment);
+        const ton = await FreetonInstance.getFreeTON();
+
+        return (await ton.contracts.createRunBody({
+            abi: Utils.TRANSFER_ABI,
+            function: 'transfer',
+            params: {comment},
+            internal: true
+        })).bodyBase64
     },
 
     /**
@@ -113,7 +150,10 @@ const Utils = {
      * @returns {number}
      */
     numberToUnsignedNumber(num, decimals = 9) {
-        return Number(Number(num).toFixed(decimals).replace('.', ''))
+        if(decimals === 0) {
+            return BigNumber(num).toFixed(decimals);
+        }
+        return (BigNumber(num).toFixed(decimals).replace('.', ''))
     },
     /**
      * Raw unsigned number to js number
@@ -122,7 +162,10 @@ const Utils = {
      * @returns {number}
      */
     unsignedNumberToSigned(num, decimals = 9) {
-        return Number(Number(Number(num) / Math.pow(10, decimals)).toFixed(9));
+        if(decimals === 0) {
+            return BigNumber(num).toFixed(decimals);
+        }
+        return BigNumber(num).div(Math.pow(10, decimals)).toFixed(decimals);
     },
     /**
      * Big number to big string
@@ -217,13 +260,16 @@ const Utils = {
      * @param {boolean} local
      * @returns {Promise<any>}
      */
-    async fetchJSON(url, local = false) {
+   /* async fetchJSON(url, local = false) {
         if(url.includes('file:') || local) {
             if(!url.includes('file:') && window._isApp) {
                 url = 'file:///android_asset/www' + url;
             }
             return await (await this.fetchLocal(url)).json();
         }
+        return await ((await fetch(url))).json();
+    },*/
+    async fetchJSON(url) {
         return await ((await fetch(url))).json();
     },
 
@@ -278,7 +324,41 @@ const Utils = {
                 reject(e);
             }
         });
-    }
+    },
+    nFormatter(num, digits) {
+        if(num < 1) {
+            return Number(num).toFixed(digits);
+        }
+        const lookup = [
+            {value: 1, symbol: ""},
+            {value: 1e3, symbol: "k"},
+            {value: 1e6, symbol: "M"},
+            {value: 1e9, symbol: "G"},
+            {value: 1e12, symbol: "T"},
+            {value: 1e15, symbol: "P"},
+            {value: 1e18, symbol: "E"}
+        ];
+        const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+        let item = lookup.slice().reverse().find(function (item) {
+            return num >= item.value;
+        });
+        return item ? (this.floatToFixedFloor((num / item.value), digits)).replace(rx, "$1") + item.symbol : "0";
+    },
+    floatToFixedFloor(num, fixed) {
+        fixed = fixed || 0;
+        fixed = Math.pow(10, fixed);
+        return String(Math.floor(num * fixed) / fixed);
+    },
+
+    /**
+     * Check is valid domain
+     * @param str
+     * @returns {boolean}
+     */
+    isValidDomain(str){
+        return /^(((?!\-))(xn\-\-)?[a-z0-9\-_]{0,61}[a-z0-9]{1,1}\.)*(xn\-\-)?([a-z0-9\-]{1,61}|[a-z0-9\-]{1,30})\.[a-z]{2,}$/.test(str);
+
+    },
 };
 
 window._utils = Utils;

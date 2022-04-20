@@ -1,20 +1,12 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name ScaleWallet - Everscale browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
  */
 
 import LOCALIZATION from "../Localization.mjs";
-
+import Misc from "../const/Misc.mjs";
 
 
 const uiUtils = {
@@ -23,17 +15,22 @@ const uiUtils = {
      * Open extension popup
      * @returns {Promise<*>}
      */
-    openPopup: async () => {
+    openPopup: async (options = {}) => {
         console.log('OPEN POPUP');
 
-        return browser.windows.create({
+        let popupObject = {
             url: 'popup.html',
             type: 'popup',
-            width: 350,
-            height: 536,
+            /*width: 350,
+            height: 536,*/
+            ...Misc.POPUP_PARAMS,
             // left: position.x,
             //  top: position.y,
-        });
+            ...options
+        };
+
+
+        return browser.windows.create(popupObject);
     },
 
     /**
@@ -63,6 +60,10 @@ const uiUtils = {
                 }
 
                 if(typeof item === 'object') {
+                    let onClickB = item.onClick;
+                    item.onClick = async function () {
+                        resolve(await onClickB());
+                    }
                     buttons.push(item)
                 }
             }
@@ -74,7 +75,7 @@ const uiUtils = {
                     resolve();
                 }
             });
-            
+
             const actions = app.actions.create({
                 buttons
 
@@ -91,7 +92,15 @@ const uiUtils = {
      * @returns {Promise<void>}
      */
     copyToClipboard: async (text) => {
-        await navigator.clipboard.writeText(text);
+        try {
+            await navigator.clipboard.writeText(text);
+        }catch (e) {
+            try{
+                cordova.plugins.clipboard.copy(text);
+            }catch (e) {
+
+            }
+        }
         app.toast.create({closeTimeout: 3000, destroyOnClose: true, text: LOCALIZATION._('Copied!')}).open();
     },
 

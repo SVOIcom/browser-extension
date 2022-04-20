@@ -1,13 +1,5 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name ScaleWallet - Everscale browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
@@ -35,8 +27,14 @@ import MISC from "./modules/const/Misc.mjs";
 import LOCALIZATION from "./modules/Localization.mjs";
 import TIP3Contract from "./modules/const/TIP3Contract.mjs";
 import ActionProgressManager from "./modules/ActionProgressManager.mjs";
+import init, * as nt from './modules/freeton/nekoton/nekoton_wasm.js';
+import {unpackFromCell} from "./modules/freeton/nekoton/nekoton_wasm.js";
 
 const _ = LOCALIZATION._;
+
+import LocalStorage from "./modules/LocalStorage.mjs";
+
+let localStorage = new LocalStorage();
 
 console.log('IM BACKGROUND');
 
@@ -59,13 +57,13 @@ const RPC = {
      * Open popup
      * @returns {Promise<*>}
      */
-    mainOpenPopup: function async() {
+    mainOpenPopup: function async(options) {
 
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
         }
 
-        return uiUtils.openPopup();
+        return uiUtils.openPopup(options);
     },
 
     /**
@@ -271,6 +269,7 @@ const RPC = {
      * @returns {Promise<Wallet>}
      */
     main_getWalletHistory: async function (address, amount = 20) {
+        console.log('getWalletHistory', address, amount);
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         let wallet = await (new Wallet(address, ton)).init();
         window.wallet = wallet;
@@ -295,11 +294,15 @@ const RPC = {
      * @param to
      * @param amount
      * @param payload
+     * @param bounce
+     * @param openPopup
      * @returns {Promise<void>}
      */
-    main_transfer: async (from, publicKey, to, amount, payload = '', openPopup = true) => {
+    main_transfer: async function (from, publicKey, to, amount, payload = '', bounce = false, openPopup = true) {
 
-        //Want to check sender or not? Need TODO disscused
+        /*if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }*/
 
         actionManager.startActionOnce('main_transfer');
 
@@ -318,7 +321,7 @@ const RPC = {
 
             await messenger.rpcCall('popup_showToast', [_('Transaction created')], 'popup');
 
-            let transferResult = await wallet.transfer(to, amount, payload, keyPair);
+            let transferResult = await wallet.transferNew(to, amount, payload, bounce, keyPair);
 
             actionManager.endAction('main_transfer');
 
@@ -395,18 +398,27 @@ const RPC = {
      * @returns {Promise<*>}
      */
     main_getKeysFromSeedPhrase: async (seed) => {
-        return await freetonCrypto.seedToKeypair(seed);
+        return await freetonCrypto.seedOrPrivateToKeypair(seed);
+    },
+
+    /**
+     * Returns encoded comment payload
+     * @param comment
+     * @returns {Promise<*>}
+     */
+    main_encodePayloadComment: async (comment) => {
+        return await Utils.encodePayloadComment(comment);
     },
 
     /**
      * Add account to storage
      * @returns {Promise<*>}
      */
-    main_addAccount: async function (publicKey, privateKey, password) {
+    main_addAccount: async function (publicKey, privateKey, seedPhrase, password) {
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
         }
-        return await accountManager.addAccount(publicKey, privateKey, password);
+        return await accountManager.addAccount(publicKey, privateKey, seedPhrase, password);
     },
 
     /**
@@ -556,26 +568,30 @@ const RPC = {
      * Get token balance
      * @param tokenRootAddress
      * @param publicKey
+     * @param walletAddress
      * @returns {Promise<*>}
      */
-    main_getTokenBalance: async function (tokenRootAddress, publicKey) {
+    main_getTokenBalance: async function (tokenRootAddress, publicKey, walletAddress) {
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         const token = await (new Token(tokenRootAddress, ton)).init();
 
-        return await token.getPubkeyBalance(publicKey);
+        //return await token.getPubkeyBalance(publicKey);
+        return await token.getMultisigBalance(walletAddress);
     },
 
     /**
      * Get token wallet address by public key
      * @param tokenRootAddress
      * @param publicKey
+     * @param walletAddress
      * @returns {Promise<string>}
      */
-    main_getTokenWalletAddress: async function (tokenRootAddress, publicKey) {
+    main_getTokenWalletAddress: async function (tokenRootAddress, publicKey, walletAddress) {
         let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
         const token = await (new Token(tokenRootAddress, ton)).init();
 
-        return await token.getPubkeyWalletAddress(publicKey);
+        //return await token.getPubkeyWalletAddress(publicKey);
+        return await token.getMultisigWalletAddress(walletAddress);
     },
 
     /**
@@ -602,15 +618,34 @@ const RPC = {
     },
 
     /**
+     * Remove token from account
+     * @param publicKey
+     * @param tokenRootAddress
+     * @param network
+     * @returns {Promise<boolean>}
+     */
+    main_removeAccountToken: async function (publicKey, tokenRootAddress, network) {
+
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+        const tokenManager = await (new TokenManager()).init();
+        await tokenManager.removeAccountToken(publicKey, tokenRootAddress, network);
+
+        return true;
+    },
+
+    /**
      * Transfer token
      * @param {string} rootTokenAddress Token Root address
      * @param {string} walletAddress Current wallet
      * @param {string} publicKey
      * @param to
      * @param amount
+     * @param multisigAddress
      * @returns {Promise<*>}
      */
-    main_tokenTransfer: async function (rootTokenAddress, walletAddress, publicKey, to, amount) {
+    main_tokenTransfer: async function (rootTokenAddress, walletAddress, publicKey, to, amount, multisigAddress) {
 
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
@@ -621,16 +656,19 @@ const RPC = {
         try {
             let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
 
+            const token = await (new Token(rootTokenAddress, ton)).init();
+
+            let tokenInfo = await token.getInfo();
+
             let keyPair = await getKeysFromDeployAcceptence(publicKey, 'token_transfer', {
                 address: walletAddress,
-                additionalMessage: `${_('This action sends')} <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount))}</b> ${_('tokens to')} <span class="intextWallet">${to}</span> ${_('wallet.')}`,
+                additionalMessage: `${_('This action sends')} <b>${Utils.showToken(Utils.unsignedNumberToSigned(amount, tokenInfo.decimals))}</b> ${_('tokens to')} <span class="intextWallet">${to}</span> ${_('wallet.')}`,
             }, undefined, true);
 
-            const token = await (new Token(rootTokenAddress, ton)).init();
 
             await messenger.rpcCall('popup_showToast', [_('Token transaction created')], 'popup');
 
-            let txInfo = await token.transfer(to, amount, keyPair);
+            let txInfo = await token.multisigTransfer(to, amount, keyPair, multisigAddress);
 
             console.log(txInfo);
 
@@ -701,7 +739,7 @@ const RPC = {
 
             const token = await (new Token(newRootAddress, ton)).init();
 
-            let deployWalletResult = await token.deployWallet(options.initialMint, null, keyPair);
+            let deployWalletResult = await token.deployWallet(options.initialMint, await (new Wallet(fromWallet, ton)).init(), keyPair);
 
             console.log('TIP3 deploy WALLET result', deployWalletResult);
 
@@ -733,7 +771,66 @@ const RPC = {
         return actionManager.getActiveActions();
     },
 
-    main_deployTokenWallet: async function (publicKey, walletAddress, tokenRootAddress) {
+    async main_signDataRaw(publicKey, data = '') {
+        actionManager.startActionOnce('main_signDataRaw');
+        try {
+
+            let keyPair = await getKeysFromDeployAcceptence(publicKey, 'sign_data_raw', {
+                //address: tokenWalletAddress,
+                additionalMessage: `${_('You are signing data')}: ${_(data)}`, //TODO fix injection
+            }, 'Sign', false);
+
+            let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+
+            let sign = await ton.lowLevel.crypto.sign({unsigned: data, keys: keyPair});
+
+
+            actionManager.endAction('main_signDataRaw');
+
+            return {
+                signature: Buffer.from(sign.signature, 'hex').toString('base64'),
+                signatureFull: sign.signed,
+                signatureHex: sign.signature,
+                signatureParts: {
+                    high: `0x${sign.signature.slice(0, 64)}`,
+                    low: `0x${sign.signature.slice(64, 128)}`,
+                }
+            }
+
+        } catch (e) {
+            actionManager.endAction('main_signDataRaw');
+            throw e;
+        }
+    },
+
+    async main_packIntoCell(params) {
+        const {structure, data} = params;
+        return {boc: await nt.packIntoCell(structure, data)}
+    },
+
+    async main_unpackFromCell(params) {
+        const {structure, boc, allowPartial} = params;
+        return {data: nt.unpackFromCell(structure, boc, allowPartial)};
+    },
+
+    async main_verifySignature(params) {
+        const {publicKey, dataHash, signature} = params;
+        return {isValid: nt.verifySignature(publicKey, dataHash, signature)};
+    },
+
+    async main_decodeTransactionEvents(params) {
+        const {transaction, abi} = params;
+        return {events: nt.decodeTransactionEvents(transaction, abi)};
+    },
+
+    async main_base64toHex(data) {
+        return Buffer.from(data, 'base64').toString('hex');
+    },
+    async main_hex2Base64(data) {
+        return Buffer.from(data, 'hex').toString('base64');
+    },
+
+    main_deployTokenWallet: async function (publicKey, walletAddress, tokenRootAddress, ownerAddress = null) {
 
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
@@ -747,12 +844,19 @@ const RPC = {
 
             const token = await (new Token(tokenRootAddress, ton)).init();
 
-            let tokenWalletAddress = await token.getPubkeyWalletAddress(publicKey);
+            console.log('DEPLOY TOKEN WALLET', publicKey, walletAddress, tokenRootAddress, ownerAddress);
+
+            let tokenWalletAddress = await token.getMultisigWalletAddress(ownerAddress);
+
+            //if we create wallet for other user
+            if(!ownerAddress) {
+                tokenWalletAddress = await token.getPubkeyWalletAddress(publicKey);
+            }
 
 
             let keyPair = await getKeysFromDeployAcceptence(publicKey, 'create_token', {
                 address: tokenWalletAddress,
-                additionalMessage: `${_('This action deploy new TIP3 token wallet')} 1 TON`,
+                additionalMessage: `${_('This action deploy new token wallet')} 1 TON`,
             }, undefined, true);
 
 
@@ -767,7 +871,7 @@ const RPC = {
 
             if(tokenWaletTONBalance < 1e9) {
 
-                console.log('Transfering from', walletAddress, 'to',tokenWalletAddress );
+                console.log('Transfering from', walletAddress, 'to', tokenWalletAddress);
 
                 //Transfer tokens for contact deploy
                 let transferResult = await wallet.transfer(tokenWalletAddress, 1e9, '', keyPair);
@@ -778,7 +882,7 @@ const RPC = {
             }
 
 
-            let deployWalletResult = await token.deployWallet(0, await (new Wallet(walletAddress, ton)).init(), keyPair);
+            let deployWalletResult = await token.deployWallet(0, await (new Wallet(walletAddress, ton)).init(), keyPair, ownerAddress);
 
             console.log('TIP3 deploy WALLET result', deployWalletResult);
 
@@ -793,6 +897,59 @@ const RPC = {
 
     },
 
+    /**
+     * @deprecated
+     * @param address
+     * @returns {Promise<boolean>}
+     */
+    main_isMultisigAddress: async function (address) {
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+
+        try {
+            let wallet = await (new Wallet(address, ton)).init();
+            await wallet.getBalance();
+
+            return await wallet.contractDeployed()
+        } catch (e) {
+            return false;
+        }
+    },
+
+    /**
+     * Detects is TIP3 token
+     * @param tokenRoot
+     * @param address
+     * @returns {Promise<boolean>}
+     */
+    main_isTokenWalletAddress: async function (tokenRoot, address) {
+        let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+
+        try {
+            const token = await (new Token(tokenRoot, ton)).init();
+
+            await token.getBalance(address);
+
+            return true;
+
+        } catch (e) {
+            return false;
+        }
+
+    },
+
+    /**
+     * Returns inpage config script
+     * @returns {Promise<string>}
+     */
+    async main_getConfigScript() {
+        let config = {};
+        if(await localStorage.get('everWalletEmulation', true)) {
+            config.EVERWalletEmulation = true;
+        }
+        return `
+            window._everscaleWalletConfig = ${JSON.stringify(config)};
+        `;
+    }
 }
 
 
@@ -809,6 +966,7 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
 
     if(!dontCreatePopup) {
         let popup = await uiUtils.openPopup();
+        await Utils.wait(3000);
     }
 
     //Simple timeout for initialization
@@ -856,7 +1014,7 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
 
 //Setup new TON libriary
 tonclientWeb.libWebSetup({
-    binaryURL: 'ton-client-js/tonclient.wasm',
+    binaryURL: 'ever-sdk-js/eversdk.wasm',
 });
 tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
 
@@ -885,6 +1043,13 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
     let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
     //window.tip3 = await (new BroxusTIP3(ton, '0:0c4cad39cf61d92df6ab7c78552441b0524973e282f1e7a6acf5f06773cdc605')).init();
 
+    try {
+        await init();
+        window.nekoton = nt;
+    } catch (e) {
+        console.log('ERROR INITIALIZE NEKOTON', e);
+    }
+
     //If network changed, broadcast it to all tabs and popups
     networkManager.on(networkManager.EVENTS.networkChanged, async () => {
         await messenger.broadcastTabsMessage(MESSAGES.NETWORK_CHANGED);
@@ -898,6 +1063,31 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
         await messenger.broadcastTabsMessage(MESSAGES.ACCOUNT_CHANGED);
         await messenger.rpcCall('popup_accountChanged', [await accountManager.getAccount()], 'popup');
     })
+
+
+    //Badge updater
+    const updateBadge = async () => {
+        try {
+            let account = await accountManager.getAccount();
+            let network = await networkManager.getNetwork()
+
+            let address = (account.wallets[network.name]).address;
+            let ton = await FreetonInstance.getFreeTON((await networkManager.getNetwork()).network.url);
+            let wallet = await (new Wallet(address, ton)).init();
+            let balance = Utils.nFormatter(Utils.unsignedNumberToSigned(await wallet.getBalance()), 1);
+
+            chrome.browserAction.setBadgeText({text: balance + '💸'});
+        } catch (e) {
+            try {
+                chrome.browserAction.setBadgeText({text: 0 + '💸'});
+            }catch(e){}
+        }
+    }
+    setInterval(updateBadge, 60000);
+    await updateBadge();
+    accountManager.on(accountManager.EVENTS.accountChanged, async () => {
+        await updateBadge();
+    });
 
 
 })()

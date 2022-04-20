@@ -1,18 +1,18 @@
 {
-  "name": "tonwallet",
-  "version": "0.0.2",
-  "description": "FreeTON network wallet and dapps connectivity provider",
+  "name": "everscalewallet",
+  "version": "0.0.12",
+  "description": "Everscale network wallet and dapps connectivity provider",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lailune/browser-extension.git"
+    "url": "git+https://github.com/SVOIcom/browser-extension.git"
   },
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/lailune/browser-extension/issues"
+    "url": "https://github.com/SVOIcom/browser-extension/issues"
   },
-  "homepage": "https://github.com/lailune/browser-extension#readme",
+  "homepage": "https://github.com/SVOIcom/browser-extension#readme",
   "devDependencies": {
     "webextension-polyfill": "^0.7.0"
   },

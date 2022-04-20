@@ -1,13 +1,5 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name ScaleWallet - Everscale browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
@@ -33,7 +25,8 @@ class Keyring {
         await this._storage.initialize();
         try {
             this._publicKeys = await this._storage.get('publicKeys', EXTENSION_SECRET);
-        }catch (e){}
+        } catch (e) {
+        }
 
         if(!this._publicKeys) {
             this._publicKeys = {}
@@ -62,18 +55,20 @@ class Keyring {
     /**
      * Add key to keyring
      * @param {string} publicKey
-     * @param {string|object} privateKeyOrSeedWithConfig
+     * @param {string|object} privateKey
+     * @param {string|object} config
      * @param {string} password
      * @returns {Promise<void>}
      */
-    async addKey(publicKey, privateKeyOrSeedWithConfig, password) {
+    async addKey(publicKey, privateKey, config, password) {
         if(await this.isKeyInKeyring(publicKey)) {
             throw EXCEPTIONS.keyAlreadyInKeyring;
         }
-        const isSeed = typeof privateKeyOrSeedWithConfig === 'object';
+        const isSeed = typeof privateKey === 'object';
         this._publicKeys[publicKey] = {isSeed};
 
-        await this._storage.set(publicKey, privateKeyOrSeedWithConfig, password);
+        await this._storage.set(publicKey, privateKey, password);
+        await this._storage.set(publicKey + '_config', config, password);
 
         await this._saveData();
 
@@ -88,7 +83,12 @@ class Keyring {
      */
     async extractKey(publicKey, password) {
         // await this._storage.setName(publicKey, "aaaa");
-        return {public: publicKey, secret: await this._storage.get(publicKey, password)};
+        let config = {};
+        try {
+            config = await this._storage.get(publicKey + '_config', password)
+        } catch (e) {
+        }
+        return {public: publicKey, secret: await this._storage.get(publicKey, password), config};
     }
 
 

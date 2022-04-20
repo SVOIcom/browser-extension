@@ -1,13 +1,5 @@
-/*
-  _____ ___  _   ___        __    _ _      _
- |_   _/ _ \| \ | \ \      / /_ _| | | ___| |_
-   | || | | |  \| |\ \ /\ / / _` | | |/ _ \ __|
-   | || |_| | |\  | \ V  V / (_| | | |  __/ |_
-   |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
-
- */
 /**
- * @name FreeTON browser wallet and injector
+ * @name ScaleWallet - Everscale browser wallet and injector
  * @copyright SVOI.dev Labs - https://svoi.dev
  * @license Apache-2.0
  * @version 1.0
@@ -78,13 +70,14 @@ class AccountManager extends EventEmitter3 {
     /**
      * Add account
      * @param publicKey
-     * @param privateOrSeed
+     * @param privateKey
+     * @param seedPhrase
      * @param password
      * @param wallets
      * @returns {Promise<void>}
      */
-    async addAccount(publicKey, privateOrSeed, password, wallets = {}) {
-        await this.keyring.addKey(publicKey, privateOrSeed, password);
+    async addAccount(publicKey, privateKey, seedPhrase, password, wallets = {}) {
+        await this.keyring.addKey(publicKey, privateKey, {seedPhrase}, password);
         await this._savePublicKeyWallets(publicKey, wallets);
         await this.saveAccountState();
         return true;

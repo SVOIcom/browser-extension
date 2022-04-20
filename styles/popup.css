@@ -121,14 +121,14 @@
 }
 
 .walletButton .buttonIcon {
-    background: #00A3D9;
+    background: #6347f5;
     border-radius: 50px;
     padding: 15px;
     color: white;
 }
 
 .walletButton:hover .buttonIcon {
-    background: #8dc5ea;
+    background: #7d66f6;
 }
 
 .walletButtonsRow {
@@ -154,7 +154,7 @@
 }
 
 .walletLogoTopLeft {
-    height: 35px;
+    height: 40px;
 }
 
 .walletTabs {
@@ -235,6 +235,10 @@
     max-height: 20px;
 }
 
+.actions-button-text .tokenIcon {
+    max-height: 15px;
+}
+
 .tokenWalletHolder .tokenIcon {
     max-height: 48px;
 }
@@ -245,5 +249,36 @@
 }
 
 .md .tab-link-highlight {
+    display: none;
+}
+
+.walletTokenIcon tgs-player {
+    width: 50px !important;
+    height: 50px !important;
+    display: inline-block;
+}
+
+.walletTokenIcon .walletIconImage {
+    width: 50px !important;
+    height: 50px !important;
+    display: inline-block;
+}
+
+a {
+
+    color: #7355fc;
+}
+
+.everscalizeButton {
+    transform: rotate(45deg);
+    font-weight: 900;
+}
+
+.mobileShow {
+    display: none;
+}
+
+#browserTabs .item-inner:before {
+    content: "";
     display: none;
 }

@@ -1,10 +1,10 @@
-![TONWallet](icons/128.png?raw=true)
+![ScaleWallet](icons/128.png?raw=true)
 
-# TONWallet
+# ScaleWallet
 
-FreeTON network wallet and dapps connectivity provider
+Everscale network wallet and dapps connectivity provider
 
-[tonwallet.io](https://tonwallet.io)
+[scalewallet.com](https://scalewallet.com/)
 
 ## Features
 
@@ -18,7 +18,7 @@ FreeTON network wallet and dapps connectivity provider
 * Work with the main and test FreeTON network, and add your custom one 
 * Select useful name for public key
 * ton-client-web-js and ton-client-js (partial) injection support
-* [Agual.TEAM freeton.domains DeNs](https://github.com/laugual) resolver
+* [Scale.domains by SuperArmor](https://github.com/SolderingArmor/dens-v2) resolver
 * Chromium-based browser support: Google Chrome, Opera, Brevity, Microsoft Edge and etc.
 
 And more
@@ -45,6 +45,6 @@ You can install extension directly from Chrome Web Store.
 ## Developers
 
 Developed by [SVOI.dev team](https://svoi.dev). 
-Sorce code licensed under the Apache-2.0 license
+Source code licensed under the Apache-2.0 license
 
 support@tonwallet.io

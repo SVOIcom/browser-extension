@@ -17,6 +17,10 @@ const ROUTES = [
         url: './pages/getSeed.html',
     },
     {
+        path: '/checkSeed',
+        url: './pages/checkSeed.html',
+    },
+    {
         path: '/importSeed',
         url: './pages/importSeed.html',
     },
@@ -47,6 +51,10 @@ const ROUTES = [
     {
         path: '/about',
         url: './pages/about.html',
+    },
+    {
+        path: '/browserTabs',
+        url: './pages/browserTabs.html',
     },
 ]
 
