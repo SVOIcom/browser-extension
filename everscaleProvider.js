@@ -5,6 +5,7 @@
  * @version 1.0
  */
 
+//console.log('HELLO EVERSCALE PROVIDER');
 
 window._everClient = null;
 
@@ -73,7 +74,7 @@ window.addEventListener('load', async () => {
     //Trying setup TON WASM client
     try {
         window.TONClient.setWasmOptions({binaryURL: window.tonWasmUrl});
-    } catch {
+    } catch(e) {
     }
 
     try {

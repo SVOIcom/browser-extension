@@ -5,9 +5,15 @@ import Utils from "../utils.mjs";
 const DEFAULT_PAGE = 'file:///android_asset/www/mobile_resources/index.html';
 
 class Browser {
-    constructor() {
+    constructor(messenger) {
         this.tabs = [];
         this.activeTab = null;
+        this.messenger = messenger;
+
+        this.messenger.on('rawRPC', (data) => {
+            //console.log('BROWSER INCOME:', data);
+            this.broadcastMessage(data)
+        });
     }
 
 
@@ -38,12 +44,30 @@ class Browser {
             this._processTabsClick();
         });
 
+        tab.on('message', (message) => {
+            this._processIncomeMessage(message);
+        });
+
         return {tab, index};
     }
 
     _reorganizeTabs() {
         for (let tab of this.tabs) {
             tab.index = this.tabs.indexOf(tab);
+        }
+    }
+
+    _processIncomeMessage(message){
+        console.log('Browser._processIncomeMessage', message);
+        let data = message.data;
+
+        //Send msg to background
+        this.messenger.postIframeMessage(data);
+    }
+
+    broadcastMessage(message) {
+        for (let tab of this.tabs) {
+            tab.sendInjectorMessage(message);
         }
     }
 

@@ -6,8 +6,10 @@
  */
 
 
-class ExtensionMessenger {
+class ExtensionMessenger extends EventEmitter3 {
     constructor(reciver = '*', rpc = {}) {
+        super();
+
         this.RPC = rpc;
         this.reciver = reciver;
         this._externalRequests = {};
@@ -18,8 +20,15 @@ class ExtensionMessenger {
 
             //RPC call
             (async () => {
-                //console.log('EVENT HANDLER', msg, sender, this.reciver);
+                /*if(this.reciver === 'page' && msg.target === 'page') {
+                    console.log('EVENT HANDLER', msg, sender, this.reciver);
+                }*/
+
+
                 if(msg.rpc && (msg.target === this.reciver || msg.target === '*')) {
+
+                    this.emit('rawRPC', msg);
+
                     this.RPC.sender = msg.sender;
                     if(this.RPC[msg.method]) {
 
@@ -178,6 +187,20 @@ class ExtensionMessenger {
             return;
         }
         await this._broadcastTabsMessage({broadcastMessage: type, data, target: '*'})
+    }
+
+    /**
+     * Send message to iframe
+     * @param message
+     * @returns {Promise<void>}
+     */
+    async postIframeMessage(message) {
+        let postingObject = window.top;
+        if(window._isTop) {
+            postingObject = document.querySelector('iframe').contentWindow;
+        }
+
+        postingObject.postMessage(message, '*');
     }
 
 

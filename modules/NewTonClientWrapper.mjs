@@ -48,7 +48,7 @@ class NewTonClientWrapper extends EventEmitter3 {
                 window.addEventListener("message", async (event) => {
                     // We only accept messages from ourselves
                     if(event.source != window) {
-                        return;
+                        // return; //todo think about checkings
                     }
 
                     //is RPC call

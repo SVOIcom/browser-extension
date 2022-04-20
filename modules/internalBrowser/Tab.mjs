@@ -1,6 +1,8 @@
 import Utils from "../utils.mjs";
 
 const DUCKDUCKGO_SEARCH_URL = 'https://duckduckgo.com/?q=';
+const INJECTOR_URL = 'https:///localhost/mobile_resources/injector_mobile.js';
+
 
 class Tab extends EventEmitter3 {
     constructor(config = {provider: 'cordova'}) {
@@ -126,6 +128,12 @@ class Tab extends EventEmitter3 {
                 that.url = e.url;
                 that.emit('urlChanged', that.url, that);
             }
+            that._processPageLoad();
+        });
+
+        this.browserPage.addEventListener('loadstop', function (e) {
+            that.emit('loadstop', e, that.url, that);
+           // that._processPageLoad();
         });
 
         this.browserPage.addEventListener('gotoPressed', function (e) {
@@ -174,6 +182,29 @@ class Tab extends EventEmitter3 {
         });
 
         that.emit('urlChanged', that.url, that);
+    }
+
+    /**
+     * Process page reloaded
+     * @private
+     */
+    _processPageLoad() {
+        //Inject scripts
+        this.injectScript(INJECTOR_URL);
+
+        //Mobile injections
+        if(this.config.provider === 'cordova') {
+
+           /* this.injectScript("https://localhost/ton-client/main.js");
+            this.injectScript("https://localhost/ever-sdk-js/main.js");
+
+            this.runScript(`window.tonWasmUrl = "https://localhost/ton-client/tonclient.wasm";`);
+            this.runScript(`window.tonNewWasmUrl = "https://localhost/ever-sdk-js/eversdk.wasm";`);
+
+            this.injectScript("https://localhost/modules/thirdparty/eventemitter3.min.js");
+
+            this.injectScript("https://localhost/everscaleProvider.js");*/
+        }
     }
 
     /**
@@ -244,6 +275,23 @@ class Tab extends EventEmitter3 {
         }
     }
 
+    injectScript(scriptFile) {
+        if(this.config.provider === 'cordova') {
+            return new Promise(async (resolve, reject) => {
+                let fileSrc = await Utils.fetchLocal(scriptFile);
+                this.browserPage.executeScript({code: await fileSrc.text()}, resolve);
+            });
+        }
+    }
+
+    injectModule(scriptFile) {
+        if(this.config.provider === 'cordova') {
+            return new Promise((resolve, reject) => {
+                this.browserPage.executeScript({file: scriptFile, isModule: true}, resolve);
+            });
+        }
+    }
+
     /**
      * Returns page title
      * @returns {Promise<string>}
@@ -264,6 +312,12 @@ class Tab extends EventEmitter3 {
         }
 
         return '';
+    }
+
+    sendInjectorMessage(msg) {
+        if(this.config.provider === 'cordova') {
+            this.runScript(`window._injectorMessageReceiver(${JSON.stringify(msg)});`);
+        }
     }
 
 }
