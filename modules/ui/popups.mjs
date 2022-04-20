@@ -820,7 +820,7 @@ class Popups {
 
                         let keys = await this.messenger.rpcCall('main_getPublicKeys', undefined, 'background');
 
-                        if(keys.length != 0) {
+                        if(keys.length !== 0) {
                             await this.messenger.rpcCall('main_changeAccount', [keys[keys.length - 1],], 'background');
                         }
 
@@ -840,7 +840,7 @@ class Popups {
                          <a data-clipboard="${pubKey}" class="autoClipboard">${Utils.shortenPubkey(pubKey)}</a> (click for copy) <br>
                        Private key: <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a> (click for copy)<br>`;
 
-                        if(keyPair.config.seedPhrase){
+                        if(keyPair.config.seedPhrase) {
                             message += `<br>Seed phrase: <a data-clipboard="${keyPair.config.seedPhrase}" class="autoClipboard">${Utils.shortenPubkey(keyPair.config.seedPhrase)}</a> (click for copy)<br>`;
                         }
 

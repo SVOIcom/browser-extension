@@ -22,8 +22,8 @@ function fetchLocal(url) {
 }
 
 window.fetch = (url, ...args) => {
-    if(url.includes('.wasm')) {
-        return fetchLocal(url, ...args);
+    if(String(url).includes('.wasm')) {
+        return fetchLocal(String(url), ...args);
     }
 
     return window._exfetch(url, ...args);
