@@ -70,13 +70,14 @@ class AccountManager extends EventEmitter3 {
     /**
      * Add account
      * @param publicKey
-     * @param privateOrSeed
+     * @param privateKey
+     * @param seedPhrase
      * @param password
      * @param wallets
      * @returns {Promise<void>}
      */
-    async addAccount(publicKey, privateOrSeed, password, wallets = {}) {
-        await this.keyring.addKey(publicKey, privateOrSeed, password);
+    async addAccount(publicKey, privateKey, seedPhrase, password, wallets = {}) {
+        await this.keyring.addKey(publicKey, privateKey, {seedPhrase}, password);
         await this._savePublicKeyWallets(publicKey, wallets);
         await this.saveAccountState();
         return true;

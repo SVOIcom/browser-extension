@@ -414,11 +414,11 @@ const RPC = {
      * Add account to storage
      * @returns {Promise<*>}
      */
-    main_addAccount: async function (publicKey, privateKey, password) {
+    main_addAccount: async function (publicKey, privateKey, seedPhrase, password) {
         if(this.sender !== 'popup') {
             throw EXCEPTIONS.invalidInvoker;
         }
-        return await accountManager.addAccount(publicKey, privateKey, password);
+        return await accountManager.addAccount(publicKey, privateKey, seedPhrase, password);
     },
 
     /**

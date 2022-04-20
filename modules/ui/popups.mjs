@@ -223,7 +223,6 @@ class Popups {
                 });
 
 
-
             });
 
         });
@@ -300,11 +299,7 @@ class Popups {
                             let seedPhraseWordsList = seedPhraseVal.match(/([a-z]+)/g);
 
                             seedPhraseVal = seedPhraseWordsList.join(' ');
-
-                            // console.log()
                         }
-
-                        // console.log(seedPhraseVal);
 
                         try {
                             let publicKey = ""
@@ -377,7 +372,7 @@ class Popups {
                             password = $("#password").val();
 
                             try {
-                                await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, password], 'background');
+                                await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, seedPhraseVal, password], 'background');
                                 await this.messenger.rpcCall('main_changeAccount', [publicKey,], 'background');
                                 seedPhraseCheck = 1;
 
@@ -438,6 +433,7 @@ class Popups {
                 let policyCheck = 0;
 
                 $("#seedPhrase").text(seedPhraseVal);
+                $("#seedPhrase").data('clipboard', seedPhraseVal);
 
                 checkPolicyCheckbox();
 
@@ -500,50 +496,11 @@ class Popups {
 
             const seedCheckUtils = new SeedCheckUtils(seedPhrase, password, this.messenger);
 
-
-            // async function getterCalback(result){
-
-            //     if (result){
-            //         correctCounter++
-            //     }
-
-            //     console.log(correctCounter);
-            // }
-
-
             window.app.views.main.router.navigate("/checkSeed");
 
             app.once('pageInit', async () => {
 
-                console.log("test<<<");
-
-
-                // let dataForCheck = seedCheckUtils.getDataForCheck();
-
-                // console.log(dataForCheck)
-
-
                 await seedCheckUtils.formNewRound();
-
-
-                // let pubKeys = await messenger.rpcCall('main_getPublicKeys', [], 'background');
-
-                // for (let pubKey of pubKeys) {
-                //     let accHaveName = await messenger.rpcCall('main_getAccountName', [pubKey], 'background');
-                //     let buttonText = Utils.shortenPubkey(pubKey);
-                //     if(accHaveName !== "") {
-                //         buttonText = accHaveName;
-                //     }
-
-
-                //     let appendStr = `<li><a href="" id="${pubKey}">${buttonText}</a></li>`;
-                //     $('#accountList').append(appendStr);
-                //     $(`#${pubKey}`).on('click', () => {
-                //         popups.accSettings(pubKey);
-                //         app.panel.close('right', true);
-
-                //     });
-                // }
 
 
                 $('#returnButton').once('click', () => {
@@ -701,7 +658,7 @@ class Popups {
                             })
 
                             //Delpoy wallet for user
-                            if(result){
+                            if(result) {
 
                                 let deployTokenWallet = await messenger.rpcCall('main_deployTokenWallet', [account.public, userWalletAddress, rootTokenAddress, address], 'background');
 
@@ -710,8 +667,6 @@ class Popups {
                         }
 
                     }
-
-
 
 
                     Utils.appBack();
@@ -784,11 +739,11 @@ class Popups {
                     window.open($(this).attr('href'));
                 });
 
-                $('.removeTokenButton').click(async ()=>{
-                    app.dialog.confirm(_(`Are you sure you want to remove this token?`), async() => {
-                      await  messenger.rpcCall('main_removeAccountToken', [ publicKey,rootTokenAddress, currentNetwork.name], 'background');
-                      Utils.appBack();
-                      await window.updateWalletWidget();
+                $('.removeTokenButton').click(async () => {
+                    app.dialog.confirm(_(`Are you sure you want to remove this token?`), async () => {
+                        await messenger.rpcCall('main_removeAccountToken', [publicKey, rootTokenAddress, currentNetwork.name], 'background');
+                        Utils.appBack();
+                        await window.updateWalletWidget();
                     });
                 });
 
@@ -883,7 +838,13 @@ class Popups {
                         let message =
                             `Public key: 
                          <a data-clipboard="${pubKey}" class="autoClipboard">${Utils.shortenPubkey(pubKey)}</a> (click for copy) <br>
-                       Private key: <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a> (click for copy)`
+                       Private key: <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a> (click for copy)<br>`;
+
+                        if(keyPair.config.seedPhrase){
+                            message += `<br>Seed phrase: <a data-clipboard="${keyPair.config.seedPhrase}" class="autoClipboard">${Utils.shortenPubkey(keyPair.config.seedPhrase)}</a> (click for copy)<br>`;
+                        }
+
+                        message += `<b class="localization">WARNING:</b> <span class="localization">Never divulge the seed phrase. Anyone with this phrase can take your funds.</span>`;
 
                         // messenger.rpcCall('popup_alert', [text, publicKey], 'popup');
 

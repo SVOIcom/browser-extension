@@ -146,7 +146,7 @@
                         let publicKey = keyPair.public;
                         let privateKey = keyPair.secret;
 
-                        await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, self.password], 'background');
+                        await this.messenger.rpcCall('main_addAccount', [publicKey, privateKey, self.seedPhrase, self.password], 'background');
                         await this.messenger.rpcCall('main_changeAccount', [publicKey,], 'background');
 
                         location.reload();
