@@ -18,6 +18,12 @@ const uiUtils = {
     openPopup: async (options = {}) => {
         console.log('OPEN POPUP');
 
+        //If we in app
+        if(window._isApp) {
+            window.messenger.rpcCall('page_hideBrowser', [], 'page');
+            return;
+        }
+
         let popupObject = {
             url: 'popup.html',
             type: 'popup',
@@ -94,10 +100,10 @@ const uiUtils = {
     copyToClipboard: async (text) => {
         try {
             await navigator.clipboard.writeText(text);
-        }catch (e) {
-            try{
+        } catch (e) {
+            try {
                 cordova.plugins.clipboard.copy(text);
-            }catch (e) {
+            } catch (e) {
 
             }
         }

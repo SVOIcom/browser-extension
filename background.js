@@ -304,6 +304,8 @@ const RPC = {
             throw EXCEPTIONS.invalidInvoker;
         }*/
 
+        let sender = this.sender;
+
         actionManager.startActionOnce('main_transfer');
 
         try {
@@ -325,9 +327,17 @@ const RPC = {
 
             actionManager.endAction('main_transfer');
 
+            if(sender === 'page' && openPopup && window._isApp) {
+                window.messenger.rpcCall('page_showBrowser', [], 'page');
+            }
+
             return transferResult;
         } catch (e) {
             actionManager.endAction('main_transfer');
+
+            if(sender === 'page' && openPopup && window._isApp) {
+                window.messenger.rpcCall('page_showBrowser', [], 'page');
+            }
             throw e;
         }
     },
@@ -966,11 +976,16 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
 
     if(!dontCreatePopup) {
         let popup = await uiUtils.openPopup();
-        await Utils.wait(3000);
+
+        if(!window._isApp) {
+            await Utils.wait(3000);
+        }
     }
 
     //Simple timeout for initialization
-    await Utils.wait(2000)
+    if(!window._isApp) {
+        await Utils.wait(2000)
+    }
 
     let allowSign = await messenger.rpcCall('popup_acceptSignMessage', [publicKey, type, callingData, acceptMessage], 'popup');
 
@@ -1080,7 +1095,8 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
         } catch (e) {
             try {
                 chrome.browserAction.setBadgeText({text: 0 + '💸'});
-            }catch(e){}
+            } catch (e) {
+            }
         }
     }
     setInterval(updateBadge, 60000);

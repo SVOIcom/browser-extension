@@ -58,7 +58,7 @@ class Browser {
     }
 
     _processIncomeMessage(message){
-        console.log('Browser._processIncomeMessage', message);
+        //console.log('Browser._processIncomeMessage', message);
         let data = message.data;
 
         //Send msg to background

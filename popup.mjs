@@ -382,9 +382,18 @@ if(!window._isApp) {
 } else {
     //If app is started from popup, start popup
 
-    let messenger = new ExtensionMessenger('page', {});
+    let internalBrowser;
+    let messenger = new ExtensionMessenger('page', {
+        page_hideBrowser: () => {
+            internalBrowser.hideBrowser();
+        },
 
-    let internalBrowser = new Browser(messenger);
+        page_showBrowser: () => {
+            internalBrowser.showBrowser();
+        },
+    });
+
+    internalBrowser = new Browser(messenger);
     window.internalBrowser = internalBrowser;
 
     $('.mobileHide').hide();
