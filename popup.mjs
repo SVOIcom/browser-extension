@@ -407,6 +407,10 @@ if(!window._isApp) {
         }
 
     })
+
+    document.addEventListener("backbutton", ()=>{
+        Utils.appBack();
+    }, false);
 }
 
 export default startPopup;
