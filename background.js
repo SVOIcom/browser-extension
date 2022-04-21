@@ -33,6 +33,7 @@ import {unpackFromCell} from "./modules/freeton/nekoton/nekoton_wasm.js";
 const _ = LOCALIZATION._;
 
 import LocalStorage from "./modules/LocalStorage.mjs";
+import FingerprintAuth from "./modules/ui/FingerprintAuth.mjs";
 
 let localStorage = new LocalStorage();
 
@@ -983,9 +984,9 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
     }
 
     //Simple timeout for initialization
-    if(!window._isApp) {
-        await Utils.wait(2000)
-    }
+   // if(!window._isApp) {
+        await Utils.wait(2000);
+    //}
 
     let allowSign = await messenger.rpcCall('popup_acceptSignMessage', [publicKey, type, callingData, acceptMessage], 'popup');
 
@@ -994,29 +995,48 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
         throw EXCEPTIONS.rejectedByUser;
     }
 
-
-    //Action requires password
-    let password = await messenger.rpcCall('popup_password', ['', publicKey], 'popup');
-    if(!password) {
-        throw EXCEPTIONS.rejectedByUser;
-    }
-
+    let password = '';
     let keyPair = {};
 
-    try {
-        keyPair = await keyring.extractKey(publicKey, password);
-    } catch (e) {
-        //Retry password
-        let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') + '</span><br>', publicKey], 'popup');
+    //Check we have bio auth and trying use it
+    let hasBioAuth = await keyring.keyHasBioAuth(publicKey);
+
+    if(hasBioAuth) {
+
+        try {
+            password = await keyring.getBioPassword(publicKey);
+        } catch (e) {
+            await messenger.rpcCall('popup_showToast', [_('Error using bio auth. Enter password.')], 'popup');
+        }
+    }
+
+    //Action requires text password
+    if(!password) {
+
+        password = await messenger.rpcCall('popup_password', ['', publicKey], 'popup');
+
         if(!password) {
             throw EXCEPTIONS.rejectedByUser;
         }
 
+
         try {
             keyPair = await keyring.extractKey(publicKey, password);
         } catch (e) {
-            throw EXCEPTIONS.invalidPassword;
+            //Retry password
+            let password = await messenger.rpcCall('popup_password', ['<span style="color: red">' + _('Invalid password') + '</span><br>', publicKey], 'popup');
+            if(!password) {
+                throw EXCEPTIONS.rejectedByUser;
+            }
+
+            try {
+                keyPair = await keyring.extractKey(publicKey, password);
+            } catch (e) {
+                throw EXCEPTIONS.invalidPassword;
+            }
         }
+    } else {
+        keyPair = await keyring.extractKey(publicKey, password);
     }
 
     if(!dontCreatePopup) {
@@ -1063,6 +1083,12 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
         window.nekoton = nt;
     } catch (e) {
         console.log('ERROR INITIALIZE NEKOTON', e);
+    }
+
+    if(window._isApp) {
+        let fingerprint = new FingerprintAuth();
+        await fingerprint.init();
+        window.finger = fingerprint;
     }
 
     //If network changed, broadcast it to all tabs and popups

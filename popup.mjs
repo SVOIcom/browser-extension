@@ -19,6 +19,7 @@ import LOCALIZATION from "./modules/Localization.mjs";
 import MISC from "./modules/const/Misc.mjs";
 import LocalStorage from "./modules/LocalStorage.mjs";
 import Browser from "./modules/internalBrowser/Browser.mjs";
+import FingerprintAuth from "./modules/ui/FingerprintAuth.mjs";
 
 
 async function startPopup() {
@@ -381,6 +382,10 @@ if(!window._isApp) {
 
 } else {
     //If app is started from popup, start popup
+
+    let fingerprint = new FingerprintAuth();
+    await fingerprint.init();
+    window.finger = fingerprint;
 
     let internalBrowser;
     let messenger = new ExtensionMessenger('page', {

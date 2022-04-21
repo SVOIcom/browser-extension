@@ -67,12 +67,44 @@ class Keyring {
         const isSeed = typeof privateKey === 'object';
         this._publicKeys[publicKey] = {isSeed};
 
+        //If we have active bio auth
+        try {
+            if(config.bioAuth === true && window.finger) {
+
+                //Setup fingerprint password
+                await window.finger.addBioSecret(publicKey, password);
+
+                //Save bio info
+                this._publicKeys[`publicKey_finger`] = true;
+            }
+        } catch (e) {
+            config.bioAuth = false;
+        }
+
         await this._storage.set(publicKey, privateKey, password);
         await this._storage.set(publicKey + '_config', config, password);
 
         await this._saveData();
 
         return true;
+    }
+
+    /**
+     * Check key has bio auth
+     * @param publicKey
+     * @returns {Promise<boolean>}
+     */
+    async keyHasBioAuth(publicKey) {
+        return this._publicKeys[`publicKey_finger`] === true;
+    }
+
+    /**
+     * Get saved bio auth password
+     * @param publicKey
+     * @returns {Promise<*>}
+     */
+    async getBioPassword(publicKey) {
+        return await window.finger.getBioSecret(publicKey)
     }
 
     /**

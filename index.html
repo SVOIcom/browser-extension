@@ -61,12 +61,27 @@
 <script type="text/javascript" src="packages/core/js/framework7.bundle.js"></script>
 <script src="modules/thirdparty/bignumber.min.js"></script>
 <script type="text/javascript" src="modules/ui/validators.mjs"></script>
+<script src="modules/thirdparty/crypto-js.min.js"></script>
 <!-- <script type="text/javascript" src="modules/ui/policyCheck.mjs"></script> -->
 
 <!-- <script src="browser-polyfill.js"></script> -->
+
+<script>
+
+</script>
+
 <script type="module">
+
+    //Background setup
+    let background = document.getElementById('backgroundWorker');
+
+
+
     let $ = Dom7;
     document.querySelector('iframe').addEventListener('load', async () => {
+
+        //Setup Fingerprint module
+        background.contentWindow.Fingerprint = window.Fingerprint;
 
         let doc = await (await fetch('/popup.html')).text();
 
