@@ -117,5 +117,7 @@
   "": "",
   "Select network": "Выбор сети",
   "Seed phrase check": "Проверка seed фразы",
-  "Select word from seed on position": "Выберите слово из seed фразы на позиции"
+  "Select word from seed on position": "Выберите слово из seed фразы на позиции",
+  "Enable EVERWallet emulation": "Эмулировать EVERWallet",
+  "More info": "Ещё"
 }
