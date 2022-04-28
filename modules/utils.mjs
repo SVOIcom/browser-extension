@@ -260,15 +260,15 @@ const Utils = {
      * @param {boolean} local
      * @returns {Promise<any>}
      */
-   /* async fetchJSON(url, local = false) {
-        if(url.includes('file:') || local) {
-            if(!url.includes('file:') && window._isApp) {
-                url = 'file:///android_asset/www' + url;
-            }
-            return await (await this.fetchLocal(url)).json();
-        }
-        return await ((await fetch(url))).json();
-    },*/
+    /* async fetchJSON(url, local = false) {
+         if(url.includes('file:') || local) {
+             if(!url.includes('file:') && window._isApp) {
+                 url = 'file:///android_asset/www' + url;
+             }
+             return await (await this.fetchLocal(url)).json();
+         }
+         return await ((await fetch(url))).json();
+     },*/
     async fetchJSON(url) {
         return await ((await fetch(url))).json();
     },
@@ -355,7 +355,7 @@ const Utils = {
      * @param str
      * @returns {boolean}
      */
-    isValidDomain(str){
+    isValidDomain(str) {
         return /^(((?!\-))(xn\-\-)?[a-z0-9\-_]{0,61}[a-z0-9]{1,1}\.)*(xn\-\-)?([a-z0-9\-]{1,61}|[a-z0-9\-]{1,30})\.[a-z]{2,}$/.test(str);
 
     },
@@ -367,11 +367,31 @@ const Utils = {
         let text = "";
         let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-        for (let i = 0; i < length; i++)
+        for (let i = 0; i < length; i++) {
             text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
 
         return text;
-    }
+    },
+    /**
+     * Pack networks list
+     * @param networks
+     * @returns {*}
+     */
+    packNetworks(networks) {
+        return networks.join('|');
+    },
+    /**
+     * Unpack networks list
+     * @param networks
+     * @returns {*}
+     */
+    unpackNetworks(networks) {
+        let networksArray = networks.split('|');
+        return networksArray.map(network => {
+            return network.toLowerCase().trim();
+        });
+    },
 };
 
 window._utils = Utils;
