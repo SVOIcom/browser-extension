@@ -840,11 +840,11 @@ class Popups {
                          <a data-clipboard="${pubKey}" class="autoClipboard">${Utils.shortenPubkey(pubKey)}</a> (click for copy) <br>
                        Private key: <a data-clipboard="${keyPair.secret}" class="autoClipboard">${Utils.shortenPubkey(keyPair.secret)}</a> (click for copy)<br>`;
 
-                        if(keyPair.config.seedPhrase) {
+                        if(keyPair.config && keyPair.config.seedPhrase) {
                             message += `<br>Seed phrase: <a data-clipboard="${keyPair.config.seedPhrase}" class="autoClipboard">${Utils.shortenPubkey(keyPair.config.seedPhrase)}</a> (click for copy)<br>`;
                         }
 
-                        message += `<b class="localization">WARNING:</b> <span class="localization">Never divulge the seed phrase. Anyone with this phrase can take your funds.</span>`;
+                        message += `<br><b class="localization">WARNING:</b> <span class="localization">Never divulge the seed phrase. Anyone with this phrase can take your funds.</span>`;
 
                         // messenger.rpcCall('popup_alert', [text, publicKey], 'popup');
 
