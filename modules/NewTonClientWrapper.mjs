@@ -116,8 +116,10 @@ class NewTonClientWrapper extends EventEmitter3 {
      * @returns {Promise<void>}
      */
     async setServers(servers = []) {
+
         if(!Array.isArray(servers)) {
-            servers = [servers];
+           // servers = [servers];
+            servers = Utils.unpackNetworks(servers);
         }
 
         //Destroy TONClient object
@@ -128,7 +130,7 @@ class NewTonClientWrapper extends EventEmitter3 {
         await this.create({
             ...this.options,
             network: {
-                server_address: servers[0]
+                endpoints: servers
             }
         })
 

@@ -100,7 +100,8 @@ class TonClientWrapper extends EventEmitter3 {
      */
     async setServers(servers = []) {
         if(!Array.isArray(servers)) {
-            servers = [servers];
+            // servers = [servers];
+            servers = Utils.unpackNetworks(servers);
         }
 
         //Re-setup TONCLient

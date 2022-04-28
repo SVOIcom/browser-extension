@@ -37,8 +37,9 @@ class networkWidget {
 
             for (let networkName of Object.keys(networks)) {
                 let network = networks[networkName];
+                console.log(network);
                 buttons.push({
-                    text: networkName + `<span class="greyText smallText"> <br> ${network.description} <br><i>${network.url}</i></span>`,
+                    text: networkName + `<span class="greyText smallText"> <br> ${network.description} <br><i>${network.urls.join(', ')}</i></span>`,
                     bold: networkName === currentNetwork.name,
                     onClick: async function () {
                         await that.changeNetwork(networkName);

@@ -8,6 +8,7 @@
 import LocalStorage from "./LocalStorage.mjs";
 import NETWORKS from "./const/Networks.mjs";
 import EXCEPTIONS from "./const/Exceptions.mjs";
+import Utils from "./utils.mjs";
 
 
 class NetworkManager extends EventEmitter3 {
@@ -29,8 +30,16 @@ class NetworkManager extends EventEmitter3 {
         this.networks = await this.storage.get('networks', NETWORKS);
 
         //Update networks from local list
-        for(let networkName in NETWORKS){
+        for (let networkName in NETWORKS) {
             this.networks[networkName] = NETWORKS[networkName];
+        }
+
+        for(let networkName in this.networks) {
+            //Reformat network endpoints to new format
+            this.networks[networkName].urls = Utils.unpackNetworks(this.networks[networkName].url);
+
+            //Deprecated
+            this.networks[networkName].url = this.networks[networkName].urls[0];
         }
 
 
@@ -71,13 +80,15 @@ class NetworkManager extends EventEmitter3 {
      * @returns {Promise<void>}
      */
     async addNetwork(name, url, description = 'New network', explorerUrl = '', faucet = null) {
+
         this.networks[name] = {
-            url,
+            url: Utils.packNetworks(url),
             explorer: explorerUrl,
             description,
             site: '',
             faucet,
-            tokenIcon: '💸️'
+            tokenIcon: '💸️',
+            type: 'custom'
         }
 
         await this.saveNetworks();

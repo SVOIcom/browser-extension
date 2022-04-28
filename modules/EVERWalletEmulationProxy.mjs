@@ -162,8 +162,13 @@ class EVERWalletEmulationProxy extends EventEmitter3 {
 
         this.BigNumber = (await import('https://unpkg.com/bignumber.js@latest/bignumber.mjs')).default;
 
-        this.ton = await getTONWeb();
-        this.everClient = await getEverClient();
+        await this.awaitTONWeb();
+
+        try{
+            await this._initTONs();
+        }catch (e) {
+        }
+
         that = this;
 
         this.subscriptionsStates = {};
@@ -176,6 +181,42 @@ class EVERWalletEmulationProxy extends EventEmitter3 {
         }, SUBSCRIPTIONS_INTERVAL);
 
         return this;
+    }
+
+    async _initTONs(){
+        if(!this.ton) {
+            try {
+                this.ton = await getTONWeb();
+            } catch (e) {
+                this.ton = null;
+            }
+        }
+
+        if(!this.everClient) {
+            try {
+                this.everClient = await getEverClient();
+            } catch (e) {
+                this.everClient = null;
+            }
+        }
+    }
+
+    async awaitTONWeb(){
+        await new Promise((resolve, reject) => {
+            let limiter= 0;
+          let tonWaitTimer =  setInterval(async () => {
+              limiter++;
+
+              if(limiter > 500) {
+                  clearInterval(tonWaitTimer);
+                  reject('TONWeb is not available');
+              }
+               if(window.getTONWeb){
+                   clearInterval(tonWaitTimer);
+                   resolve();
+               }
+           }, 100);
+        });
     }
 
     /**
@@ -192,6 +233,12 @@ class EVERWalletEmulationProxy extends EventEmitter3 {
             if(!that) {
                 await this.init();
             }
+
+            try{
+                await this._initTONs();
+            }catch (e) {
+            }
+
             setTimeout(async () => {
 
 
