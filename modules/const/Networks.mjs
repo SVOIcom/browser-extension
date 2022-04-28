@@ -8,7 +8,8 @@ import Utils from "../utils.mjs";
 
 const NETWORKS = {
     main: {
-        url: Utils.packNetworks(['main3.ton.dev', "eri01.main.everos.dev", "gra01.main.everos.dev", "gra02.main.everos.dev", "lim01.main.everos.dev", "rbx01.main.everos.dev", 'alwaysonlineevermainnode.svoi.dev']),
+        urls: Utils.packNetworks(['main3.ton.dev', "eri01.main.everos.dev", "gra01.main.everos.dev", "gra02.main.everos.dev", "lim01.main.everos.dev", "rbx01.main.everos.dev", 'alwaysonlineevermainnode.svoi.dev']),
+        url: 'main3.ton.dev', //Deprecated. Placed here for backward compatibility
         explorer: 'ever.live',
         description: 'Everscale main network',
         site: 'https://everscale.network/',
@@ -48,7 +49,7 @@ const NETWORKS = {
         //tokenIcon: '<tgs-player autoplay loop renderer="canvas"  mode="normal" src="pictures/tgs/crystal.tgs" style="width: 15px; height: 15px; display: inline"></tgs-player>'
     },
     devnet: {
-        url: Utils.packNetworks(['net1.ton.dev', 'net2.ton.dev', 'eri01.net.everos.dev','rbx01.net.everos.dev','gra01.net.everos.dev']),
+        urls: Utils.packNetworks(['net1.ton.dev', 'net2.ton.dev', 'eri01.net.everos.dev','rbx01.net.everos.dev','gra01.net.everos.dev']),
         explorer: 'net.ever.live',
         description: 'Everscale devnet',
         site: 'https://everscale.network/',
