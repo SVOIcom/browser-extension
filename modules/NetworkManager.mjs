@@ -34,12 +34,20 @@ class NetworkManager extends EventEmitter3 {
             this.networks[networkName] = NETWORKS[networkName];
         }
 
-        for(let networkName in this.networks) {
-            //Reformat network endpoints to new format
-            this.networks[networkName].urls = Utils.unpackNetworks(this.networks[networkName].url);
+        for (let networkName in this.networks) {
+
+            if(!this.networks[networkName].urls) {
+                this.networks[networkName].urls = this.networks[networkName].url;
+            }
+
+            if(typeof this.networks[networkName].urls === 'string') {
+                this.networks[networkName].urls = Utils.unpackNetworks(this.networks[networkName].urls);
+            }
 
             //Deprecated
-            this.networks[networkName].url = this.networks[networkName].urls[0];
+            if(!this.networks[networkName].url) {
+                this.networks[networkName].url = this.networks[networkName].urls[0];
+            }
         }
 
 
