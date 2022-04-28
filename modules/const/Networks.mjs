@@ -20,7 +20,7 @@ const NETWORKS = {
         //tokenIcon: '<tgs-player autoplay loop renderer="canvas"  mode="normal" src="pictures/tgs/crystal.tgs" style="width: 15px; height: 15px; display: inline"></tgs-player>'
     },
     main2: {
-        url: 'main2.ton.dev',
+        url: 'eri01.main.everos.dev',
         explorer: 'ever.live',
         description: 'Everscale main net',
         site: 'https://everscale.network/',
@@ -29,8 +29,17 @@ const NETWORKS = {
             address: 'https://everscale.network/ecosystem',
         },
         tokenIcon: '<img src="pictures/ever.png" class="walletIconImage" style="width: 15px; height: 15px; display: inline">'
-        //tokenIcon: '💎'
-        //tokenIcon: '<tgs-player autoplay loop renderer="canvas"  mode="normal" src="pictures/tgs/crystal.tgs" style="width: 15px; height: 15px; display: inline"></tgs-player>'
+     },
+    mainNew: {
+        url: 'gra01.main.everos.dev',
+        explorer: 'ever.live',
+        description: 'Everscale main net',
+        site: 'https://everscale.network/',
+        faucet: {
+            type: 'url',
+            address: 'https://everscale.network/ecosystem',
+        },
+        tokenIcon: '<img src="pictures/ever.png" class="walletIconImage" style="width: 15px; height: 15px; display: inline">'
     },
     svoidev: {
         url: 'alwaysonlineevermainnode.svoi.dev',
