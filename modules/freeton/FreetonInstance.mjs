@@ -7,6 +7,7 @@
 
 import TonClientWrapper from "../TonClientWrapper.mjs";
 import NewTonClientWrapper from "../NewTonClientWrapper.mjs";
+import Utils from "../utils.mjs";
 
 /**
  * Freeton instancer
@@ -16,33 +17,44 @@ class FreetonInstance {
 
     /**
      * Get TON client
-     * @param {string} server
+     * @param {string|array} servers
      * @returns {Promise<*>}
      */
-    static async getFreeTON(server = 'net.ton.dev') {
+    static async getFreeTON(servers = ['gra02.main.everos.dev', 'gra01.main.everos.dev']) {
 
-        if(FreetonInstance.freeTONInstances[server]) {
-            return FreetonInstance.freeTONInstances[server]
+        let serversRaw = JSON.stringify(servers);
+
+        //If string or packed servers
+        if(!Array.isArray(servers)) {
+            servers = Utils.unpackNetworks(servers);
+        }
+
+        //Make cache key
+        let serverStr = servers.join(',');
+
+
+        if(FreetonInstance.freeTONInstances[serverStr]) {
+            return FreetonInstance.freeTONInstances[serverStr]
         }
         window.TONClient.setWasmOptions({binaryURL: 'ton-client/tonclient.wasm'});
-        FreetonInstance.freeTONInstances[server] = await (new TonClientWrapper(true)).create({
-            servers: [server]
+        FreetonInstance.freeTONInstances[serverStr] = await (new TonClientWrapper(true)).create({
+            servers: Array.from(servers)
         });
 
         //TODO: move to "low level" TON client
         try {
             console.log('Creating low level TON client');
             let lowLevelTON = await (new NewTonClientWrapper(true, true)).create({
-                servers: [server]
+                servers: Array.from(servers)
             });
 
-            FreetonInstance.freeTONInstances[server].lowLevel = lowLevelTON;
-        }catch (e) {
+            FreetonInstance.freeTONInstances[serverStr].lowLevel = lowLevelTON;
+        } catch (e) {
             console.log('Failed to create low level TON client', e);
         }
 
 
-        return FreetonInstance.freeTONInstances[server]
+        return FreetonInstance.freeTONInstances[serverStr]
     }
 
 

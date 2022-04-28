@@ -171,6 +171,14 @@ const RPC = {
      * @returns {Promise<{name: string, network: *}>}
      */
     main_getNetwork: async (name = undefined) => {
+        let network = await networkManager.getNetwork(name);
+
+       /* //Reformat network endpoints to new format
+        network.network.urls = Utils.unpackNetworks(network.network.url);
+
+        //Deprecated
+        network.network.url = network.network.urls[0];*/
+
         return await networkManager.getNetwork(name);
     },
 
@@ -984,8 +992,8 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
     }
 
     //Simple timeout for initialization
-   // if(!window._isApp) {
-        await Utils.wait(2000);
+    // if(!window._isApp) {
+    await Utils.wait(2000);
     //}
 
     let allowSign = await messenger.rpcCall('popup_acceptSignMessage', [publicKey, type, callingData, acceptMessage], 'popup');

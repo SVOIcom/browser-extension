@@ -379,6 +379,7 @@ const Utils = {
      * @returns {*}
      */
     packNetworks(networks) {
+        networks = networks.sort();
         return networks.join('|');
     },
     /**
