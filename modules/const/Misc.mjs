@@ -7,7 +7,7 @@
 
 
 const MISC = {
-    VERSION: '0.0.12',
+    VERSION: '0.0.14',
     POPUP_FOCUSOUT_CLOSE_TIMER: 120000,
     POPUP_PARAMS:{
         width: 370,
