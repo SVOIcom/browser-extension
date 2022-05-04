@@ -23,9 +23,9 @@ class DeNsResolver {
      */
     async _requestDomain(domain) {
         if(window._isApp){
-            return await _utils.jsonp(`https://freeton.domains/queryPretty?domain=${encodeURIComponent(domain)}&testnet=${this.testnet ? 'true' : 'false'}`);
+            return await _utils.jsonp(`https://scale.domains/queryPretty?domain=${encodeURIComponent(domain)}&testnet=${this.testnet ? 'true' : 'false'}`);
         }
-        return await _utils.fetchJSON(`https://freeton.domains/queryPretty?domain=${encodeURIComponent(domain)}&testnet=${this.testnet ? 'true' : 'false'}`);
+        return await _utils.fetchJSON(`https://scale.domains/queryPretty?domain=${encodeURIComponent(domain)}&testnet=${this.testnet ? 'true' : 'false'}`);
         
     }
 

@@ -962,7 +962,7 @@ const RPC = {
      */
     async main_getConfigScript() {
         let config = {};
-        if(await localStorage.get('everWalletEmulation', true)) {
+        if(await localStorage.get('everWalletEmulation', false)) {
             config.EVERWalletEmulation = true;
         }
         return `
