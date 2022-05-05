@@ -49,7 +49,18 @@ class Keyring {
      * @returns {Promise<string[]>}
      */
     async getPublicKeys() {
-        return Object.keys(this._publicKeys);
+        const excluded = ['publicKey_finger'];
+        let publicKeys = [];
+
+        for (let key of Object.keys(this._publicKeys)) {
+            if(excluded.includes(key) || key.includes('_finger')) {
+                continue;
+            }
+
+            publicKeys.push(key);
+        }
+
+        return publicKeys;
     }
 
     /**
@@ -75,7 +86,7 @@ class Keyring {
                 await window.finger.addBioSecret(publicKey, password);
 
                 //Save bio info
-                this._publicKeys[`publicKey_finger`] = true;
+                this._publicKeys[`${publicKey}_finger`] = true;
             }
         } catch (e) {
             config.bioAuth = false;
@@ -95,7 +106,7 @@ class Keyring {
      * @returns {Promise<boolean>}
      */
     async keyHasBioAuth(publicKey) {
-        return this._publicKeys[`publicKey_finger`] === true;
+        return this._publicKeys[`${publicKey}_finger`] === true;
     }
 
     /**

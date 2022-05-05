@@ -2,6 +2,8 @@ import Utils from "../utils.mjs";
 import LOCALIZATION from "../Localization.mjs";
 import PrivateStorage from "../PrivateStorage.mjs";
 
+const _ = LOCALIZATION._;
+
 class FingerprintAuth {
     constructor() {
         this._storage = new PrivateStorage();
@@ -43,7 +45,7 @@ class FingerprintAuth {
      * @param description
      * @returns {Promise<unknown>}
      */
-    async registerNewFingerprint(description = 'Lock') {
+    async registerNewFingerprint(description = _('Lock')) {
         let that = this;
         return new Promise(function (resolve, reject) {
             let newSecret = that._generateNewFingerSecret();
@@ -66,7 +68,7 @@ class FingerprintAuth {
      * @returns {Promise<unknown>}
      * @private
      */
-    async _getFingerprintSecret(description = 'Unlock') {
+    async _getFingerprintSecret(description = _('Unlock')) {
         let that = this;
         return new Promise(function (resolve, reject) {
             try {
@@ -87,7 +89,7 @@ class FingerprintAuth {
      * @param description
      * @returns {Promise<boolean>}
      */
-    async addBioSecret(id, secret, description = 'Lock') {
+    async addBioSecret(id, secret, description = _('Lock')) {
         let fingerSecret = await this._getFingerprintSecret(description);
         if(!fingerSecret) {
             throw new Error('Invalid fingerprint secret. Create new fingerprint first.');
@@ -112,7 +114,7 @@ class FingerprintAuth {
     /**
      * Extract secret from bio storage
      */
-    async getBioSecret(id, description = 'Unlock') {
+    async getBioSecret(id, description = _('Unlock')) {
         let fingerSecret = await this._getFingerprintSecret(description);
         if(!fingerSecret) {
             throw new Error('Invalid fingerprint secret. Create new fingerprint first.');

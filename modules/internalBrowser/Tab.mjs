@@ -1,7 +1,10 @@
 import Utils from "../utils.mjs";
+import LOCALIZATION from "../Localization.mjs";
 
 const DUCKDUCKGO_SEARCH_URL = 'https://duckduckgo.com/?q=';
 const INJECTOR_URL = 'https:///localhost/mobile_resources/injector_mobile.js';
+
+const _ = LOCALIZATION._;
 
 
 class Tab extends EventEmitter3 {
@@ -84,15 +87,15 @@ class Tab extends EventEmitter3 {
                 items: [
                     {
                         event: 'reloadPressed',
-                        label: 'Reload page'
+                        label: _('Reload page')
                     },
                     {
                         event: 'gotoPressed',
-                        label: 'Goto URL'
+                        label: _('Goto URL')
                     },
                     {
                         event: 'hidePressed',
-                        label: 'Hide browser'
+                        label: _('Hide browser')
                     }
                 ]
             },

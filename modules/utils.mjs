@@ -318,7 +318,12 @@ const Utils = {
                     window[callback] = undefined;
                     resolve(data);
                 };
-                script.src = `${url}?callback=${callback}`;
+
+                let urlNew = new URL(url);
+
+                urlNew.searchParams.append("callback", callback);
+
+                script.src = String(urlNew);
                 document.body.appendChild(script);
             } catch (e) {
                 reject(e);

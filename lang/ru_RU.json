@@ -119,5 +119,14 @@
   "Seed phrase check": "Проверка seed фразы",
   "Select word from seed on position": "Выберите слово из seed фразы на позиции",
   "Enable EVERWallet emulation": "Эмулировать EVERWallet",
-  "More info": "Ещё"
+  "More info": "Ещё",
+  "Open browser": "Браузер",
+  "New tab": "Новая вкладка",
+  "Browser tabs": "Активные вкладки",
+  "Reload page": "Обновить",
+  "Goto URL": "Перейти",
+  "Hide browser": "Скрыть браузер",
+  "Error using bio auth. Enter password.": "Ошибка разблокировки с помощью био аутентификации. Используйте пароль.",
+  "Lock": "Заблокировать",
+  "Unlock": "Разблокировка"
 }

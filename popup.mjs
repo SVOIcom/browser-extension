@@ -168,7 +168,7 @@ async function startPopup() {
         autoDarkTheme: true,
         view: {stackPages: true,},
         dialog: {
-            title: 'TONWallet',
+            title: 'ScaleWallet',
         },
         data: function () {
             return {
