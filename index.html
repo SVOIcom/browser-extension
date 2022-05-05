@@ -78,47 +78,52 @@
 
     let $ = Dom7;
     document.querySelector('iframe').addEventListener('load', async () => {
+        try {
 
-        let initialized = false;
+            let initialized = false;
 
-        //Setup Fingerprint module
-        background.contentWindow.Fingerprint = window.Fingerprint;
+            //Setup Fingerprint module
+            background.contentWindow.Fingerprint = window.Fingerprint;
 
-        let doc = await (await fetch('/popup.html')).text();
+            let doc = await (await fetch('/popup.html')).text();
 
-        doc = doc.split('<!-- MOBILEBUNDLE -->')[1];
+            doc = doc.split('<!-- MOBILEBUNDLE -->')[1];
 
-        //console.log(doc);
+            //console.log(doc);
 
-        //Setup page
-        $('#appOuter').html(doc);
+            //Setup page
+            $('#appOuter').html(doc);
 
-        /**
-         * Initialize wallet UI
-         * @returns {Promise<void>}
-         */
-        async function initFrontend() {
-            let popup = await import('./popup.mjs');
-            console.log('POPUP', popup);
-            await popup.default();
-        }
+            /**
+             * Initialize wallet UI
+             * @returns {Promise<void>}
+             */
+            async function initFrontend() {
+                let popup = await import('./popup.mjs');
+                console.log('POPUP', popup);
+                await popup.default();
+            }
 
-        //Background cat initialize wallet
-        background.contentWindow._initializeUI = async () => {
-            if (!initialized) {
+            //Background cat initialize wallet
+            background.contentWindow._initializeUI = async () => {
+                if(!initialized) {
+                    await initFrontend();
+                    initialized = true;
+                }
+            };
+
+            //Trying to initialize after timeout
+            setTimeout(async () => {
+                if(initialized) {
+                    return;
+                }
                 await initFrontend();
                 initialized = true;
-            }
-        };
-
-        //Trying to initialize after timeout
-        setTimeout(async () => {
-            if(initialized) {
-                return;
-            }
-            await initFrontend();
-            initialized = true;
-        }, 10000)
+            }, 10000)
+        } catch (e) {
+            console.error(e);
+            alert('Wallet general error. Please send next error info to us: ' + JSON.stringify(e.message) + ' ' + JSON.stringify(e.stack));
+        }
     })
 
 </script>
