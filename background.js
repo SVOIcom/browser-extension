@@ -1140,6 +1140,11 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
     });
 
 
+    if(window._initializeUI){
+        console.log('Got init callback');
+        window._initializeUI();
+    }
+
 })()
 
 

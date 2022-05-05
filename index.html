@@ -76,9 +76,10 @@
     let background = document.getElementById('backgroundWorker');
 
 
-
     let $ = Dom7;
     document.querySelector('iframe').addEventListener('load', async () => {
+
+        let initialized = false;
 
         //Setup Fingerprint module
         background.contentWindow.Fingerprint = window.Fingerprint;
@@ -87,16 +88,37 @@
 
         doc = doc.split('<!-- MOBILEBUNDLE -->')[1];
 
-        console.log(doc);
+        //console.log(doc);
 
         //Setup page
         $('#appOuter').html(doc);
 
-        setTimeout(async () => {
+        /**
+         * Initialize wallet UI
+         * @returns {Promise<void>}
+         */
+        async function initFrontend() {
             let popup = await import('./popup.mjs');
             console.log('POPUP', popup);
             await popup.default();
-        }, 2000)
+        }
+
+        //Background cat initialize wallet
+        background.contentWindow._initializeUI = async () => {
+            if (!initialized) {
+                await initFrontend();
+                initialized = true;
+            }
+        };
+
+        //Trying to initialize after timeout
+        setTimeout(async () => {
+            if(initialized) {
+                return;
+            }
+            await initFrontend();
+            initialized = true;
+        }, 10000)
     })
 
 </script>
