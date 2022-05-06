@@ -1,6 +1,6 @@
 {
   "name": "everscalewallet",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Everscale network wallet and dapps connectivity provider",
   "main": "index.js",
   "repository": {
