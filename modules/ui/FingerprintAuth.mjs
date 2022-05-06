@@ -4,13 +4,21 @@ import PrivateStorage from "../PrivateStorage.mjs";
 
 const _ = LOCALIZATION._;
 
+const NO_PASSWORD = "NO_PASSWORD";
+
 class FingerprintAuth {
     constructor() {
         this._storage = new PrivateStorage();
+        this.hasInitializedFingerprint = false;
     }
 
     async init() {
         await this._storage.initialize();
+
+        let result = await this._storage.get('hasInitializedFingerprint', NO_PASSWORD);
+        if(result) {
+            this.hasInitializedFingerprint = true;
+        }
     }
 
     /**
@@ -47,7 +55,7 @@ class FingerprintAuth {
      */
     async registerNewFingerprint(description = _('Lock')) {
         let that = this;
-        return new Promise(function (resolve, reject) {
+        let result = await new Promise(function (resolve, reject) {
             let newSecret = that._generateNewFingerSecret();
             try {
                 Fingerprint.registerBiometricSecret({
@@ -60,6 +68,10 @@ class FingerprintAuth {
                 reject(e);
             }
         });
+
+        await this._storage.set('hasInitializedFingerprint', true, NO_PASSWORD)
+
+        return result;
     }
 
     /**
@@ -90,6 +102,11 @@ class FingerprintAuth {
      * @returns {Promise<boolean>}
      */
     async addBioSecret(id, secret, description = _('Lock')) {
+
+        if(!this.hasInitializedFingerprint) {
+            await this.registerNewFingerprint(description);
+        }
+
         let fingerSecret = await this._getFingerprintSecret(description);
         if(!fingerSecret) {
             throw new Error('Invalid fingerprint secret. Create new fingerprint first.');

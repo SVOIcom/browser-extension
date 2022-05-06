@@ -173,11 +173,11 @@ const RPC = {
     main_getNetwork: async (name = undefined) => {
         let network = await networkManager.getNetwork(name);
 
-       /* //Reformat network endpoints to new format
-        network.network.urls = Utils.unpackNetworks(network.network.url);
+        /* //Reformat network endpoints to new format
+         network.network.urls = Utils.unpackNetworks(network.network.url);
 
-        //Deprecated
-        network.network.url = network.network.urls[0];*/
+         //Deprecated
+         network.network.url = network.network.urls[0];*/
 
         return await networkManager.getNetwork(name);
     },
@@ -962,7 +962,7 @@ const RPC = {
      */
     async main_getConfigScript() {
         let config = {};
-        if(await localStorage.get('everWalletEmulation', false)) {
+        if(await localStorage.get('everWalletEmulation', window._isApp ? true : false)) {
             config.EVERWalletEmulation = true;
         }
         return `
@@ -1097,6 +1097,15 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
         let fingerprint = new FingerprintAuth();
         await fingerprint.init();
         window.finger = fingerprint;
+
+        /*alert('fingerprint check');
+
+        try {
+            let isAvialible = await fingerprint.isAvailable();
+            alert('fingerprint is avialible ' + isAvialible);
+        } catch (e) {
+            alert('fingerprint error', e.message);
+        }*/
     }
 
     //If network changed, broadcast it to all tabs and popups
@@ -1140,7 +1149,7 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
     });
 
 
-    if(window._initializeUI){
+    if(window._initializeUI) {
         console.log('Got init callback');
         window._initializeUI();
     }

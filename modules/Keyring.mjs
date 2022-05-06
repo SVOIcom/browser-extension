@@ -89,6 +89,7 @@ class Keyring {
                 this._publicKeys[`${publicKey}_finger`] = true;
             }
         } catch (e) {
+            //alert('Fingerprint save error '+e.message);
             config.bioAuth = false;
         }
 
