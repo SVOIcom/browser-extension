@@ -21,7 +21,7 @@ const TONSWAP_EXPLORERS_TOKEN_LIST = {
     test: 'https://explorer.tonswap.com/api/tokens'
 }
 
-const BROXUS_TOKEN_LIST = 'https://raw.githubusercontent.com/broxus/ton-assets/master/manifest.json';
+const BROXUS_TOKEN_LIST = 'https://raw.githubusercontent.com/SVOIcom/ton-assets/master/manifest.json';
 
 class TonSwapTokenList {
     constructor(listUrl = '/json/tokensList.json', ton = null) {

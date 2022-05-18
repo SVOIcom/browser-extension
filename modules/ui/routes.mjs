@@ -57,8 +57,8 @@ const ROUTES = [
         url: './pages/browserTabs.html',
     },
     {
-        path: '/moduleTest',
-        url: './pages/moduleTest.html',
+        path: '/pluginPage',
+        url: './pages/pluginPage.html',
     },
 ]
 

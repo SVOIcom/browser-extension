@@ -121,6 +121,22 @@ const uiUtils = {
             let data = $(this).data(dataAttribName);
             await uiUtils.copyToClipboard(data);
         }
+    },
+
+    /**
+     * Naviagte async
+     * @async
+     * @param url
+     * @param params
+     * @returns {Promise<unknown>}
+     */
+    navigateUrlAsync(url, params) {
+        return new Promise(resolve => {
+            window.app.views.main.router.navigate(url, params);
+            app.once('pageInit', async () => {
+                resolve();
+            });
+        })
     }
 
 }

@@ -20,6 +20,7 @@ import MISC from "./modules/const/Misc.mjs";
 import LocalStorage from "./modules/LocalStorage.mjs";
 import Browser from "./modules/internalBrowser/Browser.mjs";
 import FingerprintAuth from "./modules/ui/FingerprintAuth.mjs";
+import PluginManager from "./modules/PluginManager.mjs";
 
 
 async function startPopup() {
@@ -285,7 +286,11 @@ async function startPopup() {
     everWalletEmulationToggle.checked = !!everWalletEmulation;
     everWalletEmulationToggle.on('change', async function () {
         await localStorage.set('everWalletEmulation', everWalletEmulationToggle.checked);
-    })
+    });
+
+
+    let pluginManager = window.pluginManager = await (new PluginManager()).init();
+    await pluginManager.runUIPlugins();
 
     /**
      * Update sidebar accounts list
@@ -374,7 +379,6 @@ async function startPopup() {
     })
 
 
-
 }
 
 if(!window._isApp) {
@@ -414,7 +418,7 @@ if(!window._isApp) {
 
     })
 
-    document.addEventListener("backbutton", ()=>{
+    document.addEventListener("backbutton", () => {
         Utils.appBack();
     }, false);
 }
