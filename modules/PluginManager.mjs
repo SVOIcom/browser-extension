@@ -7,22 +7,31 @@ const PLUGINS_BASE = 'https://plugins.scalewallet.com';
 class PluginManager {
     async init(pluginsBase = PLUGINS_BASE) {
         this.pluginsBase = pluginsBase;
-        this.plugins = (await utils.fetchJSON(pluginsBase + '/plugins.json')).plugins;
+        this.plugins = (await utils.fetchJSON(pluginsBase + '/plugins.json?v=' + Math.random())).plugins;
 
         this._pluginsRuntime = {};
 
         return this;
     }
 
+    /**
+     * Runs UI part if plugins
+     * @returns {Promise<void>}
+     */
     async runUIPlugins() {
         for (let plugin of this.plugins) {
+
+            if(plugin.disabled) {
+                continue;
+            }
+
             let pluginRuntime = {};
 
             if(plugin.menuAction) {
                 $('.pluginMenuListHolder').show();
                 let appendStr = `<li>
                                         <a href="#" id="${plugin.path}_menuButton" class="item-content colour-change panel-close">
-                                            <div class="item-media">${plugin.menuAction.icon ? `<img src="${plugin.menuAction.icon}">` : ''}</div>
+                                            <div class="item-media">${plugin.menuAction.icon ? `<img style="height: 20px" src="${this.pluginsBase}/plugins/${plugin.path}/${plugin.menuAction.icon}">` : ''}</div>
                                             <div class="item-inner">
                                                 <div class="item-title-wrap">
                                                     <div class="item-title ">${plugin.menuAction.title}</div>
@@ -48,19 +57,23 @@ class PluginManager {
                             contentSrc = `${this.pluginsBase}/plugins/${plugin.path}/${contentSrc}`;
                         }
 
-                        console.log('LOAD', contentSrc, plugin);
-
-                        //Set iframe path
-                        contentIframe.src = contentSrc;
-
                         //Set plugin page title
                         $('#pluginTitle').text(pluginRuntime.menuButtonAction.page.title);
 
-                        //iframe.contentWindow.postMessage({a:123}, '*')
+                        //Set iframe path
+                        contentIframe.src = contentSrc;
+                        contentIframe.onload = async ()=>{
+
+                            //Allow emulation in frame
+                            await this.evalPluginContentIframe(plugin.path, `_everscaleWalletConfig = {EVERWalletEmulation: true};`);
+
+                            //Configure iframe
+                            await this.evalPluginContentIframe(plugin.path, `document.documentElement.style.setProperty('--darkmode', '${String(app.darkTheme)}');`);
+                            await this.evalPluginContentIframe(plugin.path, `window.darkMode = ${String(app.darkTheme)};`);
+                        }
 
 
-                        //Allow emulation in frame
-                        await this.evalPluginContentIframe(plugin.path, `_everscaleWalletConfig = {EVERWalletEmulation: true};`)
+
                     }
                 })
             }
@@ -70,6 +83,12 @@ class PluginManager {
     }
 
 
+    /**
+     * Sends message to UI plugin iframe
+     * @param modulePath
+     * @param message
+     * @returns {Promise<void>}
+     */
     async sendPluginContentIframeMessage(modulePath, message) {
         if(this._pluginsRuntime[modulePath]) {
             if(this._pluginsRuntime[modulePath].contentIframe) {
@@ -82,6 +101,12 @@ class PluginManager {
         }
     }
 
+    /**
+     * Evals code in UI plugin iframe
+     * @param modulePath
+     * @param code
+     * @returns {Promise<void>}
+     */
     async evalPluginContentIframe(modulePath, code) {
         await this.sendPluginContentIframeMessage(modulePath, {type: 'eval', code})
     }

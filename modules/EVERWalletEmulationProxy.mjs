@@ -160,13 +160,16 @@ class EVERWalletEmulationProxy extends EventEmitter3 {
             return that;
         }
 
-        this.BigNumber = (await import('https://unpkg.com/bignumber.js@latest/bignumber.mjs')).default;
+        try {
+            this.BigNumber = (await import('https://unpkg.com/bignumber.js@latest/bignumber.mjs')).default;
+        } catch (e) {
+        }
 
         await this.awaitTONWeb();
 
-        try{
+        try {
             await this._initTONs();
-        }catch (e) {
+        } catch (e) {
         }
 
         that = this;
@@ -183,7 +186,7 @@ class EVERWalletEmulationProxy extends EventEmitter3 {
         return this;
     }
 
-    async _initTONs(){
+    async _initTONs() {
         if(!this.ton) {
             try {
                 this.ton = await getTONWeb();
@@ -201,21 +204,21 @@ class EVERWalletEmulationProxy extends EventEmitter3 {
         }
     }
 
-    async awaitTONWeb(){
+    async awaitTONWeb() {
         await new Promise((resolve, reject) => {
-            let limiter= 0;
-          let tonWaitTimer =  setInterval(async () => {
-              limiter++;
+            let limiter = 0;
+            let tonWaitTimer = setInterval(async () => {
+                limiter++;
 
-              if(limiter > 500) {
-                  clearInterval(tonWaitTimer);
-                  reject('TONWeb is not available');
-              }
-               if(window.getTONWeb){
-                   clearInterval(tonWaitTimer);
-                   resolve();
-               }
-           }, 100);
+                if(limiter > 500) {
+                    clearInterval(tonWaitTimer);
+                    reject('TONWeb is not available');
+                }
+                if(window.getTONWeb) {
+                    clearInterval(tonWaitTimer);
+                    resolve();
+                }
+            }, 100);
         });
     }
 
@@ -234,9 +237,9 @@ class EVERWalletEmulationProxy extends EventEmitter3 {
                 await this.init();
             }
 
-            try{
+            try {
                 await this._initTONs();
-            }catch (e) {
+            } catch (e) {
             }
 
             setTimeout(async () => {
