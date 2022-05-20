@@ -1006,6 +1006,8 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
 
             //Wait for popup activates
             await uiUtils.waitForActivePopup(5000);
+        }else{
+            dontCreatePopup = true;
         }
 
         if(!window._isApp) {

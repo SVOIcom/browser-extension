@@ -62,16 +62,25 @@ class PluginManager {
 
                         //Set iframe path
                         contentIframe.src = contentSrc;
+
+                        //Configure iframe
+                        if(window.theme.isDark()) {
+                            await this.evalPluginContentIframe(plugin.path, `document.body.classList.add('darkmode');`);
+                        }
+                        await this.evalPluginContentIframe(plugin.path, `window.darkMode = ${String(window.theme.isDark())};`);
+                        await this.evalPluginContentIframe(plugin.path, `window.currentLang = '${LOCALIZATION.currentLang}';`);
+
                         contentIframe.onload = async () => {
 
                             //Allow emulation in frame
                             await this.evalPluginContentIframe(plugin.path, `_everscaleWalletConfig = {EVERWalletEmulation: true};`);
 
-                            //Configure iframe
-                            if(app.darkTheme) {
+                            //Configure iframe2
+                            if(window.theme.isDark()) {
                                 await this.evalPluginContentIframe(plugin.path, `document.body.classList.add('darkmode');`);
                             }
-                            await this.evalPluginContentIframe(plugin.path, `window.darkMode = ${String(app.darkTheme)};`);
+                            await this.evalPluginContentIframe(plugin.path, `window.darkMode = ${String(window.theme.isDark())};`);
+                            await this.evalPluginContentIframe(plugin.path, `window.currentLang = '${LOCALIZATION.currentLang}';`);
                         }
 
 
