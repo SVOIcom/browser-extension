@@ -62,16 +62,17 @@ class PluginManager {
 
                         //Set iframe path
                         contentIframe.src = contentSrc;
-                        contentIframe.onload = async ()=>{
+                        contentIframe.onload = async () => {
 
                             //Allow emulation in frame
                             await this.evalPluginContentIframe(plugin.path, `_everscaleWalletConfig = {EVERWalletEmulation: true};`);
 
                             //Configure iframe
-                            await this.evalPluginContentIframe(plugin.path, `document.documentElement.style.setProperty('--darkmode', '${String(app.darkTheme)}');`);
+                            if(app.darkTheme) {
+                                await this.evalPluginContentIframe(plugin.path, `document.body.classList.add('darkmode');`);
+                            }
                             await this.evalPluginContentIframe(plugin.path, `window.darkMode = ${String(app.darkTheme)};`);
                         }
-
 
 
                     }

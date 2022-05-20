@@ -379,6 +379,17 @@ async function startPopup() {
     })
 
 
+    //Heartbeat to background for saving popup info
+    const popupHeartbeat = async () => {
+        try {
+            await messenger.rpcCall('main_popupHeartbeat', undefined, 'background');
+
+        } catch (e) {
+        }
+    };
+    setInterval(popupHeartbeat, 500);
+
+
 }
 
 if(!window._isApp) {

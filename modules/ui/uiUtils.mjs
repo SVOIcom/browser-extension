@@ -7,6 +7,7 @@
 
 import LOCALIZATION from "../Localization.mjs";
 import Misc from "../const/Misc.mjs";
+import utils from "../utils.mjs";
 
 
 const uiUtils = {
@@ -37,6 +38,17 @@ const uiUtils = {
 
 
         return browser.windows.create(popupObject);
+    },
+
+    async waitForActivePopup(timeout = 2000) {
+        await utils.wait(400);
+        if(window.hasActivePopup) {
+            return true;
+        }
+
+        await utils.wait(timeout - 400);
+
+        return !!window.hasActivePopup;
     },
 
     /**
