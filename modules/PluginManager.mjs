@@ -11,6 +11,7 @@ class PluginManager {
 
         this._pluginsRuntime = {};
 
+
         return this;
     }
 
@@ -81,11 +82,72 @@ class PluginManager {
                             }
                             await this.evalPluginContentIframe(plugin.path, `window.darkMode = ${String(window.theme.isDark())};`);
                             await this.evalPluginContentIframe(plugin.path, `window.currentLang = '${LOCALIZATION.currentLang}';`);
+                            await this.evalPluginContentIframe(plugin.path, `window.pluginContentType = 'page';`);
+                            await this.evalPluginContentIframe(plugin.path, `window.pluginMessageOriginPath = '${plugin.path}';`);
                         }
 
 
                     }
                 })
+            }
+
+            if(plugin.mainTab) {
+                $('.tabsToolbar').append(`<a href="#tab${plugin.path}" class="tab-link   localization">${plugin.mainTab.title}</a>`);
+                $('.walletTabs').append(`             <div class="tab " id="tab${plugin.path}">
+                                        <iframe  src="#" allow="clipboard-write" style="width: 100%;  padding: 0; margin: 0; border: 0" frameborder="0"></iframe>
+                        </div>`);
+                pluginRuntime.mainTabContent = $(`#tab${plugin.path}`);
+                pluginRuntime.mainTab = plugin.mainTab;
+                if(pluginRuntime.mainTab.page) {
+
+
+                    let contentIframe = pluginRuntime.mainTabContent.find('iframe')[0];
+                    pluginRuntime.contentIframe = contentIframe;
+
+                    //Resolve page path
+                    let contentSrc = pluginRuntime.menuButtonAction.page.content;
+                    if(!contentSrc.includes('https://')) {
+                        contentSrc = `${this.pluginsBase}/plugins/${plugin.path}/${contentSrc}`;
+                    }
+
+                    //Set plugin page title
+                    $('#pluginTitle').text(pluginRuntime.menuButtonAction.page.title);
+
+                    //Set iframe path
+                    contentIframe.src = contentSrc;
+
+
+                    contentIframe.onload = async () => {
+
+                        window.addEventListener('message', async (event) => {
+                            if(event.data.type === 'pluginMessage') {
+                                let message = event.data.message;
+                                let plugin = this._pluginsRuntime[event.data.pluginPath];
+
+                                //If frame size  changed
+                                if(message.method === 'updateIframeHeight') {
+                                    plugin.contentIframe.style.height = message.height + 'px';
+                                }
+
+                            }
+
+                        });
+
+                        //Allow emulation in frame
+                        await this.evalPluginContentIframe(plugin.path, `_everscaleWalletConfig = {EVERWalletEmulation: true};`);
+
+                        //Configure iframe2
+                        if(window.theme.isDark()) {
+                            await this.evalPluginContentIframe(plugin.path, `document.body.classList.add('darkmode');`);
+                        }
+                        await this.evalPluginContentIframe(plugin.path, `window.darkMode = ${String(window.theme.isDark())};`);
+                        await this.evalPluginContentIframe(plugin.path, `window.currentLang = '${LOCALIZATION.currentLang}';`);
+                        await this.evalPluginContentIframe(plugin.path, `window.pluginContentType = 'tab';`);
+                        await this.evalPluginContentIframe(plugin.path, `window.pluginMessageOriginPath = '${plugin.path}';`);
+                    }
+
+
+                }
             }
 
             this._pluginsRuntime[plugin.path] = pluginRuntime;
