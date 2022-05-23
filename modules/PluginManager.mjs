@@ -66,24 +66,24 @@ class PluginManager {
 
                         //Configure iframe
                         if(window.theme.isDark()) {
-                            await this.evalPluginContentIframe(plugin.path, `document.body.classList.add('darkmode');`);
+                            await this.evalPluginContentIframe(plugin.path, `document.body.classList.add('darkmode');`, 'contentIframe');
                         }
-                        await this.evalPluginContentIframe(plugin.path, `window.darkMode = ${String(window.theme.isDark())};`);
-                        await this.evalPluginContentIframe(plugin.path, `window.currentLang = '${LOCALIZATION.currentLang}';`);
+                        await this.evalPluginContentIframe(plugin.path, `window.darkMode = ${String(window.theme.isDark())};`, 'contentIframe');
+                        await this.evalPluginContentIframe(plugin.path, `window.currentLang = '${LOCALIZATION.currentLang}';`, 'contentIframe');
 
                         contentIframe.onload = async () => {
 
                             //Allow emulation in frame
-                            await this.evalPluginContentIframe(plugin.path, `_everscaleWalletConfig = {EVERWalletEmulation: true};`);
+                            await this.evalPluginContentIframe(plugin.path, `_everscaleWalletConfig = {EVERWalletEmulation: true};`, 'contentIframe');
 
                             //Configure iframe2
                             if(window.theme.isDark()) {
-                                await this.evalPluginContentIframe(plugin.path, `document.body.classList.add('darkmode');`);
+                                await this.evalPluginContentIframe(plugin.path, `document.body.classList.add('darkmode');`, 'contentIframe');
                             }
-                            await this.evalPluginContentIframe(plugin.path, `window.darkMode = ${String(window.theme.isDark())};`);
-                            await this.evalPluginContentIframe(plugin.path, `window.currentLang = '${LOCALIZATION.currentLang}';`);
-                            await this.evalPluginContentIframe(plugin.path, `window.pluginContentType = 'page';`);
-                            await this.evalPluginContentIframe(plugin.path, `window.pluginMessageOriginPath = '${plugin.path}';`);
+                            await this.evalPluginContentIframe(plugin.path, `window.darkMode = ${String(window.theme.isDark())};`, 'contentIframe');
+                            await this.evalPluginContentIframe(plugin.path, `window.currentLang = '${LOCALIZATION.currentLang}';`, 'contentIframe');
+                            await this.evalPluginContentIframe(plugin.path, `window.pluginContentType = 'page';`, 'contentIframe');
+                            await this.evalPluginContentIframe(plugin.path, `window.pluginMessageOriginPath = '${plugin.path}';`, 'contentIframe');
                         }
 
 
@@ -102,7 +102,7 @@ class PluginManager {
 
 
                     let contentIframe = pluginRuntime.mainTabContent.find('iframe')[0];
-                    pluginRuntime.contentIframe = contentIframe;
+                    pluginRuntime.tabContentIframe = contentIframe;
 
                     //Resolve page path
                     let contentSrc = pluginRuntime.menuButtonAction.page.content;
@@ -125,8 +125,9 @@ class PluginManager {
                                 let plugin = this._pluginsRuntime[event.data.pluginPath];
 
                                 //If frame size  changed
-                                if(message.method === 'updateIframeHeight') {
-                                    plugin.contentIframe.style.height = message.height + 'px';
+                                console.log(message);
+                                if(message.method === 'updateIframeHeight' && plugin.tabContentIframe) {
+                                    plugin.tabContentIframe.style.height = message.height + 'px';
                                 }
 
                             }
@@ -134,16 +135,16 @@ class PluginManager {
                         });
 
                         //Allow emulation in frame
-                        await this.evalPluginContentIframe(plugin.path, `_everscaleWalletConfig = {EVERWalletEmulation: true};`);
+                        await this.evalPluginContentIframe(plugin.path, `_everscaleWalletConfig = {EVERWalletEmulation: true};`, 'tabContentIframe');
 
                         //Configure iframe2
                         if(window.theme.isDark()) {
-                            await this.evalPluginContentIframe(plugin.path, `document.body.classList.add('darkmode');`);
+                            await this.evalPluginContentIframe(plugin.path, `document.body.classList.add('darkmode');`, 'tabContentIframe');
                         }
-                        await this.evalPluginContentIframe(plugin.path, `window.darkMode = ${String(window.theme.isDark())};`);
-                        await this.evalPluginContentIframe(plugin.path, `window.currentLang = '${LOCALIZATION.currentLang}';`);
-                        await this.evalPluginContentIframe(plugin.path, `window.pluginContentType = 'tab';`);
-                        await this.evalPluginContentIframe(plugin.path, `window.pluginMessageOriginPath = '${plugin.path}';`);
+                        await this.evalPluginContentIframe(plugin.path, `window.darkMode = ${String(window.theme.isDark())};`, 'tabContentIframe');
+                        await this.evalPluginContentIframe(plugin.path, `window.currentLang = '${LOCALIZATION.currentLang}';`, 'tabContentIframe');
+                        await this.evalPluginContentIframe(plugin.path, `window.pluginContentType = 'tab';`, 'tabContentIframe');
+                        await this.evalPluginContentIframe(plugin.path, `window.pluginMessageOriginPath = '${plugin.path}';`, 'tabContentIframe');
                     }
 
 
@@ -161,10 +162,10 @@ class PluginManager {
      * @param message
      * @returns {Promise<void>}
      */
-    async sendPluginContentIframeMessage(modulePath, message) {
+    async sendPluginContentIframeMessage(modulePath, message, target = 'tabContentIframe') {
         if(this._pluginsRuntime[modulePath]) {
-            if(this._pluginsRuntime[modulePath].contentIframe) {
-                this._pluginsRuntime[modulePath].contentIframe.contentWindow.postMessage(message, '*')
+            if(this._pluginsRuntime[modulePath][target]) {
+                this._pluginsRuntime[modulePath][target].contentWindow.postMessage(message, '*')
             } else {
                 throw new Error('Content iframe not initialized');
             }
@@ -179,8 +180,8 @@ class PluginManager {
      * @param code
      * @returns {Promise<void>}
      */
-    async evalPluginContentIframe(modulePath, code) {
-        await this.sendPluginContentIframeMessage(modulePath, {type: 'eval', code})
+    async evalPluginContentIframe(modulePath, code, target = 'tabContentIframe') {
+        await this.sendPluginContentIframeMessage(modulePath, {type: 'eval', code}, target);
     }
 }
 
