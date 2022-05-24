@@ -141,9 +141,13 @@ async function startPopup() {
     window.messenger = messenger;
 
     if(location.hash === '#popNewWindow') {
-        await messenger.rpcCall('mainOpenPopup', [{left: window.screenLeft, top: window.screenTop}], 'background');
-        window.close();
-        return;
+        try {
+            await messenger.rpcCall('mainOpenPopup', [{left: window.screenLeft, top: window.screenTop}], 'background');
+            window.close();
+           // return;
+        } catch (e) {
+            console.error(`Can't open new window: ${e}`);
+        }
     }
 
 // Dom7
