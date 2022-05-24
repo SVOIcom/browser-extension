@@ -754,6 +754,16 @@ class EVERWalletEmulationProxy extends EventEmitter3 {
                 args[keyOfArgs] = Buffer.from(args[keyOfArgs], 'base64').toString('hex');
             }
 
+            //Array-like object, need to convert to classic object
+            if(inputsMap[keyOfArgs] === 'map(address,tuple)') {
+                let newArgValue = {};
+                for (let value of args[keyOfArgs]) {
+                    newArgValue[value[0]] = value[1];
+                }
+
+                args[keyOfArgs] = newArgValue;
+            }
+
             /*if(typeof args[keyOfArgs] === 'object'){
                 args[keyOfArgs] = JSON.stringify(args[keyOfArgs]);
             }*/
