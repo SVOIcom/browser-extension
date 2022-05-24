@@ -7,6 +7,7 @@
 
 import LOCALIZATION from "../Localization.mjs";
 import Misc from "../const/Misc.mjs";
+import utils from "../utils.mjs";
 
 
 const uiUtils = {
@@ -37,6 +38,17 @@ const uiUtils = {
 
 
         return browser.windows.create(popupObject);
+    },
+
+    async waitForActivePopup(timeout = 2000) {
+        await utils.wait(400);
+        if(window.hasActivePopup) {
+            return true;
+        }
+
+        await utils.wait(timeout - 400);
+
+        return !!window.hasActivePopup;
     },
 
     /**
@@ -121,6 +133,22 @@ const uiUtils = {
             let data = $(this).data(dataAttribName);
             await uiUtils.copyToClipboard(data);
         }
+    },
+
+    /**
+     * Naviagte async
+     * @async
+     * @param url
+     * @param params
+     * @returns {Promise<unknown>}
+     */
+    navigateUrlAsync(url, params) {
+        return new Promise(resolve => {
+            window.app.views.main.router.navigate(url, params);
+            app.once('pageInit', async () => {
+                resolve();
+            });
+        })
     }
 
 }

@@ -315,6 +315,8 @@ const RPC = {
 
         let sender = this.sender;
 
+        console.log('SENDER', sender);
+
         actionManager.startActionOnce('main_transfer');
 
         try {
@@ -968,7 +970,19 @@ const RPC = {
         return `
             window._everscaleWalletConfig = ${JSON.stringify(config)};
         `;
-    }
+    },
+
+    /**
+     * Add account to storage
+     * @returns {Promise<*>}
+     */
+    main_popupHeartbeat: async function () {
+        if(this.sender !== 'popup') {
+            throw EXCEPTIONS.invalidInvoker;
+        }
+        window.hasActivePopup = true;
+        window.hasActivePopupSecondCheck = false;
+    },
 }
 
 
@@ -984,7 +998,17 @@ const RPC = {
 async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData, acceptMessage = '', dontCreatePopup = false) {
 
     if(!dontCreatePopup) {
-        let popup = await uiUtils.openPopup();
+
+        //Wait for gets some active popup
+        if(!await uiUtils.waitForActivePopup()) {
+
+            let popup = await uiUtils.openPopup();
+
+            //Wait for popup activates
+            await uiUtils.waitForActivePopup(5000);
+        }else{
+            dontCreatePopup = true;
+        }
 
         if(!window._isApp) {
             await Utils.wait(3000);
@@ -1064,7 +1088,12 @@ tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
 let messenger, storage, keyring, networkManager, accountManager, actionManager;
 
 (async () => {
-//Messenger channel
+    //Predefine some global vars
+    window.hasActivePopup = false;
+    window.hasActivePopupSecondCheck = false;
+
+
+    //Messenger channel
     messenger = new ExtensionMessenger('background', RPC);
     window.messenger = messenger;
 
@@ -1147,6 +1176,28 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
     accountManager.on(accountManager.EVENTS.accountChanged, async () => {
         await updateBadge();
     });
+
+    //Active popup control
+    setInterval(async () => {
+
+        if(!window.hasActivePopup) {
+            window.hasActivePopupSecondCheck = false;
+            return;
+        }
+
+        if(window.hasActivePopup && !window.hasActivePopupSecondCheck) {
+            window.hasActivePopupSecondCheck = true;
+            return;
+        }
+
+        //Detect popup not active
+        if(window.hasActivePopup && window.hasActivePopupSecondCheck) {
+            window.hasActivePopupSecondCheck = false;
+            window.hasActivePopup = false;
+            return;
+        }
+
+    }, 400);
 
 
     if(window._initializeUI) {

@@ -294,7 +294,7 @@ class Popups {
                         let seedPhraseVal = "";
 
                         if(seedPhraseField) {
-                            seedPhraseVal = $("#seedPhaseArea").val();
+                            seedPhraseVal = $("#seedPhaseArea").val().toLowerCase();
 
                             let seedPhraseWordsList = seedPhraseVal.match(/([a-z]+)/g);
 

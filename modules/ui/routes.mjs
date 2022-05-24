@@ -56,6 +56,10 @@ const ROUTES = [
         path: '/browserTabs',
         url: './pages/browserTabs.html',
     },
+    {
+        path: '/pluginPage',
+        url: './pages/pluginPage.html',
+    },
 ]
 
 export default ROUTES;

@@ -88,6 +88,9 @@ class Theme {
     async setLayoutTheme(theme) {
         let $html = $('html');
         window.globalTheme = theme;
+
+        window.app.darkTheme = theme === 'dark';
+
         $html.removeClass('theme-dark theme-light').addClass('theme-' + globalTheme);
         $('.panel').removeClass('theme-dark theme-light').addClass('theme-' + globalTheme);
         this.toggleElement.checked = this.isDark();
