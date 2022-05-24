@@ -20,6 +20,7 @@ Everscale network wallet and dapps connectivity provider
 * ton-client-web-js and ton-client-js (partial) injection support
 * [Scale.domains by SuperArmor](https://github.com/SolderingArmor/dens-v2) resolver
 * Chromium-based browser support: Google Chrome, Opera, Brevity, Microsoft Edge and etc.
+* Plugins support
 
 And more
 
