@@ -125,7 +125,7 @@ class PluginManager {
                                 let plugin = this._pluginsRuntime[event.data.pluginPath];
 
                                 //If frame size  changed
-                                console.log(message);
+                                //console.log(message);
                                 if(message.method === 'updateIframeHeight' && plugin.tabContentIframe) {
                                     plugin.tabContentIframe.style.height = message.height + 'px';
                                 }
