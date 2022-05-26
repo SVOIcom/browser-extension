@@ -11,46 +11,50 @@ console.log('HELLO INJECTOR PLUGIN MOBILE');
     const CONFIG_REQUEST_ID = Math.random();
 
 
-        //Message proxy
-        window.addEventListener("message", function (event) {
-            // We only accept messages from ourselves
-            if(event.source != window) {
-                return;
-            }
+    //Message proxy
+    window.addEventListener("message", function (event) {
 
-            //Outcome RPC to page
-            if(event.data.method ) {
-                cordova_iab.postMessage(JSON.stringify({...event.data, sender: 'page', senderMore: {url: window.location}}))
-            }
-        });
+        // console.log('PLUGIN INCOME MSG', event.data);
 
-        window._injectorMessageReceiver = (msg) => {
-            //console.log('INJECTOR RECEIVED MESSAGE', msg);
-            if(typeof msg === 'string') {
-                msg = JSON.parse(msg);
-            }
-
-            if(msg.target === '*' || msg.target === 'page') {
-                window.postMessage(msg, "*");
-            }
-
-            //If we receive config response
-            if(msg.requestId && msg.requestId === CONFIG_REQUEST_ID) {
-                evalScript(msg.result);
-            }
+        // We only accept messages from ourselves
+        if(event.source != window) {
+            return;
         }
 
-        //Income from extension
-        /*browser.runtime.onMessage.addListener(async (msg, sender) => {
-            if(msg.target === '*') {
-                window.postMessage(msg, "*");
-            }
+        //Outcome RPC to page
+        if(event.data.method) {
+            window.parent.postMessage({...event.data, sender: 'page'}, "*");
+            //cordova_iab.postMessage(JSON.stringify({...event.data, sender: 'page', senderMore: {url: window.location}}))
+        }
+    });
 
-            //If we receive config response
-            if(msg.requestId && msg.requestId === CONFIG_REQUEST_ID) {
-                evalScript(msg.result);
-            }
-        });*/
+    window._injectorMessageReceiver = (msg) => {
+        //console.log('INJECTOR RECEIVED MESSAGE', msg);
+        if(typeof msg === 'string') {
+            msg = JSON.parse(msg);
+        }
+
+        if(msg.target === '*' || msg.target === 'page') {
+            window.postMessage(msg, "*");
+        }
+
+        //If we receive config response
+        if(msg.requestId && msg.requestId === CONFIG_REQUEST_ID) {
+            evalScript(msg.result);
+        }
+    }
+
+    //Income from extension
+    /*browser.runtime.onMessage.addListener(async (msg, sender) => {
+        if(msg.target === '*') {
+            window.postMessage(msg, "*");
+        }
+
+        //If we receive config response
+        if(msg.requestId && msg.requestId === CONFIG_REQUEST_ID) {
+            evalScript(msg.result);
+        }
+    });*/
 
 
     /**
@@ -125,21 +129,16 @@ console.log('HELLO INJECTOR PLUGIN MOBILE');
     injectModuleUrl("https://plugins.scalewallet.com/browser-extension/everscaleProvider.js");
 
 
+    //Pre init
+   let timeout =  setTimeout(() => {
+        if(!window.getTON) {
+            try {
+                window._initEverscaleProvider();
+            } catch (error) {}
+        }else{
+            clearTimeout(timeout);
+        }
+    }, 100);
 
-
-//Get configuring script
-    try {
-        cordova_iab.postMessage(JSON.stringify({
-            rpc: true,
-            requestId: CONFIG_REQUEST_ID,
-            target: 'background',
-            method: 'main_getConfigScript',
-            params: [],
-            sender: 'page',
-            senderMore: {url: window.location}
-        }));
-    } catch (e) {
-        console.log(e);
-    }
 
 })();

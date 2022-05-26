@@ -11,8 +11,43 @@ class PluginManager {
 
         this._pluginsRuntime = {};
 
+        window.messenger.on('pageRAWRPC', (data) => {
+            //console.log('BROWSER INCOME:', data);
+
+
+            if(data.target === 'page') {
+
+                this.broadcastIframesMessage(data);
+            }
+        });
 
         return this;
+    }
+
+    messageHandler(event) {
+
+
+        //This is RPC message
+        if(window._isApp && event.data.rpc) {
+            if(event.data.sender === 'page') {
+                //console.log('RPC message', event.data);
+                window.messenger.postIframeMessage(event.data);
+            }
+        }
+
+
+        if(event.data.type === 'pluginMessage') {
+            let message = event.data.message;
+            let plugin = this._pluginsRuntime[event.data.pluginPath];
+
+
+            //If frame size  changed
+            //console.log(message);
+            if(message.method === 'updateIframeHeight' && plugin.tabContentIframe) {
+                plugin.tabContentIframe.style.height = message.height + 'px';
+            }
+
+        }
     }
 
     /**
@@ -20,6 +55,9 @@ class PluginManager {
      * @returns {Promise<void>}
      */
     async runUIPlugins() {
+
+        window.addEventListener('message', (event) => this.messageHandler(event));
+
         for (let plugin of this.plugins) {
 
             if(plugin.disabled) {
@@ -73,8 +111,26 @@ class PluginManager {
 
                         contentIframe.onload = async () => {
 
+                            if(window._isApp) {
+                                await this.evalPluginContentIframe(plugin.path, `    window.injectScriptUrl = function(urlExt) {
+                                try {
+                                    const container = document.head || document.documentElement;
+                                    const scriptTag = document.createElement('script');
+                                    scriptTag.setAttribute('async', 'false');
+                                    scriptTag.setAttribute('src', urlExt);
+                                    container.insertBefore(scriptTag, container.children[0]);
+                                    container.removeChild(scriptTag);
+                                } catch (error) {
+                                    console.error('EverscaleWallet: injector failed', error);
+                                }
+                            }`, 'contentIframe');
+
+                                await this.evalPluginContentIframe(plugin.path, `window.injectScriptUrl("https://localhost/mobile_resources/injector_mobile_plugin.js");`, 'contentIframe');
+
+                            }
+
                             //Allow emulation in frame
-                            await this.evalPluginContentIframe(plugin.path, `_everscaleWalletConfig = {EVERWalletEmulation: true};`, 'contentIframe');
+                            await this.evalPluginContentIframe(plugin.path, `window._everscaleWalletConfig = {EVERWalletEmulation: true};`, 'contentIframe');
 
                             //Configure iframe2
                             if(window.theme.isDark()) {
@@ -119,29 +175,6 @@ class PluginManager {
 
                     contentIframe.onload = async () => {
 
-                        window.addEventListener('message', async (event) => {
-
-                            //This is RPC message
-                            if(window._isApp && event.data.rpc) {
-                                console.log('RPC message', event.data);
-                            }
-
-
-                            if(event.data.type === 'pluginMessage') {
-                                let message = event.data.message;
-                                let plugin = this._pluginsRuntime[event.data.pluginPath];
-
-
-                                //If frame size  changed
-                                //console.log(message);
-                                if(message.method === 'updateIframeHeight' && plugin.tabContentIframe) {
-                                    plugin.tabContentIframe.style.height = message.height + 'px';
-                                }
-
-                            }
-
-                        });
-
 
                         if(window._isApp) {
                             await this.evalPluginContentIframe(plugin.path, `    window.injectScriptUrl = function(urlExt) {
@@ -163,7 +196,7 @@ class PluginManager {
 
 
                         //Allow emulation in frame
-                        await this.evalPluginContentIframe(plugin.path, `_everscaleWalletConfig = {EVERWalletEmulation: true};`, 'tabContentIframe');
+                        await this.evalPluginContentIframe(plugin.path, `window._everscaleWalletConfig = {EVERWalletEmulation: true};`, 'tabContentIframe');
 
                         //Configure iframe2
                         if(window.theme.isDark()) {
@@ -210,6 +243,25 @@ class PluginManager {
      */
     async evalPluginContentIframe(modulePath, code, target = 'tabContentIframe') {
         await this.sendPluginContentIframeMessage(modulePath, {type: 'eval', code}, target);
+    }
+
+    /**
+     * Broadcast message to all plugins tabs
+     * @param message
+     * @returns {Promise<void>}
+     */
+    async broadcastIframesMessage(message) {
+        for (let pluginPath of Object.keys(this._pluginsRuntime)) {
+            try {
+                await this.sendPluginContentIframeMessage(pluginPath, message, 'contentIframe');
+            } catch (e) {
+            }
+
+            try {
+                await this.sendPluginContentIframeMessage(pluginPath, message, 'tabContentIframe');
+            } catch (e) {
+            }
+        }
     }
 }
 
