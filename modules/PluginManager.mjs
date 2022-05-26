@@ -120,9 +120,17 @@ class PluginManager {
                     contentIframe.onload = async () => {
 
                         window.addEventListener('message', async (event) => {
+
+                            //This is RPC message
+                            if(window._isApp && event.data.rpc) {
+                                console.log('RPC message', event.data);
+                            }
+
+
                             if(event.data.type === 'pluginMessage') {
                                 let message = event.data.message;
                                 let plugin = this._pluginsRuntime[event.data.pluginPath];
+
 
                                 //If frame size  changed
                                 //console.log(message);
@@ -133,6 +141,26 @@ class PluginManager {
                             }
 
                         });
+
+
+                        if(window._isApp) {
+                            await this.evalPluginContentIframe(plugin.path, `    window.injectScriptUrl = function(urlExt) {
+                            try {
+                                const container = document.head || document.documentElement;
+                                const scriptTag = document.createElement('script');
+                                scriptTag.setAttribute('async', 'false');
+                                scriptTag.setAttribute('src', urlExt);
+                                container.insertBefore(scriptTag, container.children[0]);
+                                container.removeChild(scriptTag);
+                            } catch (error) {
+                                console.error('EverscaleWallet: injector failed', error);
+                            }
+                        }`, 'tabContentIframe');
+
+                            await this.evalPluginContentIframe(plugin.path, `window.injectScriptUrl("https://localhost/mobile_resources/injector_mobile_plugin.js");`, 'tabContentIframe');
+
+                        }
+
 
                         //Allow emulation in frame
                         await this.evalPluginContentIframe(plugin.path, `_everscaleWalletConfig = {EVERWalletEmulation: true};`, 'tabContentIframe');

@@ -134,7 +134,7 @@ class ExtensionMessenger extends EventEmitter3 {
 
                 let postingObject = window.top;
                 if(window._isTop) {
-                    postingObject = document.querySelector('iframe').contentWindow;
+                    postingObject = document.getElementById('backgroundWorker').contentWindow;
                 }
 
                 postingObject.postMessage({
