@@ -10,9 +10,18 @@ class Browser {
         this.activeTab = null;
         this.messenger = messenger;
 
-        this.messenger.on('rawRPC', (data) => {
+        /*this.messenger.on('rawRPC', (data) => {
             //console.log('BROWSER INCOME:', data);
             this.broadcastMessage(data)
+        });*/
+
+        this.messenger.on('pageRAWRPC', (data) => {
+            //console.log('BROWSER INCOME:', data);
+
+
+            if(data.target === 'page') {
+                this.broadcastMessage(data)
+            }
         });
     }
 

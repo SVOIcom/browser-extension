@@ -25,6 +25,10 @@ class ExtensionMessenger extends EventEmitter3 {
                 }*/
 
 
+                if(msg.target === 'page') {
+                    this.emit('pageRAWRPC', msg);
+                }
+
                 if(msg.rpc && (msg.target === this.reciver || msg.target === '*')) {
 
                     this.emit('rawRPC', msg);
@@ -66,7 +70,7 @@ class ExtensionMessenger extends EventEmitter3 {
                             if(window._isApp) {
                                 let postingObject = window.top;
                                 if(window._isTop) {
-                                    postingObject = document.querySelector('iframe').contentWindow;
+                                    postingObject = document.getElementById('backgroundWorker').contentWindow;
                                 }
 
                                 postingObject.postMessage(resultMsg, '*');
@@ -134,7 +138,7 @@ class ExtensionMessenger extends EventEmitter3 {
 
                 let postingObject = window.top;
                 if(window._isTop) {
-                    postingObject = document.querySelector('iframe').contentWindow;
+                    postingObject = document.getElementById('backgroundWorker').contentWindow;
                 }
 
                 postingObject.postMessage({
@@ -197,7 +201,7 @@ class ExtensionMessenger extends EventEmitter3 {
     async postIframeMessage(message) {
         let postingObject = window.top;
         if(window._isTop) {
-            postingObject = document.querySelector('iframe').contentWindow;
+            postingObject = document.getElementById('backgroundWorker').contentWindow;
         }
 
         postingObject.postMessage(message, '*');

@@ -69,12 +69,12 @@ async function getTONClient() {
     return freeton;
 }
 
-window.addEventListener('load', async () => {
+window._initEverscaleProvider = async () => {
 
     //Trying setup TON WASM client
     try {
         window.TONClient.setWasmOptions({binaryURL: window.tonWasmUrl});
-    } catch(e) {
+    } catch (e) {
     }
 
     try {
@@ -111,7 +111,9 @@ window.addEventListener('load', async () => {
     }
 
 
-});
+};
+
+window.addEventListener('load', window._initEverscaleProvider);
 
 
 //EVERWallet emulation
