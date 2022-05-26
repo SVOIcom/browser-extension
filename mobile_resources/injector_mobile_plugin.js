@@ -107,16 +107,16 @@ console.log('HELLO INJECTOR PLUGIN MOBILE');
 
 
 //Inject TONCLient
-    injectScriptUrl("https://localhost/ton-client/main.js");
+    injectScriptUrl("https://plugins.scalewallet.com/browser-extension/ton-client/main.js");
 
 //Inject new TON lib
-    injectScriptUrl("https://localhost/ever-sdk-js/main.js");
+    injectScriptUrl("https://plugins.scalewallet.com/browser-extension/ever-sdk-js/main.js");
 
 //Set Everscale binary url
-    evalScript(`window.tonWasmUrl = "https://localhost/ton-client/tonclient.wasm";`);
+    evalScript(`window.tonWasmUrl = "https://plugins.scalewallet.com/browser-extension/ton-client/tonclient.wasm";`);
 
 //Set new Everscale binary url
-    evalScript(`window.tonNewWasmUrl = "https://localhost/ever-sdk-js/eversdk.wasm";`);
+    evalScript(`window.tonNewWasmUrl = "https://plugins.scalewallet.com/browser-extension/ever-sdk-js/eversdk.wasm";`);
 
 //Thridrparty modules
     injectScriptUrl("https://localhost/modules/thirdparty/eventemitter3.min.js");
