@@ -123,7 +123,7 @@ console.log('HELLO INJECTOR PLUGIN MOBILE');
     evalScript(`window.tonNewWasmUrl = "https://plugins.scalewallet.com/browser-extension/ever-sdk-js/eversdk.wasm";`);
 
 //Thridrparty modules
-    injectScriptUrl("https://localhost/modules/thirdparty/eventemitter3.min.js");
+    injectScriptUrl("https://plugins.scalewallet.com/browser-extension/modules/thirdparty/eventemitter3.min.js");
 
 //Start Everscale provider
     injectModuleUrl("https://plugins.scalewallet.com/browser-extension/everscaleProvider.js");

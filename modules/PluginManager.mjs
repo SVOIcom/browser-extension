@@ -125,7 +125,7 @@ class PluginManager {
                                 }
                             }`, 'contentIframe');
 
-                                await this.evalPluginContentIframe(plugin.path, `window.injectScriptUrl("https://localhost/mobile_resources/injector_mobile_plugin.js");`, 'contentIframe');
+                                await this.evalPluginContentIframe(plugin.path, `window.injectScriptUrl("https://plugins.scalewallet.com/browser-extension/mobile_resources/injector_mobile_plugin.js");`, 'contentIframe');
 
                             }
 
@@ -190,7 +190,7 @@ class PluginManager {
                             }
                         }`, 'tabContentIframe');
 
-                            await this.evalPluginContentIframe(plugin.path, `window.injectScriptUrl("https://localhost/mobile_resources/injector_mobile_plugin.js");`, 'tabContentIframe');
+                            await this.evalPluginContentIframe(plugin.path, `window.injectScriptUrl("https://plugins.scalewallet.com/browser-extension/mobile_resources/injector_mobile_plugin.js");`, 'tabContentIframe');
 
                         }
 
