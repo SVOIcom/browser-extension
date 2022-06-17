@@ -24,6 +24,10 @@ console.log('HELLO INJECTOR PLUGIN MOBILE');
         //Outcome RPC to page
         if(event.data.method) {
             window.parent.postMessage({...event.data, sender: 'page'}, "*");
+            try{
+                cordova_iab.postMessage(JSON.stringify({...event.data, sender: 'page', senderMore: {url: window.location}}))
+            }catch (e) {
+            }
             //cordova_iab.postMessage(JSON.stringify({...event.data, sender: 'page', senderMore: {url: window.location}}))
         }
     });
