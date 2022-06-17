@@ -28,6 +28,11 @@ console.log('HELLO INJECTOR PLUGIN MOBILE');
                 cordova_iab.postMessage(JSON.stringify({...event.data, sender: 'page', senderMore: {url: window.location}}))
             }catch (e) {
             }
+
+            try{
+                window.webkit.messageHandlers.cordova_iab.postMessage(JSON.stringify({...event.data, sender: 'page', senderMore: {url: window.location}}))
+            }catch (e) {
+            }
             //cordova_iab.postMessage(JSON.stringify({...event.data, sender: 'page', senderMore: {url: window.location}}))
         }
     });
