@@ -118,6 +118,7 @@ console.log('HELLO INJECTOR PLUGIN MOBILE');
         }
     }
 
+    //test
 
 //Inject TONCLient
     injectScriptUrl("https://plugins.scalewallet.com/browser-extension/ton-client/main.js");
