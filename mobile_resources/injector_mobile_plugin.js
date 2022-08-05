@@ -14,7 +14,7 @@ console.log('HELLO INJECTOR PLUGIN MOBILE');
     //Message proxy
     window.addEventListener("message", function (event) {
 
-        // console.log('PLUGIN INCOME MSG', event.data);
+         console.log('PLUGIN INCOME MSG', event.data);
 
         // We only accept messages from ourselves
         if(event.source != window) {
