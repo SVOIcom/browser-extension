@@ -752,7 +752,7 @@ class Popups {
                 try {
                     tokenBalance = await messenger.rpcCall('main_getTokenBalance', [rootTokenAddress, publicKey, userWalletAddress], 'background');
 
-                    $('.tokenWalletBalance').text(Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals));
+                    $('.tokenWalletBalance').text(Utils.fixZeroes(Utils.unsignedNumberToSigned(tokenBalance, tokenInfo.decimals)));
 
                     $('.ifTokenWalletNotExists').hide();
                     $('.ifTokenWalletExists').show();
