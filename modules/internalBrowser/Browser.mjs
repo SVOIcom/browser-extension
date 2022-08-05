@@ -2,7 +2,8 @@ import Tab from "./Tab.mjs";
 import uiUtils from "../ui/uiUtils.mjs";
 import Utils from "../utils.mjs";
 
-const DEFAULT_PAGE = 'file:///android_asset/www/mobile_resources/index.html';
+const DEFAULT_PAGE = 'https://plugins.scalewallet.com/browser-extension/mobile_resources/index.html';
+//const DEFAULT_PAGE = 'https://scalepunks.com';
 
 class Browser {
     constructor(messenger) {
@@ -23,6 +24,8 @@ class Browser {
                 this.broadcastMessage(data)
             }
         });
+
+
     }
 
 
@@ -35,8 +38,21 @@ class Browser {
      * @param {string} url
      */
     async newTab(url = DEFAULT_PAGE) {
-        let tab = new Tab();
-        this.tabs.push(tab);
+
+        let tab;
+        if(this.activeTab){
+            if(!this.activeTab.fullBrowser){
+                tab = this.activeTab;
+            }else{
+                tab = new Tab();
+                this.tabs.push(tab);
+            }
+        }else{
+            tab = new Tab();
+            this.tabs.push(tab);
+        }
+
+
 
         //if(this.activeTab === null) {
         this.activeTab = tab;
@@ -55,6 +71,10 @@ class Browser {
 
         tab.on('message', (message) => {
             this._processIncomeMessage(message);
+        });
+
+        tab.on('exit', () => {
+            this.closeTab(index);
         });
 
         return {tab, index};
