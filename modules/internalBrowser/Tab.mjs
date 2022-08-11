@@ -2,7 +2,8 @@ import Utils from "../utils.mjs";
 import LOCALIZATION from "../Localization.mjs";
 
 const DUCKDUCKGO_SEARCH_URL = 'https://duckduckgo.com/?q=';
-const INJECTOR_URL = 'https:///localhost/mobile_resources/injector_mobile.js';
+//const INJECTOR_URL = 'https:///localhost/mobile_resources/injector_mobile.js';
+const INJECTOR_URL = 'https://plugins.scalewallet.com/browser-extension/mobile_resources/injector_mobile_plugin.js';
 
 const _ = LOCALIZATION._;
 
@@ -14,6 +15,7 @@ class Tab extends EventEmitter3 {
         this.browserPage = null;
         this.url = '';
         this.index = null;
+        this.fullBrowser = false;
     }
 
     /**
@@ -27,81 +29,89 @@ class Tab extends EventEmitter3 {
 
         this.url = url;
 
-        this.browserPage = cordova.ThemeableBrowser.open(url, '_blank', {
-            statusbar: {
-                color: '#ffffffff'
-            },
-            toolbar: {
-                height: 44,
-                color: '#f0f0f0ff'
-            },
-            title: {
-                color: '#003264ff',
-                showPageTitle: true,
-                //staticText: '',
-            },
-            /*backButton: {
-                wwwImage: 'mobile_resources/icons/back.png',
-                wwwImageDensity: 2,
-                wwwImagePressed: 'mobile_resources/icons/back_pressed.png',
-                align: 'left',
-                event: 'backPressed'
-            },
-            forwardButton: {
-                wwwImage: 'mobile_resources/icons/forward.png',
-                wwwImageDensity: 2,
-                wwwImagePressed: 'mobile_resources/icons/forward_pressed.png',
-                align: 'left',
-                event: 'forwardPressed'
-            },*/
-            /*closeButton: {
-                wwwImage: 'mobile_resources/icons/close.png',
-                wwwImageDensity: 2,
-                wwwImagePressed: 'mobile_resources/icons/close_pressed.png',
-                align: 'left',
-                event: 'closePressed'
-            },*/
-            customButtons: [
-                /* {
-                     wwwImage: 'mobile_resources/icons/share.png',
-                     wwwImageDensity: 2,
-                     wwwImagePressed: 'mobile_resources/icons/share_pressed.png',
-                     align: 'right',
-                     event: 'sharePressed'
-                 },*/
-                {
-                    wwwImage: 'mobile_resources/icons/tabs.png',
+
+
+
+        try {
+            this.browserPage = cordova.ThemeableBrowser.open(url, '_blank', {
+                statusbar: {
+                    color: '#ffffffff'
+                },
+                toolbar: {
+                    height: 44,
+                    color: '#f0f0f0ff'
+                },
+                title: {
+                    color: '#003264ff',
+                    showPageTitle: true,
+                    //staticText: '',
+                },
+                /*backButton: {
+                    wwwImage: 'mobile_resources/icons/back.png',
                     wwwImageDensity: 2,
-                    wwwImagePressed: 'mobile_resources/icons/tabs.png',
-                    align: 'right',
-                    event: 'tabsPressed'
-                }
-            ],
-            menu: {
-                wwwImage: 'mobile_resources/icons/menu.png',
-                wwwImageDensity: 2,
-                wwwImagePressed: 'mobile_resources/icons/menu_pressed.png',
-                title: 'Menu',
-                cancel: 'Cancel',
-                align: 'right',
-                items: [
+                    wwwImagePressed: 'mobile_resources/icons/back_pressed.png',
+                    align: 'left',
+                    event: 'backPressed'
+                },
+                forwardButton: {
+                    wwwImage: 'mobile_resources/icons/forward.png',
+                    wwwImageDensity: 2,
+                    wwwImagePressed: 'mobile_resources/icons/forward_pressed.png',
+                    align: 'left',
+                    event: 'forwardPressed'
+                },*/
+                /*closeButton: {
+                    wwwImage: 'mobile_resources/icons/close.png',
+                    wwwImageDensity: 2,
+                    wwwImagePressed: 'mobile_resources/icons/close_pressed.png',
+                    align: 'left',
+                    event: 'closePressed'
+                },*/
+                customButtons: [
+                    /* {
+                         wwwImage: 'mobile_resources/icons/share.png',
+                         wwwImageDensity: 2,
+                         wwwImagePressed: 'mobile_resources/icons/share_pressed.png',
+                         align: 'right',
+                         event: 'sharePressed'
+                     },*/
                     {
-                        event: 'reloadPressed',
-                        label: _('Reload page')
-                    },
-                    {
-                        event: 'gotoPressed',
-                        label: _('Goto URL')
-                    },
-                    {
-                        event: 'hidePressed',
-                        label: _('Hide browser')
+                        wwwImage: 'mobile_resources/icons/tabs.png',
+                        wwwImageDensity: 2,
+                        wwwImagePressed: 'mobile_resources/icons/tabs.png',
+                        align: 'right',
+                        event: 'tabsPressed'
                     }
-                ]
-            },
-            backButtonCanClose: false,
-            // disableAnimation: true,
-        });
+                ],
+                menu: {
+                    wwwImage: 'mobile_resources/icons/menu.png',
+                    wwwImageDensity: 2,
+                    wwwImagePressed: 'mobile_resources/icons/menu_pressed.png',
+                    title: 'Menu',
+                    cancel: 'Cancel',
+                    align: 'right',
+                    items: [
+                        {
+                            event: 'reloadPressed',
+                            label: _('Reload page')
+                        },
+                        {
+                            event: 'gotoPressed',
+                            label: _('Goto URL')
+                        },
+                        {
+                            event: 'hidePressed',
+                            label: _('Hide browser')
+                        }
+                    ]
+                },
+                backButtonCanClose: false,
+                // disableAnimation: true,
+            });
+            this.fullBrowser = true;
+        }catch (e) {
+            this.browserPage =  cordova.InAppBrowser.open(url ,'_blank', 'location=yes,closebuttoncaption=Close');
+        }
 
         this.browserPage.addEventListener('backPressed', function (e) {
             that.emit('backPressed', that.url, that);
@@ -126,6 +136,7 @@ class Tab extends EventEmitter3 {
 
 
         this.browserPage.addEventListener('loadstart', function (e) {
+            //console.log('LOADSTART');
             that.emit('loadstart', e, that.url, that);
             if(e.url !== that.url) {
                 that.url = e.url;
@@ -133,6 +144,18 @@ class Tab extends EventEmitter3 {
             }
             that._processPageLoad();
         });
+
+        if(!this.fullBrowser){
+            this.browserPage.addEventListener('loadstop', function (e) {
+                //console.log('LOAD STOP');
+                that._processPageLoad();
+            });
+
+            this.browserPage.addEventListener('exit', function (e) {
+                //console.log('EXIT');
+                that.emit('exit', that);
+            });
+        }
 
         this.browserPage.addEventListener('loadstop', function (e) {
             that.emit('loadstop', e, that.url, that);
@@ -166,23 +189,29 @@ class Tab extends EventEmitter3 {
         });
 
         this.browserPage.addEventListener('message', function (e) {
+            //console.log('MESSAGE', e.data);
             that.emit('message', e, that.url, that);
         });
 
         this.browserPage.addEventListener('hidePressed', function (e) {
+            console.log('HIDE')
             that.emit('hide', that.url, that);
             that.hide();
         });
 
-        this.browserPage.addEventListener(cordova.ThemeableBrowser.EVT_ERR, function (e) {
-            console.error(e.message);
-            that.emit('error', e, that);
-        });
+        try {
+            this.browserPage.addEventListener(cordova.ThemeableBrowser.EVT_ERR, function (e) {
+                console.error(e.message);
+                that.emit('error', e, that);
+            });
 
-        this.browserPage.addEventListener(cordova.ThemeableBrowser.EVT_WRN, function (e) {
-            that.emit('warning', e, that);
-            console.log(e.message);
-        });
+            this.browserPage.addEventListener(cordova.ThemeableBrowser.EVT_WRN, function (e) {
+                that.emit('warning', e, that);
+                console.log(e.message);
+            });
+        }catch (e) {
+            
+        }
 
         that.emit('urlChanged', that.url, that);
     }
@@ -319,6 +348,10 @@ class Tab extends EventEmitter3 {
 
     sendInjectorMessage(msg) {
         if(this.config.provider === 'cordova') {
+           // console.log('SEND MESSAGE', msg);
+            /*if(msg.target === 'page'){
+                return;
+            }*/
             this.runScript(`window._injectorMessageReceiver(${JSON.stringify(msg)});`);
         }
     }

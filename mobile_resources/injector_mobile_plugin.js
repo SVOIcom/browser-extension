@@ -21,9 +21,24 @@ console.log('HELLO INJECTOR PLUGIN MOBILE');
             return;
         }
 
+        if(event.data.stopCycling){
+           // console.log('STOP CYCLING');
+            return;
+        }
+
         //Outcome RPC to page
         if(event.data.method) {
-            window.parent.postMessage({...event.data, sender: 'page'}, "*");
+
+            window.parent.postMessage({stopCycling:true, ...event.data, sender: 'page'}, "*");
+            try{
+                cordova_iab.postMessage(JSON.stringify({stopCycling:true, ...event.data, sender: 'page', senderMore: {url: window.location}}))
+            }catch (e) {
+            }
+
+            try{
+                window.webkit.messageHandlers.cordova_iab.postMessage(JSON.stringify({stopCycling:true, ...event.data, sender: 'page', senderMore: {url: window.location}}))
+            }catch (e) {
+            }
             //cordova_iab.postMessage(JSON.stringify({...event.data, sender: 'page', senderMore: {url: window.location}}))
         }
     });
@@ -109,6 +124,7 @@ console.log('HELLO INJECTOR PLUGIN MOBILE');
         }
     }
 
+    //test
 
 //Inject TONCLient
     injectScriptUrl("https://plugins.scalewallet.com/browser-extension/ton-client/main.js");
@@ -123,7 +139,7 @@ console.log('HELLO INJECTOR PLUGIN MOBILE');
     evalScript(`window.tonNewWasmUrl = "https://plugins.scalewallet.com/browser-extension/ever-sdk-js/eversdk.wasm";`);
 
 //Thridrparty modules
-    injectScriptUrl("https://localhost/modules/thirdparty/eventemitter3.min.js");
+    injectScriptUrl("https://plugins.scalewallet.com/browser-extension/modules/thirdparty/eventemitter3.min.js");
 
 //Start Everscale provider
     injectModuleUrl("https://plugins.scalewallet.com/browser-extension/everscaleProvider.js");

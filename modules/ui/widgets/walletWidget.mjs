@@ -248,7 +248,7 @@ class walletWidget {
                 let balance = await this.messenger.rpcCall('main_getWalletBalance', [wallet.address], 'background');
 
 
-                $('.walletBalance').text(Utils.unsignedNumberToSigned(balance));
+                $('.walletBalance').text(Utils.fixZeroes(Utils.unsignedNumberToSigned(balance)));
 
             } catch (e) {
                 $('.walletBalance').text('0.0');

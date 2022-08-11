@@ -398,6 +398,19 @@ const Utils = {
             return network.toLowerCase().trim();
         });
     },
+    fixZeroes(str) {
+        str = String(str);
+        if(!str.includes('.')) {
+            return str;
+        }
+
+        str = str.replace(/0*$/g, '');
+
+        if(str.substr(-1) === '.') {
+            str = str.substr(0, str.length - 1);
+        }
+        return str;
+    },
 };
 
 window._utils = Utils;
