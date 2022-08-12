@@ -5,8 +5,16 @@
  * @version 1.0
  */
 
+console.log('HELLO INJECTOR');
+
 const CONFIG_REQUEST_ID = Math.random();
 
+//Polyfilling
+if(!browser.extension.getURL) {
+    browser.extension.getURL = (url) => {
+        return chrome.runtime.getURL(url);
+    }
+}
 
 //Message proxy
 window.addEventListener("message", function (event) {
@@ -29,7 +37,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
     //If we receive config response
     if(msg.requestId && msg.requestId === CONFIG_REQUEST_ID) {
-        evalScript(msg.result);
+        //evalScript(msg.result);
     }
 });
 
@@ -94,10 +102,21 @@ injectScriptUrl(browser.extension.getURL("ton-client/main.js"));
 injectScriptUrl(browser.extension.getURL("ever-sdk-js/main.js"));
 
 //Set Everscale binary url
-evalScript(`window.tonWasmUrl = "${browser.extension.getURL("ton-client/tonclient.wasm")}"`);
+//evalScript(`window.tonWasmUrl = "${browser.extension.getURL("ton-client/tonclient.wasm")}"`);
 
 //Set new Everscale binary url
-evalScript(`window.tonNewWasmUrl = "${browser.extension.getURL("ever-sdk-js/eversdk.wasm")}"`);
+//evalScript(`window.tonNewWasmUrl = "${browser.extension.getURL("ever-sdk-js/eversdk.wasm")}"`);
+
+const container =  document.documentElement;
+const inputTag = document.createElement('input');
+inputTag.setAttribute('type', 'hidden');
+inputTag.setAttribute('id', 'scaleWalletConfigure');
+inputTag.value = JSON.stringify({
+    tonWasmUrl: browser.extension.getURL("ton-client/tonclient.wasm"),
+    tonNewWasmUrl: browser.extension.getURL("ever-sdk-js/eversdk.wasm")
+});
+container.insertBefore(inputTag, container.children[0]);
+
 
 //Thridrparty modules
 injectModuleUrl(browser.extension.getURL("modules/thirdparty/eventemitter3.min.js"));

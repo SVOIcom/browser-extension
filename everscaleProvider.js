@@ -9,6 +9,12 @@
 
 window._everClient = null;
 
+let scaleWalletConfig = JSON.parse(document.getElementById('scaleWalletConfigure').value);
+console.log(scaleWalletConfig);
+
+window.tonWasmUrl = scaleWalletConfig.tonWasmUrl;
+window.tonNewWasmUrl = scaleWalletConfig.tonNewWasmUrl;
+
 /**
  * Get FreeTON provider
  * @deprecated

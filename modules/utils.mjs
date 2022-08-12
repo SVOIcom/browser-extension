@@ -6,7 +6,12 @@
    |_| \___/|_| \_|  \_/\_/ \__,_|_|_|\___|\__|
 
  */
+
+let window = self;
+
 import FreetonInstance from "./freeton/FreetonInstance.mjs";
+
+
 
 /**
  * @name FreeTON browser wallet and injector

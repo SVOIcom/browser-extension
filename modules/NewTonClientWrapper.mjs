@@ -5,6 +5,8 @@
  * @version 1.0
  */
 
+let window = self;
+
 import MESSAGES from "./const/Messages.mjs";
 import Utils from "./utils.mjs";
 

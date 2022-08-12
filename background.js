@@ -1163,10 +1163,10 @@ let messenger, storage, keyring, networkManager, accountManager, actionManager;
             let wallet = await (new Wallet(address, ton)).init();
             let balance = Utils.nFormatter(Utils.unsignedNumberToSigned(await wallet.getBalance()), 1);
 
-            chrome.browserAction.setBadgeText({text: balance + '💸'});
+            chrome.action.setBadgeText({text: balance + '💸'});
         } catch (e) {
             try {
-                chrome.browserAction.setBadgeText({text: 0 + '💸'});
+                chrome.action.setBadgeText({text: 0 + '💸'});
             } catch (e) {
             }
         }

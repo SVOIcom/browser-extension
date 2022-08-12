@@ -11,22 +11,12 @@
     "64": "icons/128.png",
     "128": "icons/128.png"
   },
-  "permissions": [
-    "scripting",
-    "tabs",
-    "http://*/",
-    "https://*/"
-  ],
-  "host_permissions": [
-    "http://*/",
-    "https://*/"
-  ],
+  "permissions": [],
   "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+    "extension_pages": "script-src 'self' 'wasm-eval' ; object-src 'self'"
   },
   "background": {
-    "service_worker": "background-v3.mjs",
-    "type": "module"
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {

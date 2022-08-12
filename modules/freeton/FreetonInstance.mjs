@@ -5,6 +5,8 @@
  * @version 1.0
  */
 
+let window = self;
+
 import TonClientWrapper from "../TonClientWrapper.mjs";
 import NewTonClientWrapper from "../NewTonClientWrapper.mjs";
 import Utils from "../utils.mjs";
@@ -36,6 +38,9 @@ class FreetonInstance {
         if(FreetonInstance.freeTONInstances[serverStr]) {
             return FreetonInstance.freeTONInstances[serverStr]
         }
+
+        console.log(window);
+
         window.TONClient.setWasmOptions({binaryURL: 'ton-client/tonclient.wasm'});
         FreetonInstance.freeTONInstances[serverStr] = await (new TonClientWrapper(true)).create({
             servers: Array.from(servers)
