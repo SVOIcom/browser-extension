@@ -9,11 +9,13 @@
 
 window._everClient = null;
 
-let scaleWalletConfig = JSON.parse(document.getElementById('scaleWalletConfigure').value);
-console.log(scaleWalletConfig);
-
-window.tonWasmUrl = scaleWalletConfig.tonWasmUrl;
-window.tonNewWasmUrl = scaleWalletConfig.tonNewWasmUrl;
+try {
+    let scaleWalletConfig = JSON.parse(document.getElementById('scaleWalletConfigure').value);
+    window.tonWasmUrl = scaleWalletConfig.tonWasmUrl;
+    window.tonNewWasmUrl = scaleWalletConfig.tonNewWasmUrl;
+} catch (e) {
+    console.log(e);
+}
 
 /**
  * Get FreeTON provider
@@ -41,7 +43,7 @@ async function getTONWeb() {
         }
     }
     let freeton = await (new TonClientWrapper()).create({
-        servers: ['net.ton.dev']
+        servers: ['main3.ton.dev', "eri01.main.everos.dev", "gra01.main.everos.dev", "gra02.main.everos.dev", "lim01.main.everos.dev", "rbx01.main.everos.dev", 'alwaysonlineevermainnode.svoi.dev']
     });
 
     window._everClient = freeton;

@@ -51,7 +51,7 @@ class TonSwapTokenList {
             }
         }
 
-        let explorerTokens = await utils.fetchJSON(TONSWAP_EXPLORERS_TOKEN_LIST[network]);
+        let explorerTokens = [];// await utils.fetchJSON(TONSWAP_EXPLORERS_TOKEN_LIST[network]);
 
         for (let token of explorerTokens) {
             token.rootAddress = token.tokenRoot;
