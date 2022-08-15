@@ -16,11 +16,6 @@ import utils from "../utils.mjs";
  * @version 1.0
  */
 
-const TONSWAP_EXPLORERS_TOKEN_LIST = {
-    main: 'https://swap-explorer.block-chain.com/api/tokens',
-    test: 'https://explorer.tonswap.com/api/tokens'
-}
-
 const BROXUS_TOKEN_LIST = 'https://raw.githubusercontent.com/SVOIcom/ton-assets/master/manifest.json';
 
 class TonSwapTokenList {
@@ -51,7 +46,7 @@ class TonSwapTokenList {
             }
         }
 
-        let explorerTokens = [];// await utils.fetchJSON(TONSWAP_EXPLORERS_TOKEN_LIST[network]);
+        let explorerTokens = [];
 
         for (let token of explorerTokens) {
             token.rootAddress = token.tokenRoot;

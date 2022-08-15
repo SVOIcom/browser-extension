@@ -37,6 +37,8 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
     //If we receive config response
     if(msg.requestId && msg.requestId === CONFIG_REQUEST_ID) {
+        window.postMessage(msg, "*");
+        console.log(msg);
         //evalScript(msg.result);
     }
 });
@@ -107,6 +109,7 @@ injectScriptUrl(browser.extension.getURL("ever-sdk-js/main.js"));
 //Set new Everscale binary url
 //evalScript(`window.tonNewWasmUrl = "${browser.extension.getURL("ever-sdk-js/eversdk.wasm")}"`);
 
+//Inject config in new format
 const container =  document.documentElement;
 const inputTag = document.createElement('input');
 inputTag.setAttribute('type', 'hidden');
@@ -124,6 +127,7 @@ injectModuleUrl(browser.extension.getURL("modules/thirdparty/eventemitter3.min.j
 //Start Everscale provider
 injectModuleUrl(browser.extension.getURL("everscaleProvider.js"));
 
+//debugger;
 
 //Get configuring script
 try {

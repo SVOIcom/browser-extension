@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "0.0.16",
+  "version": "0.0.18",
   "name": "ScaleWallet",
   "homepage_url": "https://scalewallet.com",
   "description": "Everscale network wallet and dapps connectivity provider",
@@ -14,6 +14,7 @@
   "permissions": [
     "scripting",
     "tabs",
+    "storage",
     "http://*/",
     "https://*/"
   ],
