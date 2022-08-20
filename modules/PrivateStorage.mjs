@@ -5,6 +5,7 @@
  * @version 1.0
  */
 
+let window = self;
 
 import {default as Crypto} from "./Crypto.mjs";
 import LocalStorage from "./LocalStorage.mjs";
@@ -23,6 +24,7 @@ class PrivateStorage {
          *
          * @type {Crypto}
          */
+        //debugger;
         this.crypto = new Crypto();
 
         if(asEmpty) {

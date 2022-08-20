@@ -5,6 +5,8 @@
  * @version 1.0
  */
 
+let window = self;
+
 
 const JsonFormatter = {
     stringify: function (cipherParams) {

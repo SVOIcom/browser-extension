@@ -4,6 +4,7 @@
  * @license Apache-2.0
  * @version 1.0
  */
+let window = self;
 
 import FreetonInstance from "./FreetonInstance.mjs";
 
@@ -48,9 +49,20 @@ class FreetonCrypto {
      */
     static async seedOrPrivateToKeypair(seed, dict = MNEMONIC_DICTIONARY.ENGLISH, length = SEED_LENGTH.w12) {
         const ton = await FreetonInstance.getFreeTON();
+
+        window.ton = ton;
+        window.test = {
+            dictionary: dict,
+            wordCount: length,
+            phrase: seed,
+            path: HD_PATH
+        };
+
+
+
         //Is a private key
         if(seed.length === 64) {
-            return await ton.crypto.naclBoxKeypairFromSecretKey(seed);
+            return await ton.crypto.nacl_box_keypair_from_secret_key(seed);
         }
 
         //TODO Даня делает регулярку
@@ -61,7 +73,7 @@ class FreetonCrypto {
         for (let dictKey in MNEMONIC_DICTIONARY) {
             dict = MNEMONIC_DICTIONARY[dictKey];
             try {
-                return await ton.crypto.mnemonicDeriveSignKeys({
+                return await ton.crypto.mnemonic_derive_sign_keys({
                     dictionary: dict,
                     wordCount: length,
                     phrase: seed,
@@ -70,8 +82,8 @@ class FreetonCrypto {
             } catch (e) {
 
             }
-        }
 
+        }
         throw new Error('Invalid seed phrase or private key')
 
     }

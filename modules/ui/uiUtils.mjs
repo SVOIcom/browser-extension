@@ -5,6 +5,8 @@
  * @version 1.0
  */
 
+let window = self;
+
 import LOCALIZATION from "../Localization.mjs";
 import Misc from "../const/Misc.mjs";
 import utils from "../utils.mjs";
@@ -37,7 +39,11 @@ const uiUtils = {
         };
 
 
-        return browser.windows.create(popupObject);
+        try {
+            return browser.windows.create(popupObject);
+        } catch (e) {
+            return chrome.windows.create(popupObject);
+        }
     },
 
     async waitForActivePopup(timeout = 2000) {

@@ -5,16 +5,18 @@
  * @version 1.0
  */
 
+let window = self;
+
 import Utils from "./utils.mjs";
 
 
 const DEFAULT_LANG = 'en_US';
-const DETECTED_LANG = (localStorage.getItem('language') || (window.navigator.language || 'en_US')).replace(/-/g, "_");
+const DETECTED_LANG = 'en_US';// (localStorage.getItem('language') || (window.navigator.language || 'en_US')).replace(/-/g, "_");
 const LOCALES = {
-    "ru_RU": await Utils.fetchJSON('/lang/ru_RU.json', true),
+   /* "ru_RU": await Utils.fetchJSON('/lang/ru_RU.json', true),
     "ru": await Utils.fetchJSON('/lang/ru_RU.json', true),
     "es_ES": await Utils.fetchJSON('/lang/es_ES.json', true),
-    "es": await Utils.fetchJSON('/lang/es_ES.json', true),
+    "es": await Utils.fetchJSON('/lang/es_ES.json', true),*/
 }
 
 const SUPPORT_LOCALES = {'en_US': 'English (US)', "ru_RU": 'Russian'}

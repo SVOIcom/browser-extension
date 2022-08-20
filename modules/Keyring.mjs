@@ -5,6 +5,7 @@
  * @version 1.0
  */
 
+let window = self;
 
 import PrivateStorage from "./PrivateStorage.mjs";
 import EXCEPTIONS from "./const/Exceptions.mjs";

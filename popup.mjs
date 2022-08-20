@@ -5,6 +5,8 @@
  * @version 1.0
  */
 
+let window = self;
+
 import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
 import {default as theme} from "./modules/ui/theme.mjs";
 import {default as popups} from "./modules/ui/popups.mjs";
@@ -143,10 +145,13 @@ async function startPopup() {
     if(location.hash === '#popNewWindow') {
         try {
             await messenger.rpcCall('mainOpenPopup', [{left: window.screenLeft, top: window.screenTop}], 'background');
-           // window.close();
-           // return;
+            // window.close();
+            // return;
         } catch (e) {
-            console.error(`Can't open new window: ${e}`);
+            console.log(`Can't open new window:`, e);
+            //debugger;
+           // console.error(`Can't open new window:`, e);
+
         }
     }
 

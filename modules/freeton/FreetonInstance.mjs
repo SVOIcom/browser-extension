@@ -41,8 +41,9 @@ class FreetonInstance {
 
         console.log(window);
 
-        window.TONClient.setWasmOptions({binaryURL: 'ton-client/tonclient.wasm'});
-        FreetonInstance.freeTONInstances[serverStr] = await (new TonClientWrapper(true)).create({
+        //window.TONClient.setWasmOptions({binaryURL: 'ton-client/tonclient.wasm'});
+        //TODO MOVE TO NEW TON CLIENT
+        FreetonInstance.freeTONInstances[serverStr] = await (new NewTonClientWrapper(true, true)).create({
             servers: Array.from(servers)
         });
 

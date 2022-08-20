@@ -77,6 +77,7 @@ class walletWidget {
 
             let walletsWithBalances = [];
 
+            debugger;
             for (let walletType of WalletContract.WALLET_TYPES_LIST) {
                 let newWallet = await this.messenger.rpcCall('main_createWallet', [account.public, walletType], 'background');
                 let balance = 0;

@@ -27,6 +27,11 @@ async function getTON() {
     return await getTONWeb();
 }
 
+window.addEventListener('message', (event) => {
+   // console.log('INC', event.data);
+    //debugger;
+});
+
 /**
  * Get FreeTON provider
  * @returns {Promise<null|TonClientWrapper|*>}

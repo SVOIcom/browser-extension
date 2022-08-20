@@ -314,6 +314,7 @@ class Popups {
                                     // console.log(seedPhraseVal, "<<<<<<<<<<<<<<<<<<<<<<<<");
                                     keyPair = await this.messenger.rpcCall('main_getKeysFromSeedPhrase', [seedPhraseVal,], 'background');
                                     seedPhraseCheck = 1;
+                                   // debugger;
                                 } catch (e) {
                                     seedPhraseCheck = seedPhraseInvalid(e.code);
                                     return false;

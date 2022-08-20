@@ -18,6 +18,39 @@ class FreetonDeploy {
     }
 
 
+    async getDeployData(ton, params) {
+        let encodeParams = {
+            abi: {
+                type: "Contract",
+                value: params.abi,
+            },
+            deploy_set: {
+                tvc: params.imageBase64,
+                initial_data: params.initParams ? params.initParams : {},
+            },
+            call_set: {
+                function_name: 'constructor',
+                input: params.constructorParams ? params.constructorParams : {},
+            },
+            signer: {
+                type: 'None',
+            }
+        };
+
+        if(params.keyPair) {
+            encodeParams = {
+                ...encodeParams,
+                signer: {
+                    type: 'Keys',
+                    keys: params.keyPair,
+                }
+            }
+        }
+        debugger;
+
+        return ton.abi.encode_message(encodeParams);
+    }
+
     /**
      * Predicts contract address
      * @param contractData
@@ -29,13 +62,26 @@ class FreetonDeploy {
     async getPreDeployContractAddress(contractData, constructorParams, initParams, publicKey) {
         const ton = await FreetonInstance.getFreeTON(this.server);
 
-        const deployMessage = (await ton.contracts.getDeployData({
+        debugger;
+        const deployMessage = await this.getDeployData(ton, {
             abi: contractData.abi,
             imageBase64: contractData.imageBase64,
             initParams,
+            constructorParams: {owners: []},
             publicKeyHex: publicKey,
             workchainId: 0,
-        }))
+        });
+
+        debugger;
+
+        /* const deployMessage = (await ton.contracts.getDeployData({
+             abi: contractData.abi,
+             imageBase64: contractData.imageBase64,
+             initParams,
+             publicKeyHex: publicKey,
+             workchainId: 0,
+         }))*/
+
 
         return deployMessage.address;
     }
@@ -125,7 +171,7 @@ class FreetonDeploy {
         let rootWalletData = await TIP3Contract.getTIP3WalletData(type);
 
         const constructorParams = {
-            root_public_key_:  `0x${publicKey}`,
+            root_public_key_: `0x${publicKey}`,
             root_owner_address_: '0:0000000000000000000000000000000000000000000000000000000000000000',
         };
 
@@ -148,7 +194,7 @@ class FreetonDeploy {
         let publicKey = keyPair.public;
 
         const constructorParams = {
-            root_public_key_:  `0x${publicKey}`,
+            root_public_key_: `0x${publicKey}`,
             root_owner_address_: '0:0000000000000000000000000000000000000000000000000000000000000000',
         };
 

@@ -5,6 +5,19 @@
  * @version 1.0
  */
 
+let window = self;
+
+if(!window.localStorage) {
+    window.localStorage = {
+        getAllItems: () => chrome.storage.local.get(),
+        getItem: async key => {
+            let result = await chrome.storage.local.get(key);
+            return result[key] ? result[key] : null
+        },
+        setItem: (key, val) => chrome.storage.local.set({[key]: val}),
+        removeItems: keys => chrome.storage.local.remove(keys),
+    };
+}
 
 class LocalStorage {
     constructor() {
@@ -23,7 +36,7 @@ class LocalStorage {
      * @returns {Promise<*>}
      */
     async set(key, value) {
-        return localStorage.setItem(key, JSON.stringify(value));
+        return await localStorage.setItem(key, JSON.stringify(value));
     }
 
     /**
@@ -33,7 +46,7 @@ class LocalStorage {
      * @returns {Promise<*>}
      */
     async get(key, defaultValue = undefined) {
-        let result = localStorage.getItem(key);
+        let result = await localStorage.getItem(key);
         return result === null ? defaultValue : JSON.parse(result);
     }
 
@@ -43,7 +56,7 @@ class LocalStorage {
      * @returns {Promise<*>}
      */
     async del(key) {
-        return localStorage.removeItem(key);
+        return await localStorage.removeItem(key);
     }
 
 

@@ -5,6 +5,7 @@
  * @version 1.0
  */
 
+let window = self;
 
 class ExtensionMessenger extends EventEmitter3 {
     constructor(reciver = '*', rpc = {}) {
@@ -64,7 +65,11 @@ class ExtensionMessenger extends EventEmitter3 {
 
                         if(sender.tab) {
                             resultMsg.target = '*';
-                            await browser.tabs.sendMessage(sender.tab.id, resultMsg)
+                            try {
+                                await browser.tabs.sendMessage(sender.tab.id, resultMsg);
+                            } catch (e) {
+                                await chrome.tabs.sendMessage(sender.tab.id, resultMsg);
+                            }
                         } else {
                             resultMsg.target = msg.sender;
                             if(window._isApp) {
@@ -76,7 +81,12 @@ class ExtensionMessenger extends EventEmitter3 {
                                 postingObject.postMessage(resultMsg, '*');
 
                             } else {
-                                await browser.runtime.sendMessage(resultMsg);
+
+                                try {
+                                    await browser.runtime.sendMessage(resultMsg);
+                                } catch (e) {
+                                    await chrome.runtime.sendMessage(resultMsg);
+                                }
                             }
 
 
@@ -103,7 +113,11 @@ class ExtensionMessenger extends EventEmitter3 {
                 eventsHandler(event.data, event.data.sender)
             })
         } else {
-            browser.runtime.onMessage.addListener(eventsHandler);
+            try {
+                browser.runtime.onMessage.addListener(eventsHandler);
+            } catch (e) {
+                chrome.runtime.onMessage.addListener(eventsHandler);
+            }
         }
     }
 
@@ -171,6 +185,9 @@ class ExtensionMessenger extends EventEmitter3 {
      * @private
      */
     async _broadcastTabsMessage(message) {
+        if(!browser) {
+            browser = chrome;
+        }
         let tabs = await browser.tabs.query({});
         for (let tab of tabs) {
             try {

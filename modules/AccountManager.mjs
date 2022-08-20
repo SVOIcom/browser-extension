@@ -77,6 +77,7 @@ class AccountManager extends EventEmitter3 {
      * @returns {Promise<void>}
      */
     async addAccount(publicKey, privateKey, seedPhrase, password, wallets = {}) {
+        debugger;
         await this.keyring.addKey(publicKey, privateKey, {seedPhrase, bioAuth: true}, password);
         await this._savePublicKeyWallets(publicKey, wallets);
         await this.saveAccountState();

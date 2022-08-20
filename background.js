@@ -5,26 +5,39 @@
  * @version 1.0
  */
 
+let window = self;
+
 import ExtensionMessenger from "./modules/ExtensionMessenger.mjs";
-import TonClientWrapper from "./modules/TonClientWrapper.mjs";
+
 import PrivateStorage from "./modules/PrivateStorage.mjs";
 import NameStorage from "./modules/NameStorage.mjs";
 import Keyring from "./modules/Keyring.mjs";
 import Utils from "./modules/utils.mjs";
+
+
 import EXCEPTIONS from "./modules/const/Exceptions.mjs";
 import NetworkManager from "./modules/NetworkManager.mjs";
 import MESSAGES from "./modules/const/Messages.mjs";
 import AccountManager from "./modules/AccountManager.mjs";
+
+
 import uiUtils from "./modules/ui/uiUtils.mjs";
+
+
 import Wallet from "./modules/freeton/contracts/Wallet.mjs";
+
 import FreetonInstance from "./modules/freeton/FreetonInstance.mjs";
 import FreetonCrypto from "./modules/freeton/FreetonCrypto.mjs";
 import FreetonDeploy from "./modules/freeton/FreetonDeploy.mjs";
+
+
 import BroxusTIP3 from "./modules/freeton/contracts/tokens/tip3-fungible/broxus/BroxusTIP3.mjs";
 import TokenManager from "./modules/TokenManager.mjs";
 import Token from "./modules/Token.mjs";
 import MISC from "./modules/const/Misc.mjs";
 import LOCALIZATION from "./modules/Localization.mjs";
+
+
 import TIP3Contract from "./modules/const/TIP3Contract.mjs";
 import ActionProgressManager from "./modules/ActionProgressManager.mjs";
 import init, * as nt from './modules/freeton/nekoton/nekoton_wasm.js';
@@ -34,6 +47,7 @@ const _ = LOCALIZATION._;
 
 import LocalStorage from "./modules/LocalStorage.mjs";
 import FingerprintAuth from "./modules/ui/FingerprintAuth.mjs";
+
 
 let localStorage = new LocalStorage();
 
@@ -365,6 +379,7 @@ const RPC = {
             throw EXCEPTIONS.invalidInvoker;
         }
 
+        debugger;
         let network = await networkManager.getNetwork();
         let contractDeployer = new FreetonDeploy(network.network.url);
         return await contractDeployer.createWallet(publicKey, type);
@@ -419,7 +434,8 @@ const RPC = {
      * @returns {Promise<*>}
      */
     main_getKeysFromSeedPhrase: async (seed) => {
-        return await freetonCrypto.seedOrPrivateToKeypair(seed);
+        let result = await freetonCrypto.seedOrPrivateToKeypair(seed);
+        return result;
     },
 
     /**
@@ -1006,7 +1022,7 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
 
             //Wait for popup activates
             await uiUtils.waitForActivePopup(5000);
-        }else{
+        } else {
             dontCreatePopup = true;
         }
 
@@ -1082,6 +1098,7 @@ async function getKeysFromDeployAcceptence(publicKey, type = 'run', callingData,
 //Setup new TON libriary
 tonclientWeb.libWebSetup({
     binaryURL: 'ever-sdk-js/eversdk.wasm',
+    disableSeparateWorker: true,
 });
 tonclientWeb.TonClient.useBinaryLibrary(tonclientWeb.libWeb);
 
